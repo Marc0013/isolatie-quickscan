@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<title>$pagetitle$</title>
+<style>
+  :root {
+    --navy:       #0B1F3A;
+    --navy-light: #1C3A6B;
+    --accent:     #2E6BE6;
+    --accent-2:   #3DBDBD;
+    --gold:       #C9A84C;
+    --light-bg:   #F4F6FA;
+    --white:      #FFFFFF;
+    --text:       #1A2340;
+    --text-muted: #5A6A85;
+    --border:     #D0D8EC;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 10pt;
+    color: var(--text);
+    background: var(--white);
+    line-height: 1.65;
+  }
+
+  /* ── COVER ─────────────────────────────────── */
+  .cover {
+    background: var(--navy);
+    padding: 36pt 48pt 0;
+  }
+  .cover-bar {
+    height: 4pt;
+    background: linear-gradient(90deg, var(--accent) 0%, var(--accent-2) 55%, var(--gold) 100%);
+    margin-top: 28pt;
+  }
+  .cover-top {
+    display: table;
+    width: 100%;
+    margin-bottom: 32pt;
+  }
+  .cover-left  { display: table-cell; vertical-align: top; }
+  .cover-right { display: table-cell; vertical-align: top; text-align: right; }
+
+  .brand {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 24pt;
+    font-weight: bold;
+    color: var(--white);
+  }
+  .brand span { color: var(--accent-2); }
+
+  .report-type {
+    font-size: 7pt;
+    font-weight: 600;
+    letter-spacing: 3pt;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    margin-top: 5pt;
+  }
+
+  .cover-meta {
+    color: rgba(255,255,255,0.45);
+    font-size: 8pt;
+    line-height: 2;
+  }
+
+  .cover-address {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 19pt;
+    font-weight: bold;
+    color: var(--white);
+    margin-bottom: 8pt;
+  }
+
+  .cover-sub {
+    color: rgba(255,255,255,0.45);
+    font-size: 9pt;
+    padding-bottom: 28pt;
+  }
+
+  /* ── CONTENT ────────────────────────────────── */
+  .content {
+    padding: 28pt 48pt 24pt;
+  }
+
+  /* Intro paragraph */
+  .content > p:first-child {
+    font-size: 10pt;
+    color: var(--text-muted);
+    line-height: 1.75;
+    margin-bottom: 22pt;
+    padding-bottom: 16pt;
+    border-bottom: 1pt solid var(--border);
+  }
+
+  /* ── HEADINGS ───────────────────────────────── */
+  h1 { display: none; }
+
+  h2 {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 13pt;
+    font-weight: bold;
+    color: var(--navy);
+    margin: 22pt 0 11pt;
+    padding-bottom: 7pt;
+    border-bottom: 1.5pt solid var(--border);
+    clear: both;
+  }
+
+  h3 {
+    font-size: 10pt;
+    font-weight: 600;
+    color: var(--navy-light);
+    margin: 14pt 0 5pt;
+    clear: both;
+  }
+
+  p {
+    font-size: 9.5pt;
+    margin-bottom: 8pt;
+    line-height: 1.7;
+  }
+
+  strong { font-weight: 600; color: var(--navy); }
+  em { font-style: italic; color: var(--text-muted); }
+
+  /* ── LISTS — volledig inline, geen float ────── */
+  ul, ol {
+    margin: 6pt 0 12pt 0;
+    padding: 0;
+    list-style: none;
+    clear: both;
+    display: block;
+    width: 100%;
+  }
+
+  ul li, ol li {
+    display: block;
+    width: 100%;
+    padding: 6pt 6pt 6pt 18pt;
+    position: relative;
+    font-size: 9.5pt;
+    line-height: 1.6;
+    border-bottom: 1pt solid var(--border);
+    background: var(--white);
+  }
+
+  ul li:last-child, ol li:last-child {
+    border-bottom: none;
+  }
+
+  ul li::before {
+    content: '→';
+    position: absolute;
+    left: 2pt;
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  ol { list-style: none; counter-reset: item; }
+  ol li { counter-increment: item; }
+  ol li::before {
+    content: counter(item) '.';
+    position: absolute;
+    left: 2pt;
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  /* ── BLOCKQUOTE ─────────────────────────────── */
+  blockquote {
+    background: var(--light-bg);
+    border-left: 3pt solid var(--accent);
+    border-radius: 0 4pt 4pt 0;
+    padding: 10pt 14pt;
+    margin: 18pt 0 0;
+    clear: both;
+    display: block;
+  }
+
+  blockquote p {
+    font-size: 8pt;
+    color: var(--text-muted);
+    margin: 0;
+    font-style: italic;
+  }
+
+  /* ── FOOTER ─────────────────────────────────── */
+  .footer {
+    background: var(--navy);
+    padding: 12pt 48pt;
+    display: table;
+    width: 100%;
+    margin-top: 24pt;
+    clear: both;
+  }
+
+  .footer-left  { display: table-cell; vertical-align: middle; }
+  .footer-right { display: table-cell; vertical-align: middle; text-align: right; }
+
+  .footer-brand {
+    font-family: Georgia, serif;
+    font-size: 11pt;
+    font-weight: bold;
+    color: rgba(255,255,255,0.5);
+  }
+  .footer-brand span { color: var(--accent-2); }
+
+  .footer-note {
+    font-size: 7.5pt;
+    color: rgba(255,255,255,0.3);
+    line-height: 1.7;
+  }
+
+  @media print {
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="cover-top">
+    <div class="cover-left">
+      <div class="brand">Pand<span>IQ</span></div>
+      <div class="report-type">Isolatie Quickscan</div>
+    </div>
+    <div class="cover-right">
+      <div class="cover-meta">$date$<br>Automatisch gegenereerd<br>Onafhankelijk inzicht</div>
+    </div>
+  </div>
+  <div class="cover-address">$pagetitle$</div>
+  <div class="cover-sub">Verduurzamingsadvies op basis van BAG &amp; EP-Online registraties</div>
+  <div class="cover-bar"></div>
+</div>
+
+<div class="content">
+$body$
+</div>
+
+<div class="footer">
+  <div class="footer-left">
+    <div class="footer-brand">Pand<span>IQ</span></div>
+  </div>
+  <div class="footer-right">
+    <div class="footer-note">Automatisch gegenereerd rapport<br>Indicatief · gebaseerd op openbare registraties</div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,30 @@
+{
+  "pdok": {
+    "suggest_url": "https://api.pdok.nl/bzk/locatieserver/search/v3_1/suggest",
+    "lookup_url": "https://api.pdok.nl/bzk/locatieserver/search/v3_1/lookup",
+    "timeout_seconds": 15
+  },
+  "bag": {
+    "base_url": "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2",
+    "timeout_seconds": 15
+  },
+  "labels": {
+    "base_url": "https://public.ep-online.nl",
+    "search_path": "/api/v5/PandEnergielabel/Adres",
+    "timeout_seconds": 15,
+    "api_key_env": "EPONLINE_API_KEY",
+    "auth_prefix": ""
+  },
+  "report": {
+    "output_folder": "output",
+    "language": "nl-NL",
+    "brand_name": "PandIQ",
+    "logo_path": "assets/pandiq_logo.png"
+  },
+  "features": {
+    "use_bag": true,
+    "use_labels": true,
+    "use_narrative": true,
+    "use_subsidies": true
+  }
+}
