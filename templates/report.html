@@ -17,7 +17,19 @@
     --border:     #D0D8EC;
   }
 
-  * { margin:0; padding:0; box-sizing:border-box; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  /* ── PAGINA-INSTELLING (WeasyPrint / Prince) ── */
+  @page {
+    size: A4;
+    margin: 18mm 18mm 28mm 18mm;
+    @bottom-right {
+      content: "Pagina " counter(page) " van " counter(pages);
+      font-size: 7.5pt;
+      color: #5A6A85;
+      font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    }
+  }
 
   body {
     font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
@@ -87,13 +99,13 @@
     padding: 28pt 48pt 24pt;
   }
 
-  /* Intro paragraph */
+  /* Intro-alinea direct onder de cover */
   .content > p:first-child {
     font-size: 10pt;
     color: var(--text-muted);
-    line-height: 1.75;
-    margin-bottom: 22pt;
-    padding-bottom: 16pt;
+    line-height: 1.8;
+    margin-bottom: 26pt;
+    padding-bottom: 18pt;
     border-bottom: 1pt solid var(--border);
   }
 
@@ -105,70 +117,145 @@
     font-size: 13pt;
     font-weight: bold;
     color: var(--navy);
-    margin: 22pt 0 11pt;
-    padding-bottom: 7pt;
+    margin: 30pt 0 13pt;
+    padding: 0 0 9pt 12pt;
+    border-left: 3.5pt solid var(--accent);
     border-bottom: 1.5pt solid var(--border);
     clear: both;
   }
 
+  /* Eerste h2 iets minder ruimte erboven */
+  .content > h2:first-of-type {
+    margin-top: 18pt;
+  }
+
   h3 {
-    font-size: 10pt;
+    font-size: 10.5pt;
     font-weight: 600;
     color: var(--navy-light);
-    margin: 14pt 0 5pt;
+    margin: 20pt 0 8pt;
+    padding-left: 9pt;
+    border-left: 2pt solid var(--accent-2);
     clear: both;
   }
 
   p {
     font-size: 9.5pt;
-    margin-bottom: 8pt;
-    line-height: 1.7;
+    margin-bottom: 12pt;
+    line-height: 1.75;
   }
+
+  /* Laatste alinea voor een volgende kop geen extra ruimte */
+  p + h2, p + h3 { margin-top: 24pt; }
 
   strong { font-weight: 600; color: var(--navy); }
   em { font-style: italic; color: var(--text-muted); }
 
-  /* ── LISTS — volledig inline, geen float ────── */
+  /* ── LISTS ──────────────────────────────────── */
   ul, ol {
-    margin: 6pt 0 12pt 0;
+    margin: 8pt 0 18pt 0;
     padding: 0;
     list-style: none;
     clear: both;
     display: block;
     width: 100%;
+    border: 1pt solid var(--border);
+    border-radius: 4pt;
+    overflow: hidden;
   }
 
   ul li, ol li {
     display: block;
     width: 100%;
-    padding: 6pt 6pt 6pt 18pt;
+    padding: 8pt 10pt 8pt 26pt;
     position: relative;
     font-size: 9.5pt;
-    line-height: 1.6;
-    border-bottom: 1pt solid var(--border);
+    line-height: 1.65;
     background: var(--white);
   }
 
-  ul li:last-child, ol li:last-child {
-    border-bottom: none;
+  /* Scheidingslijn tussen items (niet na het laatste) */
+  ul li + li, ol li + li {
+    border-top: 1pt solid var(--border);
+  }
+
+  /* Subtiele afwisselende achtergrond voor leesbaarheid */
+  ul li:nth-child(even), ol li:nth-child(even) {
+    background: var(--light-bg);
   }
 
   ul li::before {
     content: '→';
     position: absolute;
-    left: 2pt;
+    left: 8pt;
     color: var(--accent);
     font-weight: 700;
   }
 
-  ol { list-style: none; counter-reset: item; }
+  ol { counter-reset: item; }
   ol li { counter-increment: item; }
   ol li::before {
     content: counter(item) '.';
     position: absolute;
-    left: 2pt;
+    left: 8pt;
     color: var(--accent);
     font-weight: 700;
+    font-size: 8.5pt;
+  }
+
+  /* ── TABLES ─────────────────────────────────── */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 8pt 0 18pt 0;
+    font-size: 9.5pt;
+    clear: both;
+    border: 1pt solid var(--border);
+    border-radius: 4pt;
+    overflow: hidden;
+  }
+
+  .data-table thead tr {
+    background: var(--navy);
+    color: var(--white);
+  }
+
+  .data-table th {
+    padding: 9pt 12pt;
+    text-align: left;
+    font-weight: 600;
+    font-size: 8.5pt;
+    letter-spacing: 0.3pt;
+    border-right: 1pt solid rgba(255,255,255,0.1);
+  }
+
+  .data-table th:last-child { border-right: none; }
+
+  .data-table tbody tr {
+    background: var(--white);
+  }
+
+  .data-table tbody tr:nth-child(even) {
+    background: var(--light-bg);
+  }
+
+  .data-table tbody tr + tr {
+    border-top: 1pt solid var(--border);
+  }
+
+  .data-table td {
+    padding: 8pt 12pt;
+    vertical-align: top;
+    line-height: 1.65;
+    border-right: 1pt solid var(--border);
+  }
+
+  .data-table td:last-child { border-right: none; }
+
+  .data-table td:first-child {
+    font-weight: 600;
+    color: var(--navy);
+    white-space: nowrap;
   }
 
   /* ── BLOCKQUOTE ─────────────────────────────── */
@@ -176,8 +263,8 @@
     background: var(--light-bg);
     border-left: 3pt solid var(--accent);
     border-radius: 0 4pt 4pt 0;
-    padding: 10pt 14pt;
-    margin: 18pt 0 0;
+    padding: 12pt 16pt;
+    margin: 22pt 0 8pt;
     clear: both;
     display: block;
   }
@@ -187,6 +274,25 @@
     color: var(--text-muted);
     margin: 0;
     font-style: italic;
+    line-height: 1.7;
+  }
+
+  /* ── PAGINANUMMER (wkhtmltopdf fallback) ────── */
+  /*
+   * WeasyPrint gebruikt de @page-regel hierboven.
+   * Bij wkhtmltopdf: voeg --footer-right "Pagina [page] van [toPage]"
+   * toe als CLI-optie, of gebruik --footer-html met een apart bestand.
+   */
+  .page-number {
+    position: fixed;
+    bottom: 9pt;
+    right: 48pt;
+    font-size: 7.5pt;
+    color: var(--text-muted);
+    display: none;
+  }
+  @media print {
+    .page-number { display: block; }
   }
 
   /* ── FOOTER ─────────────────────────────────── */
@@ -195,7 +301,7 @@
     padding: 12pt 48pt;
     display: table;
     width: 100%;
-    margin-top: 24pt;
+    margin-top: 28pt;
     clear: both;
   }
 
@@ -242,6 +348,13 @@
 $body$
 </div>
 
+<!--
+  Paginanummer-element voor wkhtmltopdf.
+  wkhtmltopdf geeft ?page=N&topage=M mee in de URL van footer-HTML bestanden.
+  In het hoofddocument werkt deze substitutie via het script hieronder.
+-->
+<div class="page-number" id="page-number"></div>
+
 <div class="footer">
   <div class="footer-left">
     <div class="footer-brand">Pand<span>IQ</span></div>
@@ -250,6 +363,21 @@ $body$
     <div class="footer-note">Automatisch gegenereerd rapport<br>Indicatief · gebaseerd op openbare registraties</div>
   </div>
 </div>
+
+<script>
+  /* Paginanummer invullen wanneer wkhtmltopdf page/topage via URL meegeeft */
+  (function () {
+    var params = {};
+    window.location.search.slice(1).split('&').forEach(function (pair) {
+      var kv = pair.split('=');
+      if (kv.length === 2) params[kv[0]] = decodeURIComponent(kv[1]);
+    });
+    var el = document.getElementById('page-number');
+    if (el && params.page) {
+      el.textContent = 'Pagina ' + params.page + (params.topage ? ' van ' + params.topage : '');
+    }
+  })();
+</script>
 
 </body>
 </html>

@@ -222,6 +222,7 @@ def main(postcode: str, huisnummer: str, toevoeging: Optional[str] = None, huisl
             # Aandachtspunten, subsidies, vervolgstappen
             "{{risicos}}":               _strip_md(narrative.get("risicos", "") if narrative else ""),
             "{{subsidies}}":             _strip_md(narrative.get("subsidies_blok", sub_tekst) if narrative else sub_tekst),
+            "{{subsidies_isolatie}}":    _strip_md(narrative.get("subsidies_isolatie", "") if narrative else ""),
             "{{vervolgstappen}}":        _strip_md(narrative.get("vervolgstappen_blok", "") if narrative else ""),
             # Streetview: altijd leeg als er geen foto is
             "{{streetview}}":            "",
@@ -233,7 +234,7 @@ def main(postcode: str, huisnummer: str, toevoeging: Optional[str] = None, huisl
             sv_pad = outdir / f"streetview_{postcode}_{huisnummer}.jpg"
             sv_pad.write_bytes(sv_foto)
 
-        fill_docx(str(template_path), str(docx_out), docx_data, sv_foto_pad=str(sv_pad) if sv_pad else None)
+        fill_docx(str(template_path), str(docx_out), docx_data, sv_foto_pad=str(sv_pad) if sv_pad else None, bouwjaar=bouwjaar)
 
         # Tijdelijk Street View bestand opruimen
         if sv_pad and sv_pad.exists():

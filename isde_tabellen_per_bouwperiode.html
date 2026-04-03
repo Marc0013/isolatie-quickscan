@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ISDE Subsidietabellen per Bouwperiode</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6f9; color: #1d1d1b; padding: 28px; }
+
+  h1 { color: #007bc7; font-size: 22px; margin-bottom: 4px; }
+  .subtitle { color: #666; font-size: 13px; margin-bottom: 24px; }
+
+  /* Tabbladen */
+  .tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 0; }
+  .tab-btn {
+    padding: 9px 16px; border: 2px solid #007bc7; border-bottom: none;
+    border-radius: 6px 6px 0 0; background: #e6f3fb; color: #007bc7;
+    cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.15s;
+  }
+  .tab-btn:hover { background: #cce7f4; }
+  .tab-btn.active { background: #007bc7; color: white; }
+
+  .tab-content { display: none; background: white; border-radius: 0 8px 8px 8px; border: 2px solid #007bc7; padding: 24px; }
+  .tab-content.active { display: block; }
+
+  /* Kop bouwperiode */
+  .period-header { margin-bottom: 18px; }
+  .period-header h2 { font-size: 17px; color: #1d1d1b; margin-bottom: 2px; }
+  .period-header .period-sub { font-size: 13px; color: #007bc7; font-weight: 600; }
+  .period-header .focus-tag {
+    display: inline-block; margin-left: 10px; padding: 2px 10px;
+    background: #e17000; color: white; border-radius: 12px; font-size: 11px; font-weight: 700;
+  }
+
+  /* Tabellen */
+  .section-label {
+    font-size: 12px; font-weight: 700; color: #007bc7; text-transform: uppercase;
+    letter-spacing: 0.5px; margin: 18px 0 6px;
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 6px; }
+  thead tr { background: #007bc7; color: white; }
+  th { padding: 9px 12px; text-align: left; font-weight: 600; }
+  td { padding: 8px 12px; border-bottom: 1px solid #e8edf2; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  /* Highlighted = aanbevolen */
+  .row-highlight { background: #fff8e6; }
+  .row-highlight td:first-child { border-left: 3px solid #e17000; padding-left: 9px; }
+  .row-dim { opacity: 0.42; }
+  .row-dim td { color: #999; }
+
+  /* Badges */
+  .badge {
+    display: inline-block; padding: 1px 7px; border-radius: 10px;
+    font-size: 10px; font-weight: 700; margin-left: 4px; vertical-align: middle;
+  }
+  .badge-tip { background: #e17000; color: white; }
+  .badge-info { background: #cce7f4; color: #007bc7; }
+  .badge-new { background: #4caf50; color: white; }
+
+  /* Noten */
+  .note {
+    background: #e6f3fb; border-left: 3px solid #007bc7;
+    padding: 9px 13px; border-radius: 4px; font-size: 12px; color: #333; margin-top: 14px;
+  }
+  .note-warn {
+    background: #fff3e0; border-left: 3px solid #e17000;
+    padding: 9px 13px; border-radius: 4px; font-size: 12px; color: #333; margin-top: 8px;
+  }
+
+  /* Combinatietip */
+  .combo-box {
+    margin-top: 18px; background: #f0faf0; border: 1px solid #81c784;
+    border-radius: 6px; padding: 12px 16px;
+  }
+  .combo-box strong { color: #2e7d32; font-size: 13px; }
+  .combo-box p { font-size: 12px; color: #444; margin-top: 4px; }
+
+  /* Legende */
+  .legend { display: flex; gap: 16px; margin-bottom: 14px; font-size: 12px; }
+  .leg-item { display: flex; align-items: center; gap: 6px; }
+  .leg-dot { width: 14px; height: 14px; border-radius: 2px; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<h1>ISDE Subsidiebedragen 2026 — per Bouwperiode</h1>
+<p class="subtitle">Gebaseerd op <em>teksten_bouwperiodes.py</em> · Oranje gemarkeerd = aanbevolen voor deze bouwperiode</p>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('p1',this)">Vóór 1945</button>
+  <button class="tab-btn" onclick="showTab('p2',this)">1946 – 1974</button>
+  <button class="tab-btn" onclick="showTab('p3',this)">1975 – 1991</button>
+  <button class="tab-btn" onclick="showTab('p4',this)">1992 – 2014</button>
+  <button class="tab-btn" onclick="showTab('p5',this)">Vanaf 2015</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ PERIODE 1 -->
+<div id="p1" class="tab-content active">
+  <div class="period-header">
+    <h2>Traditionele bouw <span class="focus-tag">focus: schil</span></h2>
+    <div class="period-sub">Vóór 1945 — isolatie ontbrak volledig, massieve muren of vroege spouw, houten vloeren</div>
+  </div>
+
+  <div class="legend">
+    <div class="leg-item"><div class="leg-dot" style="background:#fff8e6;border:2px solid #e17000;"></div> Aanbevolen (uit maatregelen)</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#f5f5f5;border:2px solid #ddd;opacity:.5"></div> Minder relevant</div>
+  </div>
+
+  <div class="section-label">Isolatie</div>
+  <table>
+    <thead><tr><th>Maatregel</th><th>Enkelvoudig</th><th>Meervoudig</th><th>Biobased bonus</th><th>Min. Rc/Rd</th></tr></thead>
+    <tbody>
+      <tr class="row-highlight"><td>Gevelisolatie (binnen/buiten) <span class="badge badge-tip">prioriteit</span></td><td>€ 10,13/m²</td><td>€ 20,25/m²</td><td>+ € 6,00/m²</td><td>Rd ≥ 2,5</td></tr>
+      <tr class="row-highlight"><td>Dakisolatie</td><td>€ 8,13/m²</td><td>€ 16,25/m²</td><td>+ € 5,00/m²</td><td>Rc ≥ 3,5</td></tr>
+      <tr class="row-highlight"><td>Vloerisolatie</td><td>€ 2,75/m²</td><td>€ 5,50/m²</td><td>+ € 2,00/m²</td><td>Rc ≥ 3,5</td></tr>
+      <tr class="row-highlight"><td>Bodemisolatie (kruipruimte)</td><td>€ 1,50/m²</td><td>€ 3,00/m²</td><td>+ € 1,00/m²</td><td>Rc ≥ 1,3</td></tr>
+      <tr class="row-highlight"><td>Spouwmuurisolatie <span class="badge badge-info">indien aanwezig</span></td><td>€ 2,63/m²</td><td>€ 5,25/m²</td><td>+ € 1,50/m²</td><td>Rc ≥ 1,1</td></tr>
+      <tr class="row-dim"><td>Zoldervloerisolatie</td><td>€ 2,00/m²</td><td>€ 4,00/m²</td><td>+ € 1,50/m²</td><td>Rc ≥ 3,5</td></tr>
+    </tbody>
+  </table>
+
+  <div class="section-label">Glas</div>
+  <table>
+    <thead><tr><th>Type glas</th><th>Enkelvoudig</th><th>Meervoudig</th><th>Monumentaal enkv.</th><th>Monumentaal meerv.</th></tr></thead>
+    <tbody>
+      <tr class="row-highlight"><td>HR++ glas (U ≤ 1,2) <span class="badge badge-tip">prioriteit</span></td><td>€ 12,50/m²</td><td>€ 25,00/m²</td><td>€ 20,00/m²</td><td>€ 40,00/m²</td></tr>
+      <tr class="row-highlight"><td>Vacuümglas (U ≤ 0,7)</td><td>€ 12,50/m²</td><td>€ 25,00/m²</td><td>€ 20,00/m²</td><td>€ 40,00/m²</td></tr>
+      <tr class="row-highlight"><td>Isolerende deuren (U ≤ 1,0)</td><td>€ 55,50/m²</td><td>€ 111,00/m²</td><td>€ 20,00/m²</td><td>€ 40,00/m²</td></tr>
+      <tr class="row-dim"><td>Triple glas (U ≤ 0,7) <span class="badge badge-info">kozijn vereist</span></td><td>€ 55,50/m²</td><td>€ 111,00/m²</td><td>€ 20,00/m²</td><td>€ 40,00/m²</td></tr>
+    </tbody>
+  </table>
+
+  <div class="combo-box">
+    <strong>🔥 Combinatievoordeel: isolatie + warmtepomp</strong>
+    <p>Startbedrag € 1.025 + € 225 per kW vermogen. Extra bonus € 200 voor A+++ label. Door isolatie te combineren met een warmtepomp verdubbelt het isolatiesubsidie automatisch naar het meervoudige tarief.</p>
+  </div>
+  <div class="note-warn">U ontvangt slechts subsidie voor één type dakisolatie (dak óf zoldervloer) en één type vloerisolatie (vloer óf bodem). Min. oppervlak: gevel 10 m², overige 20 m².</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ PERIODE 2 -->
+<div id="p2" class="tab-content">
+  <div class="period-header">
+    <h2>Wederopbouw en vroege systeembouw <span class="focus-tag">focus: schil</span></h2>
+    <div class="period-sub">1946 – 1974 — lege spouwmuur standaard, betonvloeren, Rc 0,15–0,86</div>
+  </div>
+
+  <div class="legend">
+    <div class="leg-item"><div class="leg-dot" style="background:#fff8e6;border:2px solid #e17000;"></div> Aanbevolen (uit maatregelen)</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#f5f5f5;border:2px solid #ddd;opacity:.5"></div> Minder relevant</div>
+  </div>
+
+  <div class="section-label">Isolatie</div>
+  <table>
+    <thead><tr><th>Maatregel</th><th>Enkelvoudig</th><th>Meervoudig</th><th>Biobased bonus</th><th>Min. Rc/Rd</th></tr></thead>
+    <tbody>
+      <tr class="row-highlight"><td>Spouwmuurisolatie <span class="badge badge-tip">prioriteit — ~4 jr terugverdien</span></td><td>€ 2,63/m²</td><td>€ 5,25/m²</td><td>+ € 1,50/m²</td><td>Rc ≥ 1,1</td></tr>
+      <tr class="row-highlight"><td>Vloerisolatie <span class="badge badge-tip">prioriteit</span></td><td>€ 2,75/m²</td><td>€ 5,50/m²</td><td>+ € 2,00/m²</td><td>Rc ≥ 3,5</td></tr>
+      <tr class="row-highlight"><td>Dakisolatie</td><td>€ 8,13/m²</td><td>€ 16,25/m²</td><td>+ € 5,00/m²</td><td>Rc ≥ 3,5</td></tr>
+      <tr class="row-highlight"><td>Bodemisolatie (kruipruimte)</td><td>€ 1,50/m²</td><td>€ 3,00/m²</td><td>+ € 1,00/m²</td><td>Rc ≥ 1,3</td></tr>
+      <tr class="row-dim"><td>Gevelisolatie (binnen/buiten)</td><td>€ 10,13/m²</td><td>€ 20,25/m²</td><td>+ € 6,00/m²</td><td>Rd ≥ 2,5</td></tr>
+      <tr class="row-dim"><td>Zoldervloerisolatie</td><td>€ 2,00/m²</td><td>€ 4,00/m²</td><td>+ € 1,50/m²</td><td>Rc ≥ 3,5</td></tr>
+    </tbody>
+  </table>
+
+  <div class="section-label">Glas</div>
+  <table>
+    <thead><tr><th>Type glas</th><th>Enkelvoudig</th><th>Meervoudig</th><th>Monumentaal enkv.</th><th>Monumentaal meerv.</th></tr></thead>
+    <tbody>
+      <tr class="row-highlight"><td>HR++ glas (U ≤ 1,2) <span class="badge badge-tip">prioriteit</span></td><td>€ 12,50/m²</td><td>€ 25,00/m²</td><td>€ 20,00/m²</td><td>€ 40,00/m²</td></tr>
+      <tr class="row-highlight"><td>Vacuümglas (U ≤ 0,7)</td><td>€ 12,50/m²</td><td>€ 25,00/m²</td><td>€ 20,00/m²</td><td>€ 40,00/m²</td></tr>
+      <tr class="row-highlight"><td>Triple glas (U ≤ 0,7) <span class="badge badge-new">nieuw kozijn vereist</span></td><td>€ 55,50/m²</td><td>€ 111,00/m²</td><td>€ 20,00/m²</td><td>€ 40,00/m²</td></tr>
+      <tr class="row-highlight"><td>Isolerende deuren (U ≤ 1,0)</td><td>€ 55,50/m²</td><td>€ 111,00/m²</td><td>€ 20,00/m²</td><td>€ 40,00/m²</td></tr>
+    </tbody>
+  </table>
+
+  <div class="combo-box">
+    <strong>🔥 Combinatievoordeel: isolatie + warmtepomp</strong>
+    <p>Startbedrag € 1.025 + € 225 per kW vermogen. Extra bonus € 200 voor A+++ label. Na spouw- en vloerisolatie is een warmtepomp bij deze bouwperiode zeer rendabel.</p>
+  </div>
+  <div class="note-warn">Laat bij spouw altijd een endoscopisch onderzoek uitvoeren (valspecie, breedte ≥ 50 mm). U ontvangt slechts subsidie voor één type vloerisolatie (vloer óf bodem). Min. oppervlak: 20 m².</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ PERIODE 3 -->
+<div id="p3" class="tab-content">
+  <div class="period-header">
+    <h2>Eerste isolatienormen <span class="focus-tag">focus: schil</span></h2>
+    <div class="period-sub">1975 – 1991 — basisisolatie Rc 1,3–2,0, dubbel glas standaard, bij-isoleren nodig</div>
+  </div>
+
+  <div class="legend">
+    <div class="leg-item"><div class="leg-dot" style="background:#fff8e6;border:2px solid #e17000;"></div> Aanbevolen (uit maatregelen)</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#f5f5f5;border:2px solid #ddd;opacity:.5"></div> Minder relevant</div>
+  </div>
+
+  <div class="section-label">Isolatie</div>
+  <table>
+    <thead><tr><th>Maatregel</th><th>Enkelvoudig</th><th>Meervoudig</th><th>Biobased bonus</th><th>Min. Rc/Rd</th></tr></thead>
+    <tbody>
+      <tr class="row-highlight"><td>Spouwmuurisolatie <span class="badge badge-tip">bij-isoleren spouw</span></td><td>€ 2,63/m²</td><td>€ 5,25/m²</td><td>+ € 1,50/m²</td><td>Rc ≥ 1,1</td></tr>
+      <tr class="row-highlight"><td>Dakisolatie <span class="badge badge-tip">upgrade naar Rc 3,5+</span></td><td>€ 8,13/m²</td><td>€ 16,25/m²</td><td>+ € 5,00/m²</td><td>Rc ≥ 3,5</td></tr>
+      <tr class="row-highlight"><td>Zoldervloerisolatie</td><td>€ 2,00/m²</td><td>€ 4,00/m²</td><td>+ € 1,50/m²</td><td>Rc ≥ 3,5</td></tr>
+      <tr class="row-dim"><td>Gevelisolatie (binnen/buiten)</td><td>€ 10,13/m²</td><td>€ 20,25/m²</td><td>+ € 6,00/m²</td><td>Rd ≥ 2,5</td></tr>
+      <tr class="row-dim"><td>Vloerisolatie</td><td>€ 2,75/m²</td><td>€ 5,50/m²</td><td>+ € 2,00/m²</td><td>Rc ≥ 3,5</td></tr>
+      <tr class="row-dim"><td>Bodemisolatie (kruipruimte)</td><td>€ 1,50/m²</td><td>€ 3,00/m²</td><td>+ € 1,00/m²</td><td>Rc ≥ 1,3</td></tr>
+    </tbody>
+  </table>
+
+  <div class="section-label">Glas</div>
+  <table>
+    <thead><tr><th>Type glas</th><th>Enkelvoudig</th><th>Meervoudig</th><th>Monumentaal enkv.</th><th>Monumentaal meerv.</th></tr></thead>
+    <tbody>
+      <tr class="row-highlight"><td>HR++ glas (U ≤ 1,2) <span class="badge badge-tip">verouderd dubbel glas vervangen</span></td><td>€ 12,50/m²</td><td>€ 25,00/m²</td><td>€ 20,00/m²</td><td>€ 40,00/m²</td></tr>
+      <tr class="row-highlight"><td>Vacuümglas (U ≤ 0,7)</td><td>€ 12,50/m²</td><td>€ 25,00/m²</td><td>€ 20,00/m²</td><td>€ 40,00/m²</td></tr>
+      <tr class="row-highlight"><td>Triple glas (U ≤ 0,7) <span class="badge badge-new">nieuw kozijn vereist</span></td><td>€ 55,50/m²</td><td>€ 111,00/m²</td><td>€ 20,00/m²</td><td>€ 40,00/m²</td></tr>
+      <tr class="row-highlight"><td>Isolerende deuren (U ≤ 1,0)</td><td>€ 55,50/m²</td><td>€ 111,00/m²</td><td>€ 20,00/m²</td><td>€ 40,00/m²</td></tr>
+    </tbody>
+  </table>
+
+  <div class="combo-box">
+    <strong>🔥 Combinatievoordeel: isolatie + warmtepomp</strong>
+    <p>Startbedrag € 1.025 + € 225 per kW vermogen. Extra bonus € 200 voor A+++ label. Na schilverbetering is deze bouwperiode vaak direct geschikt voor een hybride warmtepomp.</p>
+  </div>
+  <div class="note-warn">Controleer het strip-jaar van het bestaande dubbel glas — glas ouder dan 15 jaar presteert soms als enkel glas. Dampremmende lagen bij bij-isoleren altijd aan de warme binnenzijde aanbrengen.</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ PERIODE 4 -->
+<div id="p4" class="tab-content">
+  <div class="period-header">
+    <h2>Moderne regelgeving en EPC <span class="focus-tag">focus: installaties</span></h2>
+    <div class="period-sub">1992 – 2014 — schil al op orde (Rc 2,5), focus op systemen en laatste energielekken</div>
+  </div>
+
+  <div class="legend">
+    <div class="leg-item"><div class="leg-dot" style="background:#fff8e6;border:2px solid #e17000;"></div> Aanbevolen (uit maatregelen)</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#f5f5f5;border:2px solid #ddd;opacity:.5"></div> Minder relevant</div>
+  </div>
+
+  <div class="section-label">Isolatie</div>
+  <table>
+    <thead><tr><th>Maatregel</th><th>Enkelvoudig</th><th>Meervoudig</th><th>Biobased bonus</th><th>Min. Rc/Rd</th></tr></thead>
+    <tbody>
+      <tr class="row-dim"><td>Dakisolatie <span class="badge badge-info">eventueel na-isolatie</span></td><td>€ 8,13/m²</td><td>€ 16,25/m²</td><td>+ € 5,00/m²</td><td>Rc ≥ 3,5</td></tr>
+      <tr class="row-dim"><td>Vloerisolatie <span class="badge badge-info">eventueel upgrade</span></td><td>€ 2,75/m²</td><td>€ 5,50/m²</td><td>+ € 2,00/m²</td><td>Rc ≥ 3,5</td></tr>
+      <tr class="row-dim"><td>Spouwmuurisolatie</td><td>€ 2,63/m²</td><td>€ 5,25/m²</td><td>+ € 1,50/m²</td><td>Rc ≥ 1,1</td></tr>
+      <tr class="row-dim"><td>Gevelisolatie (binnen/buiten)</td><td>€ 10,13/m²</td><td>€ 20,25/m²</td><td>+ € 6,00/m²</td><td>Rd ≥ 2,5</td></tr>
+      <tr class="row-dim"><td>Zoldervloerisolatie</td><td>€ 2,00/m²</td><td>€ 4,00/m²</td><td>+ € 1,50/m²</td><td>Rc ≥ 3,5</td></tr>
+      <tr class="row-dim"><td>Bodemisolatie (kruipruimte)</td><td>€ 1,50/m²</td><td>€ 3,00/m²</td><td>+ € 1,00/m²</td><td>Rc ≥ 1,3</td></tr>
+    </tbody>
+  </table>
+
+  <div class="section-label">Glas</div>
+  <table>
+    <thead><tr><th>Type glas</th><th>Enkelvoudig</th><th>Meervoudig</th><th>Monumentaal enkv.</th><th>Monumentaal meerv.</th></tr></thead>
+    <tbody>
+      <tr class="row-highlight"><td>Triple glas (U ≤ 0,7) <span class="badge badge-tip">optimalisatie</span></td><td>€ 55,50/m²</td><td>€ 111,00/m²</td><td>€ 20,00/m²</td><td>€ 40,00/m²</td></tr>
+      <tr class="row-highlight"><td>Isolerende deuren (U ≤ 1,0)</td><td>€ 55,50/m²</td><td>€ 111,00/m²</td><td>€ 20,00/m²</td><td>€ 40,00/m²</td></tr>
+      <tr class="row-dim"><td>HR++ glas (U ≤ 1,2)</td><td>€ 12,50/m²</td><td>€ 25,00/m²</td><td>€ 20,00/m²</td><td>€ 40,00/m²</td></tr>
+      <tr class="row-dim"><td>Vacuümglas (U ≤ 0,7)</td><td>€ 12,50/m²</td><td>€ 25,00/m²</td><td>€ 20,00/m²</td><td>€ 40,00/m²</td></tr>
+    </tbody>
+  </table>
+
+  <div class="combo-box">
+    <strong>🔥 Warmtepomp — logische volgende stap</strong>
+    <p>De schil is al op orde. Startbedrag € 1.025 + € 225 per kW vermogen. Extra bonus € 200 voor A+++ label. Doe de 50-graden test om te zien of het afgiftesysteem klaar is voor een warmtepomp.</p>
+  </div>
+  <div class="note">De focus bij deze bouwperiode ligt op installatietechniek: ventilatie upgraden (Type C → Type D WTW) en waterzijdig inregelen zijn doorgaans rendabeler dan extra isolatie.</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ PERIODE 5 -->
+<div id="p5" class="tab-content">
+  <div class="period-header">
+    <h2>Hoogwaardige bouw <span class="focus-tag">focus: optimalisatie</span></h2>
+    <div class="period-sub">Vanaf 2015 — Rc dak 6,0 / gevel 4,5, balansventilatie, vaak al gasloos</div>
+  </div>
+
+  <div class="legend">
+    <div class="leg-item"><div class="leg-dot" style="background:#fff8e6;border:2px solid #e17000;"></div> Aanbevolen (uit maatregelen)</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#f5f5f5;border:2px solid #ddd;opacity:.5"></div> Minder relevant / al aanwezig</div>
+  </div>
+
+  <div class="section-label">Isolatie — al grotendeels aanwezig</div>
+  <table>
+    <thead><tr><th>Maatregel</th><th>Enkelvoudig</th><th>Meervoudig</th><th>Biobased bonus</th><th>Min. Rc/Rd</th></tr></thead>
+    <tbody>
+      <tr class="row-dim"><td>Dakisolatie <span class="badge badge-info">al aanwezig Rc 6,0</span></td><td>€ 8,13/m²</td><td>€ 16,25/m²</td><td>+ € 5,00/m²</td><td>Rc ≥ 3,5</td></tr>
+      <tr class="row-dim"><td>Gevelisolatie</td><td>€ 10,13/m²</td><td>€ 20,25/m²</td><td>+ € 6,00/m²</td><td>Rd ≥ 2,5</td></tr>
+      <tr class="row-dim"><td>Spouwmuurisolatie</td><td>€ 2,63/m²</td><td>€ 5,25/m²</td><td>+ € 1,50/m²</td><td>Rc ≥ 1,1</td></tr>
+      <tr class="row-dim"><td>Vloerisolatie</td><td>€ 2,75/m²</td><td>€ 5,50/m²</td><td>+ € 2,00/m²</td><td>Rc ≥ 3,5</td></tr>
+      <tr class="row-dim"><td>Zoldervloerisolatie</td><td>€ 2,00/m²</td><td>€ 4,00/m²</td><td>+ € 1,50/m²</td><td>Rc ≥ 3,5</td></tr>
+      <tr class="row-dim"><td>Bodemisolatie (kruipruimte)</td><td>€ 1,50/m²</td><td>€ 3,00/m²</td><td>+ € 1,00/m²</td><td>Rc ≥ 1,3</td></tr>
+    </tbody>
+  </table>
+
+  <div class="section-label">Glas</div>
+  <table>
+    <thead><tr><th>Type glas</th><th>Enkelvoudig</th><th>Meervoudig</th><th>Monumentaal enkv.</th><th>Monumentaal meerv.</th></tr></thead>
+    <tbody>
+      <tr class="row-highlight"><td>Triple glas (U ≤ 0,7) <span class="badge badge-tip">optimalisatie indien nog niet aanwezig</span></td><td>€ 55,50/m²</td><td>€ 111,00/m²</td><td>€ 20,00/m²</td><td>€ 40,00/m²</td></tr>
+      <tr class="row-dim"><td>HR++ glas (U ≤ 1,2)</td><td>€ 12,50/m²</td><td>€ 25,00/m²</td><td>€ 20,00/m²</td><td>€ 40,00/m²</td></tr>
+      <tr class="row-dim"><td>Vacuümglas (U ≤ 0,7)</td><td>€ 12,50/m²</td><td>€ 25,00/m²</td><td>€ 20,00/m²</td><td>€ 40,00/m²</td></tr>
+      <tr class="row-dim"><td>Isolerende deuren (U ≤ 1,0)</td><td>€ 55,50/m²</td><td>€ 111,00/m²</td><td>€ 20,00/m²</td><td>€ 40,00/m²</td></tr>
+    </tbody>
+  </table>
+
+  <div class="combo-box">
+    <strong>🔥 Warmtepomp — indien nog gasaansluiting</strong>
+    <p>Startbedrag € 1.025 + € 225 per kW vermogen. Extra bonus € 200 voor A+++ label. Focus verder op zonnepanelen, thuisbatterij en slimme monitoring.</p>
+  </div>
+  <div class="note">Bij deze bouwperiode is verduurzaming vrijwel voltooid. De winst zit in gebruiksoptimalisatie, onderhoud van ventilatiekanalen en eventueel energieopslag.</div>
+</div>
+
+<script>
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>

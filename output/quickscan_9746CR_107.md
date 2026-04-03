@@ -1,15 +1,33 @@
 ---
 pagetitle: "Joeswerd 107, 9746CR Groningen"
-date: "19 maart 2026"
+date: "3 april 2026"
 lang: nl
 ---
 
 Dit rapport geeft u een eerste, onafhankelijk inzicht in de energetische kwaliteit van uw woning en de meest logische stappen richting verduurzaming. De analyse is gebaseerd op openbare registraties en erkende databronnen, aangevuld met aannames die gebruikelijk zijn voor vergelijkbare woningen.
 
-## 1. Feiten uit registraties
+## 1. Interpretatie en context
+
+Dit rapport is opgesteld op basis van openbare registraties (BAG en EP-Online) voor Joeswerd 107, 9746CR Groningen. Het betreft een rijwoning tussen. De woning is gebouwd in 2006. Het geregistreerde energielabel is A+, geldig tot 23 september 2035.
+
+De geregistreerde energiebehoefte bedraagt 80 kWh per m² per jaar. De warmtebehoefte is 73 kWh per m² per jaar. Dit wijst op een efficiënte gebouwschil. Grote isolatiemaatregelen zijn waarschijnlijk niet de eerste prioriteit; optimalisatie van installaties is effectiever. Energielabel A+ bevestigt de goede prestatie van deze woning.
+
+De schil van deze woning is redelijk goed. De meeste winst zit in installaties: ventilatie, verwarming en warm tapwater.
+
+Aanbevolen maatregelen voor deze bouwperiode:
+- Luchtdichtheid: verbeter de naad- en kierdichting om onnodig warmteverlies te voorkomen.
+- Ventilatie: upgrade de mechanische afvoer (Type C) naar balansventilatie met WTW (Type D).
+- Zonne-energie: benut het dakvlak maximaal voor PV-panelen of een zonneboiler.
+- Warmte-afgifte: regel de installatie waterzijdig in om de woning klaar te maken voor een volledige warmtepomp.
+
+Laat de ventilatie controleren en overweeg een warmtepomp of hybride systeem — de schil is al op orde, de installatie is de volgende logische stap.
+
+De bovenstaande aanbevelingen zijn indicatief op basis van registratiedata. Bevestiging via foto-inspectie of een maatwerkadvies is altijd aan te raden.
+
+## 2. Woninggegevens
 
 **Adres:** Joeswerd 107, 9746CR Groningen  
-**Datum rapport:** 19 maart 2026  
+**Datum rapport:** 3 april 2026  
 **Bouwjaar (BAG):** 2006 — bouwperiode: 2006–2014  
 **Gebruiksoppervlakte (BAG):** 90 m²  
 **Energielabel:** A+  
@@ -20,14 +38,6 @@ Dit rapport geeft u een eerste, onafhankelijk inzicht in de energetische kwalite
 **Gebruiksoppervlakte thermische zone:** 133 m²
 
 _Bron: Basisregistratie Adressen en Gebouwen (BAG/PDOK) en landelijke energielabelregistratie EP-Online._
-
-## 2. Interpretatie en context
-
-Dit rapport is opgesteld op basis van openbare registraties (BAG en EP-Online) voor Joeswerd 107, 9746CR Groningen. Het betreft een rijwoning tussen. De woning is gebouwd in 2006. Het geregistreerde energielabel is A+, geldig tot 23 september 2035.
-
-De geregistreerde energiebehoefte bedraagt 80 kWh per m² per jaar. De warmtebehoefte is 73 kWh per m² per jaar. Dit wijst op een efficiënte gebouwschil. Grote isolatiemaatregelen zijn waarschijnlijk niet de eerste prioriteit; optimalisatie van installaties is effectiever. Energielabel A+ bevestigt de goede prestatie van deze woning.
-
-De schil van deze woning is redelijk goed. De meeste winst zit in installaties: ventilatie, verwarming en warm tapwater. Laat de ventilatie controleren en overweeg een warmtepomp of hybride systeem — de schil is al op orde, de installatie is de volgende logische stap. De bovenstaande aanbevelingen zijn indicatief op basis van registratiedata. Bevestiging via foto-inspectie of een maatwerkadvies is altijd aan te raden.
 
 ## 3. Kansen en verbeterpotentieel
 
@@ -53,13 +63,13 @@ Bij een relatief goede schil ligt aanvullende winst vaak in de optimalisatie van
 
 ## 5. Mogelijk relevante subsidies
 
-Voor verduurzamingsmaatregelen kan de **ISDE-subsidie** van toepassing zijn, mits wordt voldaan aan de actuele voorwaarden:
+| Subsidie | Bedrag | Voor wie |
+|---|---|---|
+| ISDE warmtepomp | € 1.025 + € 225/kW | Woningeigenaren warmtepomp |
+| Gemeentelijke subsidie | Verschilt per gemeente | Isolatie en energieadvies |
+| Nationaal Warmtefonds | Lening lage rente | Investering spreiden |
 
-- Isolatiemaatregelen (dak, gevel, vloer en/of glas)
-- Uitvoering door een erkend bedrijf
-- Voldoen aan minimale oppervlaktes en isolatiewaarden
-
-Bij combinatie van twee maatregelen binnen 24 maanden is de subsidie doorgaans hoger. Exacte bedragen zijn afhankelijk van type maatregel, oppervlak en uitvoering.
+Exacte bedragen en voorwaarden wijzigen regelmatig. Controleer de actuele regelingen via www.pandiq.nl/subsidie.
 
 ## 6. Vervolgstappen
 

@@ -1,28 +1,39 @@
 ---
 pagetitle: "Visstraat 25, 8501BR Joure"
-date: "12 maart 2026"
+date: "3 april 2026"
 lang: nl
 ---
 
 Dit rapport geeft u een eerste, onafhankelijk inzicht in de energetische kwaliteit van uw woning en de meest logische stappen richting verduurzaming. De analyse is gebaseerd op openbare registraties en erkende databronnen, aangevuld met aannames die gebruikelijk zijn voor vergelijkbare woningen.
 
-## 1. Feiten uit registraties
+## 1. Interpretatie en context
+
+Dit rapport is opgesteld op basis van openbare registraties (BAG en EP-Online) voor Visstraat 25, 8501BR Joure. De woning is gebouwd in 1876.
+
+Er zijn geen EP-Online kengetallen beschikbaar voor deze woning. De energieprestatie kan daardoor niet automatisch worden geduid. Een maatwerkadvies geeft hier meer inzicht.
+
+Een logische aanpak volgt de isolatietrias: (1) beperk warmteverlies via de schil, (2) optimaliseer het afgiftesysteem, (3) verduurzaam de opwek (warmtepomp of zonnepanelen).
+
+Aanbevolen maatregelen voor deze bouwperiode:
+- Gevel: isoleer de binnenzijde of buitenzijde bij massieve muren, of na-isoleer de spouw indien deze aanwezig en schoon is.
+- Dak: breng volledige isolatie aan, aangezien de oorspronkelijke waarde nagenoeg nul is.
+- Vloer: isoleer de houten vloer of de bodem van de kruipruimte om optrekkend vocht en kou tegen te gaan.
+- Ramen: vervang enkel glas door HR++ of vacuümglas.
+- Ventilatie: breng gecontroleerde ventilatie aan (zoals decentrale WTW) om de verhoogde luchtvochtigheid na kierdichting te beheersen.
+
+Laat een schil-scan uitvoeren om te bepalen welke isolatiemaatregel het meest rendabel is voor uw specifieke situatie.
+
+De bovenstaande aanbevelingen zijn indicatief op basis van registratiedata. Bevestiging via foto-inspectie of een maatwerkadvies is altijd aan te raden.
+
+## 2. Woninggegevens
 
 **Adres:** Visstraat 25, 8501BR Joure  
-**Datum rapport:** 12 maart 2026  
+**Datum rapport:** 3 april 2026  
 **Bouwjaar (BAG):** 1876 — bouwperiode: voor 1975  
 **Gebruiksoppervlakte (BAG):** 82 m²  
 **Energielabel:** niet gevonden of niet gekoppeld
 
 _Bron: Basisregistratie Adressen en Gebouwen (BAG/PDOK) en landelijke energielabelregistratie EP-Online._
-
-## 2. Interpretatie en context
-
-Woningen uit deze periode zijn gebouwd in een tijd waarin energieverbruik nog geen rol speelde bij het ontwerp. Deze huizen zijn vaak traditioneel opgetrokken met houten vloeren en massieve "steens" muren of vroege spouwmuren die bij oplevering volledig ongeïsoleerd waren. Kenmerkend is de sfeervolle architectuur, maar energetisch gezien zijn deze woningen de zwakste van de Nederlandse voorraad: oorspronkelijk was er uitsluitend enkel glas aanwezig en verliep de ventilatie volledig natuurlijk via kieren en naden.
-
-Er zijn onvoldoende EP-kengetallen beschikbaar om de energieprestatie te duiden.
-
-Een logische aanpak volgt vaak de trias: **(1) beperk warmtevraag (isolatie/kierdichting), (2) optimaliseer afgifte en regeling, (3) verduurzaming van de opwek (warmtepomp/duurzame bronnen)**. Onderstaande aanbevelingen zijn indicatief en moeten worden bevestigd met foto’s/inspectie.
 
 ## 3. Kansen en verbeterpotentieel
 
@@ -48,13 +59,13 @@ Bij een relatief goede schil ligt aanvullende winst vaak in de optimalisatie van
 
 ## 5. Mogelijk relevante subsidies
 
-Voor verduurzamingsmaatregelen kan de **ISDE-subsidie** van toepassing zijn, mits wordt voldaan aan de actuele voorwaarden:
+| Subsidie | Bedrag | Voor wie |
+|---|---|---|
+| ISDE warmtepomp | € 1.025 + € 225/kW | Woningeigenaren warmtepomp |
+| Gemeentelijke subsidie | Verschilt per gemeente | Isolatie en energieadvies |
+| Nationaal Warmtefonds | Lening lage rente | Investering spreiden |
 
-- Isolatiemaatregelen (dak, gevel, vloer en/of glas)
-- Uitvoering door een erkend bedrijf
-- Voldoen aan minimale oppervlaktes en isolatiewaarden
-
-Bij combinatie van twee maatregelen binnen 24 maanden is de subsidie doorgaans hoger. Exacte bedragen zijn afhankelijk van type maatregel, oppervlak en uitvoering.
+Exacte bedragen en voorwaarden wijzigen regelmatig. Controleer de actuele regelingen via www.pandiq.nl/subsidie.
 
 ## 6. Vervolgstappen
 

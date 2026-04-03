@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ISDE Subsidies per Bouwperiode</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6f9; color: #1d1d1b; padding: 24px; }
+  h1 { color: #007bc7; font-size: 22px; margin-bottom: 6px; }
+  .subtitle { color: #555; font-size: 13px; margin-bottom: 20px; }
+
+  .period-selector { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+  .period-btn {
+    padding: 8px 14px; border: 2px solid #007bc7; border-radius: 6px;
+    background: white; color: #007bc7; cursor: pointer; font-size: 13px;
+    font-weight: 600; transition: all 0.2s;
+  }
+  .period-btn:hover { background: #e6f3fb; }
+  .period-btn.active { background: #007bc7; color: white; }
+
+  .section { margin-bottom: 32px; }
+  .section h2 { font-size: 16px; color: #007bc7; margin-bottom: 10px; border-left: 4px solid #e17000; padding-left: 10px; }
+
+  table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.1); font-size: 13px; }
+  thead { background: #007bc7; color: white; }
+  th { padding: 10px 12px; text-align: left; font-weight: 600; }
+  td { padding: 9px 12px; border-bottom: 1px solid #e8edf2; }
+  tr:last-child td { border-bottom: none; }
+
+  .highlight { background: #fff8e6 !important; }
+  .highlight td:first-child { border-left: 3px solid #e17000; }
+  .not-relevant { opacity: 0.35; }
+  .not-relevant td { color: #999; }
+
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 12px;
+    font-size: 11px; font-weight: 700;
+  }
+  .badge-primary { background: #e17000; color: white; }
+  .badge-secondary { background: #cce7f4; color: #007bc7; }
+
+  .legend { display: flex; gap: 16px; margin-bottom: 12px; font-size: 12px; align-items: center; }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot { width: 14px; height: 14px; border-radius: 3px; }
+  .legend-highlight { background: #fff8e6; border: 2px solid #e17000; }
+  .legend-normal { background: white; border: 2px solid #ddd; }
+
+  .note { background: #e6f3fb; border-left: 3px solid #007bc7; padding: 10px 14px; border-radius: 4px; font-size: 12px; margin-top: 16px; color: #333; }
+  .warmtepomp-box { background: #f0faf0; border: 1px solid #4caf50; border-radius: 8px; padding: 14px; margin-top: 20px; }
+  .warmtepomp-box h3 { color: #2e7d32; font-size: 14px; margin-bottom: 8px; }
+  .warmtepomp-box table { box-shadow: none; }
+</style>
+</head>
+<body>
+
+<h1>ISDE Subsidies 2026 — per Bouwperiode</h1>
+<p class="subtitle">Selecteer een bouwperiode om de relevante maatregelen te markeren</p>
+
+<div class="period-selector">
+  <button class="period-btn" onclick="selectPeriod('voor1945')">Vóór 1945</button>
+  <button class="period-btn" onclick="selectPeriod('1946_1974')">1946 – 1974</button>
+  <button class="period-btn" onclick="selectPeriod('1975_1991')">1975 – 1991</button>
+  <button class="period-btn" onclick="selectPeriod('1992_2014')">1992 – 2014</button>
+  <button class="period-btn" onclick="selectPeriod('na2015')">Vanaf 2015</button>
+  <button class="period-btn" onclick="selectPeriod('all')" style="border-color:#999;color:#666">Alles tonen</button>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot legend-highlight"></div> Aanbevolen voor deze bouwperiode</div>
+  <div class="legend-item"><div class="legend-dot legend-normal"></div> Minder relevant</div>
+</div>
+
+<!-- ISOLATIE TABEL -->
+<div class="section">
+  <h2>Isolatiematerialen</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Maatregel</th>
+        <th>Categorie</th>
+        <th>Enkelvoudig (1 maatregel)</th>
+        <th>Meervoudig (2+ maatregelen)</th>
+        <th>Biobased bonus</th>
+        <th>Min. Rd-waarde</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="iso-row" data-periods="voor1945,1946_1974,1975_1991,1992_2014">
+        <td>Dakisolatie</td>
+        <td>Dak / zolder</td>
+        <td>€ 8,13 per m²</td>
+        <td>€ 16,25 per m²</td>
+        <td>+ € 5,00 per m²</td>
+        <td>Rc ≥ 3,5</td>
+      </tr>
+      <tr class="iso-row" data-periods="voor1945,1946_1974,1975_1991">
+        <td>Zoldervloerisolatie</td>
+        <td>Zolder / vlieringvloer</td>
+        <td>€ 2,00 per m²</td>
+        <td>€ 4,00 per m²</td>
+        <td>+ € 1,50 per m²</td>
+        <td>Rc ≥ 3,5</td>
+      </tr>
+      <tr class="iso-row" data-periods="voor1945,1946_1974,1975_1991,1992_2014">
+        <td>Spouwmuurisolatie</td>
+        <td>Spouwmuur</td>
+        <td>€ 2,63 per m²</td>
+        <td>€ 5,25 per m²</td>
+        <td>+ € 1,50 per m²</td>
+        <td>Rc ≥ 1,1</td>
+      </tr>
+      <tr class="iso-row" data-periods="voor1945,1992_2014">
+        <td>Gevelisolatie (binnen/buiten)</td>
+        <td>Gevel</td>
+        <td>€ 10,13 per m²</td>
+        <td>€ 20,25 per m²</td>
+        <td>+ € 6,00 per m²</td>
+        <td>Rc ≥ 3,5 / Rd ≥ 2,5</td>
+      </tr>
+      <tr class="iso-row" data-periods="voor1945,1946_1974,1992_2014">
+        <td>Vloerisolatie</td>
+        <td>Vloer</td>
+        <td>€ 2,75 per m²</td>
+        <td>€ 5,50 per m²</td>
+        <td>+ € 2,00 per m²</td>
+        <td>Rc ≥ 3,5</td>
+      </tr>
+      <tr class="iso-row" data-periods="voor1945,1946_1974">
+        <td>Bodemisolatie (kruipruimte)</td>
+        <td>Bodem</td>
+        <td>€ 1,50 per m²</td>
+        <td>€ 3,00 per m²</td>
+        <td>+ € 1,00 per m²</td>
+        <td>Rc ≥ 1,3</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="note">
+    <strong>Let op:</strong> U ontvangt slechts voor één type dakisolatie subsidie (dak óf zoldervloer) en één type vloerisolatie (vloer óf bodem). Min. oppervlak: gevel 10 m², overige maatregelen 20 m².
+  </div>
+</div>
+
+<!-- GLAS TABEL -->
+<div class="section">
+  <h2>Hoogrendementsglas</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type glas</th>
+        <th>Ug-waarde</th>
+        <th>Enkelvoudig (1 maatregel)</th>
+        <th>Meervoudig (2+ maatregelen)</th>
+        <th>Enkelvoudig monumentaal</th>
+        <th>Meervoudig monumentaal</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="glas-row" data-periods="voor1945,1946_1974,1975_1991,1992_2014">
+        <td>HR++ glas <span class="badge badge-secondary">meest voorkomend</span></td>
+        <td>U ≤ 1,2 W/m²K</td>
+        <td>€ 12,50 per m²</td>
+        <td>€ 25,00 per m²</td>
+        <td>€ 20,00 per m²</td>
+        <td>€ 40,00 per m²</td>
+      </tr>
+      <tr class="glas-row" data-periods="voor1945,1946_1974,1975_1991,1992_2014">
+        <td>Vacuümglas</td>
+        <td>U ≤ 0,7 W/m²K</td>
+        <td>€ 12,50 per m²</td>
+        <td>€ 25,00 per m²</td>
+        <td>€ 20,00 per m²</td>
+        <td>€ 40,00 per m²</td>
+      </tr>
+      <tr class="glas-row" data-periods="1946_1974,1975_1991,1992_2014,na2015">
+        <td>Triple glas <span class="badge badge-primary">nieuw kozijn vereist</span></td>
+        <td>U ≤ 0,7 W/m²K</td>
+        <td>€ 55,50 per m²</td>
+        <td>€ 111,00 per m²</td>
+        <td>€ 20,00 per m²</td>
+        <td>€ 40,00 per m²</td>
+      </tr>
+      <tr class="glas-row" data-periods="voor1945,1946_1974,1975_1991,1992_2014">
+        <td>Isolerende deuren (U ≤ 1,0)</td>
+        <td>U ≤ 1,0 W/m²K</td>
+        <td>€ 55,50 per m²</td>
+        <td>€ 111,00 per m²</td>
+        <td>€ 20,00 per m²</td>
+        <td>€ 40,00 per m²</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="note">
+    <strong>Let op glas 2026:</strong> Triple glas vereist vervanging van kozijnen (Uf ≤ 1,5 W/m²K). Vacuümglas in bestaande kozijnen telt als HR++ tarief. Alleen vervanging van bestaand glas komt in aanmerking.
+  </div>
+</div>
+
+<!-- WARMTEPOMP (ter referentie) -->
+<div class="warmtepomp-box">
+  <h3>🔥 Warmtepomp — combinatievoordeel bij isolatie</h3>
+  <table>
+    <thead style="background:#2e7d32;">
+      <tr>
+        <th>Combinatie</th>
+        <th>Startbedrag</th>
+        <th>Per kW vermogen</th>
+        <th>A+++ bonus</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Isolatiemaatregel + warmtepomp</td>
+        <td>€ 1.025</td>
+        <td>+ € 225 per kW</td>
+        <td>+ € 200</td>
+      </tr>
+    </tbody>
+  </table>
+  <p style="font-size:12px; margin-top:8px; color:#555;">Combineren van isolatie met een warmtepomp verdubbelt het subsidie per m² én levert warmtepomp-subsidie op.</p>
+</div>
+
+<script>
+const periodData = {
+  voor1945: {
+    label: 'Vóór 1945',
+    iso: ['Dakisolatie','Gevelisolatie (binnen/buiten)','Vloerisolatie','Bodemisolatie (kruipruimte)','Zoldervloerisolatie','Spouwmuurisolatie'],
+    glas: ['HR++ glas','Vacuümglas','Isolerende deuren (U ≤ 1,0)']
+  },
+  '1946_1974': {
+    label: '1946 – 1974',
+    iso: ['Spouwmuurisolatie','Dakisolatie','Vloerisolatie','Bodemisolatie (kruipruimte)'],
+    glas: ['HR++ glas','Vacuümglas','Triple glas','Isolerende deuren (U ≤ 1,0)']
+  },
+  '1975_1991': {
+    label: '1975 – 1991',
+    iso: ['Spouwmuurisolatie','Dakisolatie','Zoldervloerisolatie'],
+    glas: ['HR++ glas','Vacuümglas','Triple glas','Isolerende deuren (U ≤ 1,0)']
+  },
+  '1992_2014': {
+    label: '1992 – 2014',
+    iso: ['Dakisolatie','Vloerisolatie','Gevelisolatie (binnen/buiten)','Spouwmuurisolatie'],
+    glas: ['Triple glas','Isolerende deuren (U ≤ 1,0)','HR++ glas','Vacuümglas']
+  },
+  na2015: {
+    label: 'Vanaf 2015',
+    iso: [],
+    glas: ['Triple glas']
+  }
+};
+
+let currentPeriod = null;
+
+function selectPeriod(period) {
+  // Update buttons
+  document.querySelectorAll('.period-btn').forEach(btn => btn.classList.remove('active'));
+  event.target.classList.add('active');
+  currentPeriod = period;
+
+  const isoRows = document.querySelectorAll('.iso-row');
+  const glasRows = document.querySelectorAll('.glas-row');
+
+  if (period === 'all') {
+    isoRows.forEach(row => { row.classList.remove('highlight','not-relevant'); });
+    glasRows.forEach(row => { row.classList.remove('highlight','not-relevant'); });
+    return;
+  }
+
+  const periods = periodData[period];
+
+  isoRows.forEach(row => {
+    const rowPeriods = row.dataset.periods.split(',');
+    row.classList.remove('highlight','not-relevant');
+    if (rowPeriods.includes(period)) {
+      row.classList.add('highlight');
+    } else {
+      row.classList.add('not-relevant');
+    }
+  });
+
+  glasRows.forEach(row => {
+    const rowPeriods = row.dataset.periods.split(',');
+    row.classList.remove('highlight','not-relevant');
+    if (rowPeriods.includes(period)) {
+      row.classList.add('highlight');
+    } else {
+      row.classList.add('not-relevant');
+    }
+  });
+}
+</script>
+</body>
+</html>

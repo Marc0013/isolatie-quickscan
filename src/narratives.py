@@ -241,16 +241,10 @@ def _bouw_aanpak(
     scores: dict[str, int],
     warmte: float | None,
 ) -> str:
+    from teksten_bouwperiodes import get_maatregelen, get_actie, get_focus
     focus = get_focus(bouwjaar) if bouwjaar else "schil"
     actie = get_actie(bouwjaar) if bouwjaar else ""
-
-    # Bepaal prioriteit op basis van scores
-    prioriteiten = sorted(
-        [(k, v) for k, v in scores.items() if v is not None],
-        key=lambda x: x[1], reverse=True
-    )
-    hoge_prio = [k for k, v in prioriteiten if v >= 4]
-    midden_prio = [k for k, v in prioriteiten if v == 3]
+    maatregelen = get_maatregelen(bouwjaar) if bouwjaar else []
 
     delen = []
 
@@ -272,19 +266,10 @@ def _bouw_aanpak(
             "(3) verduurzaam de opwek (warmtepomp of zonnepanelen)."
         )
 
-    if hoge_prio:
-        namen = {"dak": "het dak", "gevel": "de gevel", "vloer": "de vloer", "glas": "het glas"}
-        prio_namen = " en ".join(namen.get(k, k) for k in hoge_prio)
-        delen.append(
-            f"Op basis van de scores heeft {prio_namen} de hoogste prioriteit — "
-            "hier is de besparingspotentie het grootst."
-        )
-    elif midden_prio:
-        namen = {"dak": "het dak", "gevel": "de gevel", "vloer": "de vloer", "glas": "het glas"}
-        mid_namen = " en ".join(namen.get(k, k) for k in midden_prio)
-        delen.append(
-            f"Gerichte aandacht voor {mid_namen} is zinvol en waarschijnlijk kosteneffectief."
-        )
+    if maatregelen:
+        maatregel_tekst = "Aanbevolen maatregelen voor deze bouwperiode:\n" + \
+                          "\n".join(f"- {m}" for m in maatregelen)
+        delen.append(maatregel_tekst)
 
     if actie:
         delen.append(actie)
@@ -294,7 +279,7 @@ def _bouw_aanpak(
         "Bevestiging via foto-inspectie of een maatwerkadvies is altijd aan te raden."
     )
 
-    return " ".join(delen)
+    return "\n\n".join(delen)
 
 
 # ── Actiegerichte aandachtspunten ─────────────────────────────────────────────
@@ -335,58 +320,22 @@ def generate_subsidy_block(
     scores: dict[str, int],
     gebouwtype: str | None,
 ) -> str:
-    """Subsidieblok: periode-subsidies + score-advies + algemene regelingen."""
-    focus = get_focus(bouwjaar) if bouwjaar else "schil"
+    """Subsidieblok: periode-specifieke tekst + toelichting + CTA."""
+    from teksten_bouwperiodes import get_subsidies_periode, SUBSIDIE_NUANCES
     blok: list[str] = []
 
-    blok.append(
-        "Op basis van de gegevens van uw woning zijn de volgende subsidies mogelijk relevant. "
-        "Exacte bedragen en voorwaarden zijn afhankelijk van uw situatie en kunnen wijzigen."
-    )
-
-    # Periode-specifieke subsidies vooraan
+    # 1. Periode-specifieke subsidieteksten
     if bouwjaar:
-        periode_subs = get_subsidies_periode_tekst(bouwjaar)
-        if periode_subs:
-            blok.append("Specifiek voor woningen uit uw bouwperiode:\n" + periode_subs)
+        regels = get_subsidies_periode(bouwjaar)
+        if regels:
+            blok.append("\n".join(f"- {r}" for r in regels))
 
-    # Algemene regelingen
-    blok.append(
-        "Gemeentelijke subsidies: veel gemeenten bieden aanvullende regelingen voor isolatie "
-        "of energieadvies. Raadpleeg uw gemeente of het Warmtefonds voor lokale mogelijkheden."
-    )
-    blok.append(
-        "Nationaal Warmtefonds: biedt leningen met lage rente voor woningeigenaren die willen "
-        "verduurzamen maar de investering niet in één keer kunnen dragen."
-    )
-    if focus == "optimalisatie":
-        blok.append(
-            "Zonnepanelen: overweeg zonnepanelen als vervolgstap. "
-            "De salderingsregeling loopt af — investeer bij voorkeur op korte termijn."
-        )
+    # 2. Algemene subsidienuances
+    nuances = "\n".join(f"- {n}" for n in SUBSIDIE_NUANCES)
+    blok.append("Let op bij subsidieaanvragen:\n" + nuances)
 
-    # Score-gebaseerde adviesblokken (gegroepeerd per niveau)
-    namen = {"dak": "Dak", "gevel": "Gevel", "vloer": "Vloer", "glas": "Glas"}
-    score_groepen: dict[int, list[str]] = {}
-    for onderdeel, naam in namen.items():
-        score = scores.get(onderdeel)
-        if score is not None:
-            score_groepen.setdefault(score, []).append(naam)
-
-    for score_waarde in sorted(score_groepen.keys(), reverse=True):
-        onderdelen = score_groepen[score_waarde]
-        s = _SCORE_TEKST.get(score_waarde)
-        if not s:
-            continue
-        if len(onderdelen) > 1:
-            onderdelen_str = ", ".join(onderdelen[:-1]) + " en " + onderdelen[-1]
-        else:
-            onderdelen_str = onderdelen[0]
-        header = f"{onderdelen_str} — score {score_waarde}/5 ({s['label']})"
-        blok.append(header + "\n\n" + s["blok"])
-
-    # CTA
-    blok.append("Bereken uw subsidie op maat via de PandIQ subsidietool: www.pandiq.nl/subsidie")
+    # 3. CTA
+    blok.append("Bereken uw subsidie op maat: www.pandiq.nl/subsidie")
 
     return "\n\n".join(blok)
 
@@ -456,6 +405,8 @@ def narrative_from_facts(facts: dict[str, Any]) -> dict[str, str]:
         "glas":  facts.get("score_glas"),
     }
 
+    from subsidies_isolatie_glas import genereer_subsidietekst
+
     return {
         # Bestaande placeholders
         "gebouw": _bouw_gebouwprofiel(adres, bouwjaar, label, gebouwtype, geldig_tot),
@@ -466,6 +417,7 @@ def narrative_from_facts(facts: dict[str, Any]) -> dict[str, str]:
         "bouwperiode_inleiding": bouw_bouwperiode_tekst(bouwjaar, label, gebouwtype) if bouwjaar else "",
         "risicos":               generate_actionable_advice(bouwjaar, gebouwtype, scores, warmte),
         "subsidies_blok":        generate_subsidy_block(bouwjaar, scores, gebouwtype),
+        "subsidies_isolatie":    genereer_subsidietekst(bouwjaar) if bouwjaar else "",
         "vervolgstappen_blok":   generate_vervolgstappen(bouwjaar, scores, label),
 
         # Score labels voor in tabel

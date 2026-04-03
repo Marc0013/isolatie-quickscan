@@ -6,6 +6,210 @@ from pathlib import Path
 NS = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'
 W  = f'{{{NS}}}'
 
+# ── Subsidietabel configuratie ────────────────────────────────────────────────
+_SUBSIDIE_SENTINEL = "##PANDIQ_SUBSIDIETABEL##"
+_NAVY_HEX   = "2F6FA3"   # titelbalk blauw (consistent met woningtabel)
+_YELLOW_HEX = "FFFFFF"   # aanbevolen rij — wit (geen gele achtergrond)
+_GREEN_BG   = "FFFFFF"   # warmtepomp blok — wit
+_GREEN_HEAD = "2F6FA3"   # warmtepomp header — zelfde titelblauw
+_BLUE_BG    = "FFFFFF"   # noten — geen achtergrondkleur
+_WARN_BG    = "FFFFFF"   # waarschuwingsnoot — geen achtergrondkleur
+
+def _set_cel_achtergrond(cel, kleur_hex: str) -> None:
+    """Zet een vaste achtergrondkleur op een Word-tabelcel via XML."""
+    from docx.oxml.ns import qn
+    from docx.oxml import OxmlElement
+    tc = cel._tc
+    tcPr = tc.get_or_add_tcPr()
+    for old in tcPr.findall(qn('w:shd')):
+        tcPr.remove(old)
+    shd = OxmlElement('w:shd')
+    shd.set(qn('w:val'), 'clear')
+    shd.set(qn('w:color'), 'auto')
+    shd.set(qn('w:fill'), kleur_hex.upper())
+    tcPr.append(shd)
+
+
+def _cel_tekst(cel, tekst: str, *, bold=False, size=9, kleur=None, italic=False):
+    """Zet tekst in een cel met opmaak. Vervangt eventuele bestaande inhoud."""
+    from docx.shared import Pt
+    cel.text = ""
+    run = cel.paragraphs[0].add_run(tekst)
+    run.bold = bold
+    run.italic = italic
+    run.font.size = Pt(size)
+    if kleur:
+        run.font.color.rgb = kleur
+
+
+def _voeg_subsidietabel_bouwperiode_in(docx_pad: str, bouwjaar: int) -> None:
+    """
+    Vervangt de sentinel-alinea door twee Word-tabellen (Isolatie + Glas)
+    met periode-specifieke markering, warmtepomp combinatieblok en noten.
+    Aanbevolen rijen: lichtgele achtergrond, vet. Minder relevant: grijze tekst.
+    """
+    try:
+        from docx import Document
+        from docx.shared import Pt, RGBColor
+    except ImportError:
+        print("  Let op: python-docx niet geïnstalleerd — subsidietabel niet ingevoegd.")
+        return
+
+    import sys, os
+    sys.path.insert(0, os.path.dirname(__file__))
+    from subsidies_isolatie_glas import (
+        ISOLATIE_BEDRAGEN, GLAS_BEDRAGEN, MONUMENT_GLAS,
+        WARMTEPOMP, ALGEMENE_NOTEN, get_periode,
+    )
+    from teksten_bouwperiodes import SUBSIDIE_NUANCES
+
+    periode        = get_periode(bouwjaar)
+    aanbevolen_iso = set(periode["isolatie"])
+    aanbevolen_glas = set(periode["glas"])
+
+    WIT       = RGBColor(0xFF, 0xFF, 0xFF)
+    ZWART     = RGBColor(0x1D, 0x1D, 0x1B)
+    GRIJS     = RGBColor(0x99, 0x99, 0x99)
+    GROEN_TXT = RGBColor(0x2E, 0x7D, 0x32)
+
+    doc = Document(docx_pad)
+
+    # Zoek sentinel
+    target = None
+    for para in doc.paragraphs:
+        if _SUBSIDIE_SENTINEL in para.text:
+            target = para
+            break
+    if target is None:
+        return
+
+    sentinel_elem = target._element
+    parent        = sentinel_elem.getparent()
+    positie       = list(parent).index(sentinel_elem)
+
+    def _header_rij(tabel, kolommen, achtergrond=_NAVY_HEX):
+        for j, kop in enumerate(kolommen):
+            cel = tabel.rows[0].cells[j]
+            _cel_tekst(cel, kop, bold=True, kleur=WIT)
+            _set_cel_achtergrond(cel, achtergrond)
+
+    def _data_rij(tabel, cellen: list, aanbevolen: bool):
+        """Voegt een datarij toe. Aanbevolen = gele bg + vet; anders grijs."""
+        rij = tabel.add_row()
+        kleur = ZWART if aanbevolen else GRIJS
+        for j, (tekst, bold) in enumerate(cellen):
+            _cel_tekst(rij.cells[j], tekst, bold=(bold and aanbevolen), kleur=kleur)
+            if aanbevolen:
+                _set_cel_achtergrond(rij.cells[j], _YELLOW_HEX)
+
+    # ── Tabel 1: Isolatie ─────────────────────────────────────────────────────
+    ISO_VOLGORDE = ["gevel", "dakisolatie", "zoldervloer", "spouwmuur", "vloer", "bodem"]
+    ISO_COLS     = ["Maatregel", "Enkelvoudig", "Meervoudig", "Biobased bonus", "Min. Rc/Rd"]
+
+    tabel_iso = doc.add_table(rows=1, cols=len(ISO_COLS))
+    try: tabel_iso.style = doc.styles['Table Grid']
+    except KeyError: pass
+    _header_rij(tabel_iso, ISO_COLS)
+
+    for sleutel in ISO_VOLGORDE:
+        m = ISOLATIE_BEDRAGEN[sleutel]
+        bio = f"+ € {m['bio']:.2f}/m²" if m.get("bio") else "—"
+        _data_rij(tabel_iso, [
+            (m["naam"],               True),
+            (f"€ {m['enkel']:.2f}/m²", False),
+            (f"€ {m['meer']:.2f}/m²",  True),
+            (bio,                      False),
+            (m["rd"],                  False),
+        ], aanbevolen=sleutel in aanbevolen_iso)
+
+    # ── Tabel 2: Glas ─────────────────────────────────────────────────────────
+    GLAS_VOLGORDE = ["hrpp", "vacuum", "triple", "deuren"]
+    GLAS_COLS     = ["Type glas", "Enkelvoudig", "Meervoudig", "Monument enkv.", "Monument meerv."]
+
+    spatie1 = doc.add_paragraph("")
+
+    tabel_glas = doc.add_table(rows=1, cols=len(GLAS_COLS))
+    try: tabel_glas.style = doc.styles['Table Grid']
+    except KeyError: pass
+    _header_rij(tabel_glas, GLAS_COLS)
+
+    for sleutel in GLAS_VOLGORDE:
+        g = GLAS_BEDRAGEN[sleutel]
+        _data_rij(tabel_glas, [
+            (g["naam"],                               True),
+            (f"€ {g['enkel']:.2f}/m²",               False),
+            (f"€ {g['meer']:.2f}/m²",                True),
+            (f"€ {MONUMENT_GLAS['enkel']:.2f}/m²",   False),
+            (f"€ {MONUMENT_GLAS['meer']:.2f}/m²",    False),
+        ], aanbevolen=sleutel in aanbevolen_glas)
+
+    # ── Warmtepomp combinatieblok ──────────────────────────────────────────────
+    spatie2 = doc.add_paragraph("")
+
+    wp = WARMTEPOMP
+    wp_toel = periode.get("warmtepomp_toelichting", wp["toelichting"])
+
+    tabel_wp = doc.add_table(rows=3, cols=4)
+    try: tabel_wp.style = doc.styles['Table Grid']
+    except KeyError: pass
+
+    # Header
+    _header_rij(tabel_wp, ["Combinatie", "Startbedrag", "Per kW vermogen", "A+++ bonus"],
+                achtergrond=_GREEN_HEAD)
+
+    # Bedragen rij
+    rij_wp = tabel_wp.rows[1]
+    for cel, tekst in zip(rij_wp.cells, [
+        "Isolatie + warmtepomp",
+        f"€ {wp['startbedrag']:,}",
+        f"+ € {wp['per_kw']} per kW",
+        f"+ € {wp['aplus_bonus']}",
+    ]):
+        _cel_tekst(cel, tekst, bold=(tekst == "Isolatie + warmtepomp"), kleur=GROEN_TXT)
+        _set_cel_achtergrond(cel, _GREEN_BG)
+
+    # Toelichting rij (samengevoegde cel)
+    rij_toel = tabel_wp.rows[2]
+    cel_toel = rij_toel.cells[0]
+    for i in range(1, 4):
+        cel_toel = cel_toel.merge(rij_toel.cells[i])
+    _cel_tekst(cel_toel, wp_toel, size=8, italic=True, kleur=GROEN_TXT)
+    _set_cel_achtergrond(rij_toel.cells[0], _GREEN_BG)
+
+    # ── Noten ─────────────────────────────────────────────────────────────────
+    spatie3 = doc.add_paragraph("")
+
+    tabel_noten = doc.add_table(rows=0, cols=1)
+    try: tabel_noten.style = doc.styles['Table Grid']
+    except KeyError: pass
+
+    if periode.get("notitie"):
+        rij = tabel_noten.add_row()
+        _cel_tekst(rij.cells[0], f"Let op: {periode['notitie']}", size=8, italic=True)
+        _set_cel_achtergrond(rij.cells[0], _WARN_BG)
+
+    for noot in SUBSIDIE_NUANCES:
+        rij = tabel_noten.add_row()
+        _cel_tekst(rij.cells[0], f"• {noot}", size=8)
+        _set_cel_achtergrond(rij.cells[0], _BLUE_BG)
+
+    # ── Verplaats alles naar sentinel-positie ──────────────────────────────────
+    elementen = [
+        tabel_iso._tbl,
+        spatie1._element,
+        tabel_glas._tbl,
+        spatie2._element,
+        tabel_wp._tbl,
+        spatie3._element,
+        tabel_noten._tbl,
+    ]
+    for i, elem in enumerate(elementen):
+        parent.insert(positie + i, elem)
+
+    parent.remove(sentinel_elem)
+    doc.save(docx_pad)
+
+
 def _kopieer_alinea_opmaak(bron_para) -> etree._Element:
     """Maakt een lege kopie van een alinea met dezelfde opmaak (pPr)."""
     nieuwe = etree.Element(f'{W}p')
@@ -248,12 +452,165 @@ def _voeg_foto_in_docx_toe(tmp_dir: Path, foto_pad: str) -> bool:
         return False
 
 
-def fill_docx(template_path: str, output_path: str, data: dict, sv_foto_pad: str | None = None):
+def _stijl_woninggegevens_tabel(docx_pad: str) -> None:
+    """
+    Vindt de Woninggegevens-tabel en past het blauwe huisstijl-thema toe.
+    Herkent de tabel aan bekende labelcellen (adres, bouwjaar, energielabel …).
+    Voegt een kopregel 'Woninggegevens' in als die ontbreekt.
+    """
+    try:
+        from docx import Document
+        from docx.shared import Pt, RGBColor
+        from docx.oxml.ns import qn
+        from docx.oxml import OxmlElement
+    except ImportError:
+        return
+
+    TITELBLAUW = "2F6FA3"
+    LIJNKLEUR  = "D6E2EE"
+    WIT        = "FFFFFF"
+    TEKST_RGB  = RGBColor(0x1F, 0x29, 0x37)
+    GROEN_RGB  = RGBColor(0x2E, 0x7D, 0x32)
+
+    HERKENNING = {"adres", "bouwjaar", "energielabel", "datum", "oppervlakte",
+                  "warmtebehoefte", "energiebehoefte", "gebouwtype", "bouwperiode"}
+
+    def _borders(cel):
+        tc   = cel._tc
+        tcPr = tc.get_or_add_tcPr()
+        for old in tcPr.findall(qn('w:tcBorders')):
+            tcPr.remove(old)
+        tcB = OxmlElement('w:tcBorders')
+        for kant in ('top', 'left', 'bottom', 'right'):
+            rand = OxmlElement(f'w:{kant}')
+            rand.set(qn('w:val'),   'single')
+            rand.set(qn('w:sz'),    '4')        # 0.5 pt
+            rand.set(qn('w:space'), '0')
+            rand.set(qn('w:color'), LIJNKLEUR)
+            tcB.append(rand)
+        tcPr.append(tcB)
+
+    def _run_opmaak(run, *, bold=False, kleur=None):
+        run.bold      = bold
+        run.font.size = Pt(10.5)
+        if kleur:
+            run.font.color.rgb = kleur
+
+    doc = Document(docx_pad)
+
+    # ── Zoek de woninggegevens-tabel ──────────────────────────────────────────
+    woningtabel = None
+    for tabel in doc.tables:
+        if len(tabel.columns) < 2:
+            continue
+        links_teksten = [rij.cells[0].text.strip().lower() for rij in tabel.rows]
+        treffers = sum(
+            1 for lt in links_teksten
+            for h in HERKENNING if h in lt
+        )
+        if treffers >= 2:
+            woningtabel = tabel
+            break
+
+    if woningtabel is None:
+        return
+
+    # ── Kopregel 'Woninggegevens' toevoegen als die ontbreekt ─────────────────
+    if "woninggegevens" not in woningtabel.rows[0].cells[0].text.strip().lower():
+        tbl        = woningtabel._tbl
+        eerste_tr  = woningtabel.rows[0]._tr
+        n_cols     = len(woningtabel.columns)
+
+        nieuwe_tr = OxmlElement('w:tr')
+        nieuwe_tc = OxmlElement('w:tc')
+        tcPr      = OxmlElement('w:tcPr')
+
+        if n_cols > 1:
+            gs = OxmlElement('w:gridSpan')
+            gs.set(qn('w:val'), str(n_cols))
+            tcPr.append(gs)
+
+        shd = OxmlElement('w:shd')
+        shd.set(qn('w:val'),   'clear')
+        shd.set(qn('w:color'), 'auto')
+        shd.set(qn('w:fill'),  TITELBLAUW)
+        tcPr.append(shd)
+        nieuwe_tc.append(tcPr)
+
+        p = OxmlElement('w:p')
+        r = OxmlElement('w:r')
+        rPr = OxmlElement('w:rPr')
+        for tag, waarde in [('w:b', None), ('w:color', 'FFFFFF'),
+                             ('w:sz', '22'), ('w:szCs', '22')]:
+            el = OxmlElement(tag)
+            if waarde:
+                el.set(qn('w:val'), waarde)
+            rPr.append(el)
+        r.append(rPr)
+        t = OxmlElement('w:t')
+        t.text = "Woninggegevens"
+        r.append(t)
+        p.append(r)
+        nieuwe_tc.append(p)
+        nieuwe_tr.append(nieuwe_tc)
+        tbl.insert(list(tbl).index(eerste_tr), nieuwe_tr)
+
+    # ── Stijl de datarijen ─────────────────────────────────────────────────────
+    for rij in woningtabel.rows:
+        if len(rij.cells) < 2:
+            continue
+        cel_links  = rij.cells[0]
+        cel_rechts = rij.cells[1]
+        label_l    = cel_links.text.strip().lower()
+
+        if "woninggegevens" in label_l:
+            continue  # kopregel — niet aanraken
+
+        # Linkerkolom: wit + semi-bold
+        _set_cel_achtergrond(cel_links, WIT)
+        _borders(cel_links)
+        for para in cel_links.paragraphs:
+            for run in para.runs:
+                _run_opmaak(run, bold=True, kleur=TEKST_RGB)
+
+        # Rechterkolom: wit
+        _set_cel_achtergrond(cel_rechts, WIT)
+        _borders(cel_rechts)
+
+        # Energielabel A-klasse → groen + vet
+        is_label_rij = "energielabel" in label_l
+        waarde_tekst = cel_rechts.text.strip().upper()
+        for para in cel_rechts.paragraphs:
+            for run in para.runs:
+                if is_label_rij and waarde_tekst.startswith("A"):
+                    _run_opmaak(run, bold=True, kleur=GROEN_RGB)
+                else:
+                    _run_opmaak(run, bold=False, kleur=TEKST_RGB)
+
+    # ── Verwijder achtergrondkleur van paragrafen direct na de tabel ──────────
+    tbl_elem = woningtabel._tbl
+    parent   = tbl_elem.getparent()
+    if parent is not None:
+        kinderen  = list(parent)
+        tbl_index = kinderen.index(tbl_elem)
+        # Controleer de eerstvolgende alinea's (maximaal 3) na de tabel
+        for elem in kinderen[tbl_index + 1: tbl_index + 4]:
+            if elem.tag.endswith('}p'):
+                pPr = elem.find(f'{W}pPr')
+                if pPr is not None:
+                    for shd in pPr.findall(f'{W}shd'):
+                        pPr.remove(shd)
+
+    doc.save(docx_pad)
+
+
+def fill_docx(template_path: str, output_path: str, data: dict, sv_foto_pad: str | None = None, bouwjaar: int | None = None):
     """
     Vult alle {{plaatshouders}} in en voegt optioneel een Street View foto in.
     Als sv_foto_pad None is of het invoegen mislukt, gaat het rapport gewoon door zonder foto.
     """
     # Bouw mapping: ook varianten met spaties meenemen
+    import re as _re
     expanded = {}
     for k, v in data.items():
         expanded[k] = v
@@ -263,6 +620,12 @@ def fill_docx(template_path: str, output_path: str, data: dict, sv_foto_pad: str
         spaced = k.replace('{{', '{{ ').replace('}}', ' }}')
         if spaced != k:
             expanded[spaced] = v
+
+    # Vervang de subsidies-waarde door een sentinel; de echte tabel
+    # wordt na het opslaan ingevoegd via python-docx (_voeg_subsidietabel_in).
+    for k in list(expanded.keys()):
+        if _re.fullmatch(r'\{\{[\s]*subsidies[\s]*\}\}', k):
+            expanded[k] = _SUBSIDIE_SENTINEL
 
     import tempfile
     tmp_dir = Path(tempfile.mkdtemp())
@@ -302,6 +665,9 @@ def fill_docx(template_path: str, output_path: str, data: dict, sv_foto_pad: str
                     zout.write(bestand, bestand.relative_to(tmp_dir))
 
         os.replace(tmp_zip, output_path)
+        if bouwjaar is not None:
+            _voeg_subsidietabel_bouwperiode_in(output_path, bouwjaar)
+        _stijl_woninggegevens_tabel(output_path)
         print(f"✅ Opgeslagen: {output_path}")
 
     finally:

@@ -120,9 +120,43 @@ def render_markdown(
     lines.append("")
 
     # ─────────────────────────────────────────────
-    # Feitenblok
+    # Interpretatie & context  (hoofdstuk 1 — inleiding op de data)
     # ─────────────────────────────────────────────
-    lines.append("## 1. Feiten uit registraties")
+    lines.append("## 1. Interpretatie en context")
+    lines.append("")
+    if narrative:
+        lines.append(narrative.get("gebouw", ""))
+        lines.append("")
+        lines.append(narrative.get("energie", ""))
+        lines.append("")
+        lines.append(narrative.get("aanpak", ""))
+    else:
+        band = scan["band"]
+        _band_tekst = {
+            "voor 1975": "gebouwd vóór 1975 met beperkte isolatie-eisen; dak, gevel, vloer en glas bieden doorgaans de grootste verbeterkansen.",
+            "1975–1991": "gebouwd in een periode met geleidelijk oplopende isolatie-eisen; er is vaak nog substantiële winst te behalen.",
+            "1992–2005": "gebouwd in een periode met oplopende energieprestatie-eisen; er is vaak nog winst via schil- en detailverbetering.",
+            "2006–2014": "gebouwd in een periode met duidelijke energieprestatie-eisen; de basis is vaak redelijk, gerichte optimalisaties leveren het meest op.",
+            "2015+": "relatief recent gebouwd met goede isolatie als basis; grootschalige maatregelen leveren beperkt extra rendement, maar detailverbetering kan comfort verhogen.",
+        }
+        lines.append(f"De woning is {_band_tekst.get(band, 'gebouwd in een periode met variabele isolatienormen.')}")
+        lines.append("")
+        if label and label.get("labelklasse"):
+            lines.append(
+                f"Het geregistreerde energielabel (**{label.get('labelklasse')}**) ondersteunt dit beeld. "
+                "Dit rapport richt zich op **realistische verbeterkansen** en **logische vervolgstappen**."
+            )
+        else:
+            lines.append(
+                "Omdat geen actueel energielabel beschikbaar is, is de energieprestatie ingeschat "
+                "op basis van bouwjaar en vergelijkbare woningen."
+            )
+
+    # ─────────────────────────────────────────────
+    # Woninggegevens  (hoofdstuk 2 — feiten uit registraties)
+    # ─────────────────────────────────────────────
+    lines.append("")
+    lines.append("## 2. Woninggegevens")
     lines.append("")
     lines.append(f"**Adres:** {adres}  ")
     lines.append(f"**Datum rapport:** {today_nl}  ")
@@ -162,40 +196,6 @@ def render_markdown(
         "_Bron: Basisregistratie Adressen en Gebouwen (BAG/PDOK) en "
         "landelijke energielabelregistratie EP-Online._"
     )
-
-    # ─────────────────────────────────────────────
-    # Interpretatie & context
-    # ─────────────────────────────────────────────
-    lines.append("")
-    lines.append("## 2. Interpretatie en context")
-    lines.append("")
-    if narrative:
-        lines.append(narrative.get("gebouw", ""))
-        lines.append("")
-        lines.append(narrative.get("energie", ""))
-        lines.append("")
-        lines.append(narrative.get("aanpak", ""))
-    else:
-        band = scan["band"]
-        _band_tekst = {
-            "voor 1975": "gebouwd vóór 1975 met beperkte isolatie-eisen; dak, gevel, vloer en glas bieden doorgaans de grootste verbeterkansen.",
-            "1975–1991": "gebouwd in een periode met geleidelijk oplopende isolatie-eisen; er is vaak nog substantiële winst te behalen.",
-            "1992–2005": "gebouwd in een periode met oplopende energieprestatie-eisen; er is vaak nog winst via schil- en detailverbetering.",
-            "2006–2014": "gebouwd in een periode met duidelijke energieprestatie-eisen; de basis is vaak redelijk, gerichte optimalisaties leveren het meest op.",
-            "2015+": "relatief recent gebouwd met goede isolatie als basis; grootschalige maatregelen leveren beperkt extra rendement, maar detailverbetering kan comfort verhogen.",
-        }
-        lines.append(f"De woning is {_band_tekst.get(band, 'gebouwd in een periode met variabele isolatienormen.')}")
-        lines.append("")
-        if label and label.get("labelklasse"):
-            lines.append(
-                f"Het geregistreerde energielabel (**{label.get('labelklasse')}**) ondersteunt dit beeld. "
-                "Dit rapport richt zich op **realistische verbeterkansen** en **logische vervolgstappen**."
-            )
-        else:
-            lines.append(
-                "Omdat geen actueel energielabel beschikbaar is, is de energieprestatie ingeschat "
-                "op basis van bouwjaar en vergelijkbare woningen."
-            )
 
 
     # ─────────────────────────────────────────────
@@ -251,18 +251,15 @@ def render_markdown(
     lines.append("")
     lines.append("## 5. Mogelijk relevante subsidies")
     lines.append("")
-    lines.append(
-        "Voor verduurzamingsmaatregelen kan de **ISDE-subsidie** van toepassing zijn, "
-        "mits wordt voldaan aan de actuele voorwaarden:"
-    )
-    lines.append("")
-    lines.append("- Isolatiemaatregelen (dak, gevel, vloer en/of glas)")
-    lines.append("- Uitvoering door een erkend bedrijf")
-    lines.append("- Voldoen aan minimale oppervlaktes en isolatiewaarden")
+    lines.append("| Subsidie | Bedrag | Voor wie |")
+    lines.append("|---|---|---|")
+    lines.append("| ISDE warmtepomp | € 1.025 + € 225/kW | Woningeigenaren warmtepomp |")
+    lines.append("| Gemeentelijke subsidie | Verschilt per gemeente | Isolatie en energieadvies |")
+    lines.append("| Nationaal Warmtefonds | Lening lage rente | Investering spreiden |")
     lines.append("")
     lines.append(
-        "Bij combinatie van twee maatregelen binnen 24 maanden is de subsidie doorgaans hoger. "
-        "Exacte bedragen zijn afhankelijk van type maatregel, oppervlak en uitvoering."
+        "Exacte bedragen en voorwaarden wijzigen regelmatig. "
+        "Controleer de actuele regelingen via www.pandiq.nl/subsidie."
     )
 
     # ─────────────────────────────────────────────

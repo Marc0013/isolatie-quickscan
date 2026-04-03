@@ -2,111 +2,173 @@
 teksten_bouwperiodes.py
 =======================
 Dynamische teksten per bouwperiode, gekoppeld aan energielabel en woningtype.
-Aanpassen? Wijzig de teksten hieronder — de code kiest automatisch de juiste combinatie.
+
+HOE TEKSTEN AANPASSEN?
+  Zoek de gewenste bouwperiode hieronder op (zoek op 'label').
+  Elke periode heeft vier tekstvelden:
+    - inleiding_base   : intro-alinea bovenaan het rapport
+    - maatregelen      : lijst met concrete aanpak-onderdelen
+    - risicos          : lijst met aandachtspunten en risico's
+    - subsidies_periode: subsidie-informatie specifiek voor deze periode
+  Pas de tekst aan en sla op. De code gebruikt automatisch de juiste periode.
 """
 from __future__ import annotations
 
 PERIODES: list[dict] = [
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # PERIODE 1 — vóór 1945 (Traditionele bouw)
+    # ──────────────────────────────────────────────────────────────────────────
     {
         "tot_en_met": 1945,
         "label": "vóór 1945",
         "naam": "Traditionele bouw",
         "focus": "schil",
         "inleiding_base": (
-            "Uw woning stamt uit een periode waarin energieverbruik nog geen rol speelde bij het ontwerp. "
-            "Typisch voor deze bouw zijn massieve muren of vroege spouwmuren zonder isolatie, houten "
-            "vloerbalken en oorspronkelijk enkel glas. Energetisch gezien behoren woningen uit deze "
-            "periode tot de meest energie-intensieve van Nederland — maar daarmee ook tot de categorie "
-            "met de grootste besparingspotentie."
+            "Uw woning stamt uit een periode waarin energieverbruik nog geen rol speelde bij het "
+            "ontwerp. Kenmerkend zijn de houten begane grondvloeren en gevels die tot circa 1930 "
+            "massief (steens) werden uitgevoerd of daarna voorzien zijn van een zeer beperkte, "
+            "ongeïsoleerde luchtspouw. Isolatie ontbrak oorspronkelijk volledig, waardoor woningen "
+            "uit deze periode tot de meest energie-intensieve van Nederland behoren — maar ook tot "
+            "de categorie met de grootste besparingspotentie."
         ),
         "maatregelen": [
-            "De Warme Jas: vanwege het ontbreken van een spouw adviseren wij hoogwaardige binnenmuurisolatie "
-            "met vochtregulerende materialen zoals houtvezelplaten.",
-            "Hoogwaardig glas: vervang enkel glas door HR++ of vacuumglas om koudeval te elimineren.",
-            "Dak- en vloercomfort: isoleer het dak aan de binnenzijde en gebruik schuimglas-granulaat "
-            "in de kruipruimte om optrekkende kou te stoppen.",
+            "Gevel: isoleer de binnenzijde of buitenzijde bij massieve muren, "
+            "of na-isoleer de spouw indien deze aanwezig en schoon is.",
+            "Dak: breng volledige isolatie aan, aangezien de oorspronkelijke waarde nagenoeg nul is.",
+            "Vloer: isoleer de houten vloer of de bodem van de kruipruimte "
+            "om optrekkend vocht en kou tegen te gaan.",
+            "Ramen: vervang enkel glas door HR++ of vacuümglas.",
+            "Ventilatie: breng gecontroleerde ventilatie aan (zoals decentrale WTW) "
+            "om de verhoogde luchtvochtigheid na kierdichting te beheersen.",
         ],
         "risicos": [
-            "Vocht en houtrot: isoleren aan de binnenzijde kan condensatie veroorzaken bij houten "
-            "vloerbalken in de muren. Laat dit altijd eerst beoordelen door een specialist.",
-            "Koudebruggen zoals stenen dorpels en stalen balken boven ramen blijven na isolatie extra koud "
-            "en vormen een verhoogd risico op schimmelvorming.",
-            "Binnenklimaat: het dichten van kieren zonder nieuw ventilatiesysteem maakt de lucht snel "
-            "vochtig en ongezond. Het is daarom belangrijk dat luchtdichting en gecontroleerde ventilatie "
-            "(zoals een decentrale WTW) op orde is om houtrot en schimmel te voorkomen.",
+            "Vocht en houtrot: deze woningen zijn often 'dampopen' gebouwd zonder spouw of met een "
+            "zeer smalle spouw. Bij binnenisolatie daalt de temperatuur van de oorspronkelijke muur "
+            "sterk, met condensatierisico als gevolg. Gebruik vochtregulerende folies (zoals Intello) "
+            "en dampopen materialen zoals houtvezel of vlas — vermijd volledig dampdichte plastics.",
+            "Balkkoppen: houten vloerbalken in de buitenmuur worden door binnenisolatie kouder en "
+            "vochtiger. Dit leidt tot houtrot. Laat dit altijd vooraf beoordelen door een specialist.",
+            "Dampdichte buitengevel: controleer of de gevel aan de buitenzijde niet dampdicht is "
+            "(geglazuurde steen of latexverf), want dan kan vocht niet naar buiten uitdampen.",
+            "Binnenklimaat: kieren dichten zonder nieuw ventilatiesysteem maakt de lucht snel vochtig "
+            "en ongezond. Luchtdichting en gecontroleerde ventilatie moeten samen worden aangepakt.",
         ],
         "subsidies_periode": [
-            "Gevelisolatie (2025): € 20,25 per m² (bonus biobased: + € 6,00 per m²).",
+            "Woningen uit deze periode hebben vaak massieve muren of zeer vroege spouwen en houten "
+            "vloeren. De focus ligt op het aanbrengen van een volledige isolatieschil.",
+            "Gevelisolatie (2025): € 20,25 per m² (bonus biobased materiaal: + € 6,00 per m²).",
             "Glas-upgrade (2025): € 25,00 per m².",
             "Warmtepomp via ISDE (2026): startbedrag € 1.025 + € 225 per kW vermogen. "
             "Extra bonus van € 200 voor toestellen met A+++ energielabel.",
         ],
-        "actie": "Laat een schil-scan uitvoeren om te bepalen welke isolatiemaatregel het meest rendabel is.",
+        "actie": (
+            "Laat een schil-scan uitvoeren om te bepalen welke isolatiemaatregel "
+            "het meest rendabel is voor uw specifieke situatie."
+        ),
     },
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # PERIODE 2 — 1946–1974 (Wederopbouw en vroege systeembouw)
+    # ──────────────────────────────────────────────────────────────────────────
     {
         "tot_en_met": 1974,
         "label": "1946-1974",
-        "naam": "Wederopbouw en eerste isolatienormen",
+        "naam": "Wederopbouw en vroege systeembouw",
         "focus": "schil",
         "inleiding_base": (
-            "Uw woning is gebouwd in de wederopbouw- of vroege isolatieperiode. "
-            "De spouwmuur werd in deze jaren de standaard om vochtproblemen te voorkomen, "
-            "maar werd zonder isolatiemateriaal opgeleverd. De meeste woningen uit deze periode "
-            "hebben een loze spouw, een ongeïsoleerde of dunne vloer en beperkte dakisolatie."
+            "Uw woning is gebouwd in de wederopbouw- of vroege systeembouwperiode. Na de oorlog "
+            "verschoof de focus naar industriële bouw om de woningnood snel op te lossen, waarbij "
+            "betonvloeren steeds vaker houten vloeren vervingen. De spouwmuur werd de standaard om "
+            "vochtproblemen te voorkomen, maar werd zonder isolatiemateriaal opgeleverd. De "
+            "isolatiewaarden van gevels en daken bleven in deze periode zeer laag "
+            "(Rc-waarden tussen 0,15 en 0,86)."
         ),
         "maatregelen": [
-            "Spouwmuur-upgrade: het laten inblazen van een schone spouw met minerale wol of EPS-parels "
-            "is een zeer rendabele stap met een terugverdientijd van circa 4 jaar.",
-            "Vloerisolatie: verbeter de oorspronkelijk lage Rc-waarde van de vloer naar de moderne "
-            "standaard van 3,5 m²K/W.",
+            "Spouwmuur: na-isoleer de lege spouw met inblaasmateriaal (minerale wol of EPS-parels). "
+            "Dit is een zeer rendabele stap met een terugverdientijd van circa 4 jaar.",
+            "Vloer: isoleer de ongeïsoleerde betonvloer (oorspronkelijk vaak slechts Rc 0,17) "
+            "naar de huidige standaard van Rc 3,5 m²K/W.",
+            "Dak: schaal de minimale dakisolatie op naar een hoogwaardig niveau.",
+            "Glas: vervang enkel glas of oud dubbel glas door HR-beglazing.",
+            "Verwarming: onderzoek of de woning na schilverbetering geschikt is "
+            "voor een (hybride) warmtepomp.",
         ],
         "risicos": [
-            "Spouwvervuiling: bouwafval of cementspecie in de spouw vormt een vochtbrug van buiten- naar "
-            "binnenmuur. Controleer de spouw vooraf met een endoscoop op vervuiling om vochtbruggen "
-            "na isolatie te voorkomen.",
-            "Verouderd dubbelglas: veel originele ramen zijn vervangen door glas uit de jaren 80-90 "
-            "dat inmiddels zijn isolatiewaarde heeft verloren en nauwelijks beter presteert dan enkel glas.",
-            "Thermische lekken bij balkons: betonvloeren liepen in deze periode vaak rechtstreeks "
-            "van binnen naar buiten door, wat grote koudebruggen oplevert met condens en schimmel.",
+            # 1946–1964: spouwvervuiling
+            "Spouwvervuiling (1946–1964): in de spouw bevindt zich vaak valspecie of puin. "
+            "Bij na-isolatie fungeren deze resten als vochtbruggen naar de binnenmuur. "
+            "Een endoscopisch onderzoek is essentieel: controleer of de spouw schoon is en "
+            "minimaal 50 mm breed, en beoordeel de kwaliteit van de spouwankers.",
+            "Kitwerk spouw: zorg dat naden tussen kozijnen en metselwerk aan de binnenzijde goed "
+            "zijn afgekit met acrylaatkit (geen siliconen of PUR) om te voorkomen dat "
+            "isolatiemateriaal de woning binnendringt.",
+            # 1965–1974: koudebruggen
+            "Koudebruggen (1965–1974): doorlopende betonvloeren of balkons fungeren als grote "
+            "koudebruggen. Na spouwisolatie stijgt de muurtemperatuur, maar de koudebrug blijft "
+            "koud. Als bewoners minder ventileren, concentreert schimmel zich op deze betonpunten. "
+            "Spoor koudebruggen op met een thermische scan in de winter; let op roeststrepen boven "
+            "ramen (stalen balken als koudebrug). Isoleer ernstige koudebruggen afzonderlijk "
+            "met Aerogel-strips.",
+            "Verouderd dubbelglas: veel originele ramen zijn vervangen door glas uit de jaren 80–90 "
+            "dat inmiddels zijn isolatiewaarde heeft verloren en nauwelijks beter presteert "
+            "dan enkel glas.",
         ],
         "subsidies_periode": [
+            "In deze periode werd de spouwmuur de standaard, maar deze is vaak nog ongeïsoleerd. "
+            "Ook de vloerisolatie is oorspronkelijk zeer beperkt (Rc ~0,17).",
             "Spouwisolatie (2025): € 5,25 per m².",
             "Vloerisolatie (2025): € 5,50 per m².",
             "Warmtepomp via ISDE (2026): startbedrag € 1.025 + € 225 per kW vermogen. "
             "Extra bonus van € 200 voor toestellen met A+++ energielabel.",
         ],
         "actie": (
-            "Prioriteer spouwisolatie en vloerisolatie — dit levert bij deze bouwperiode doorgaans "
-            "de hoogste besparing per geïnvesteerde euro, met een korte terugverdientijd."
+            "Prioriteer spouwisolatie en vloerisolatie — dit levert bij deze bouwperiode "
+            "doorgaans de hoogste besparing per geïnvesteerde euro, met een korte terugverdientijd."
         ),
     },
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # PERIODE 3 — 1975–1991 (Eerste isolatienormen)
+    # ──────────────────────────────────────────────────────────────────────────
     {
         "tot_en_met": 1991,
         "label": "1975-1991",
-        "naam": "Reactie op de oliecrisis",
+        "naam": "Eerste isolatienormen",
         "focus": "schil",
         "inleiding_base": (
             "Uw woning is gebouwd na de oliecrisis van 1973, toen isolatie voor het eerst serieus "
-            "werd aangepakt. Dak, gevel en vloer zijn bij oplevering geïsoleerd, en vanaf 1979 werd "
-            "dubbel glas standaard. De woning is daarmee comfortabeler dan oudere woningen, maar voldoet "
-            "nog niet aan de huidige eisen voor een goed geïsoleerde schil."
+            "werd aangepakt. Vanaf 1975 golden landelijke eisen voor de isolatie van de gehele "
+            "schil; in 1979 werd dubbel glas de norm voor woonvertrekken. De woning beschikt "
+            "daarmee over een basisisolatie (Rc circa 1,3 tot 2,0), maar voldoet nog niet aan "
+            "de huidige 'Standaard' voor aardgasvrij wonen."
         ),
         "maatregelen": [
-            "Na-isolatie: upgrade de bestaande dunne isolatielagen in het dak en de spouw naar "
-            "de huidige standaard.",
-            "Glasverbetering: vervang verouderd dubbel glas (ouder dan 10-15 jaar) door HR++ glas "
-            "voor aanzienlijk minder warmteverlies.",
+            "Schil-upgrade: bij-isoleer dak, gevel en vloer om de thermische weerstand te verhogen "
+            "naar Rc 3,5 of hoger.",
+            "Beglazing: vervang verouderd dubbel glas (ouder dan 10–15 jaar) door "
+            "hoogrendementsglas om koudeval te elimineren.",
+            "Koudebruggen: pak specifieke thermische lekken aan, zoals doorlopende betonvloeren "
+            "bij balkons, met materialen zoals Aerogel.",
+            "Installaties: installeer een hybride warmtepomp als tussenstap naar gasloos wonen.",
         ],
         "risicos": [
-            "Verzakte isolatie: de isolatiematerialen uit deze periode kunnen zijn ingezakt of deels "
-            "hun werking verloren hebben — met name in de spouw en kruipruimte. Koude plekken en "
-            "schimmel op muren kunnen hiervan het gevolg zijn.",
-            "Ventilatieprobleem: woningen werden dichter gebouwd maar ventilatie bleef simpel. "
+            "Dubbele isolatie en dampremming: deze woningen hebben al een dunne laag isolatie. "
+            "Het risico bij bij-isoleren aan de binnenzijde is dat vocht opgesloten raakt tussen "
+            "de twee lagen. Breng dampremmende lagen altijd aan de warme binnenzijde aan.",
+            "Verzakte isolatie: minerale wol uit deze periode kan zijn ingezakt of deels zijn "
+            "werking verloren hebben — met name in de spouw en kruipruimte. Controleer op koude "
+            "plekken en schimmel op muren.",
+            "Verouderd dubbelglas: controleer het jaartal in de strip van het glas. Glas ouder dan "
+            "15 jaar fungeert soms nog maar als enkel glas.",
+            "Ventilatieprobleem: woningen werden dichter gebouwd maar de ventilatie bleef eenvoudig. "
             "Bij onvoldoende ventilatie ontstaat vochtstapeling en een verslechterd binnenklimaat.",
         ],
         "subsidies_periode": [
-            "Warmtepomp-gereed: deze woningen zijn na schilverbetering vaak direct geschikt voor "
-            "een (hybride) warmtepomp.",
+            "Deze woningen beschikken over matige basisisolatie (Rc 1,3 tot 2,0). "
+            "De winst zit in het 'bij-isoleren' naar de moderne Standaard.",
+            "Warmtepomp-gereed: na schilverbetering zijn deze woningen vaak direct geschikt "
+            "voor een (hybride) warmtepomp.",
             "Warmtepomp via ISDE (2026): startbedrag € 1.025 + € 225 per kW vermogen. "
             "Extra bonus van € 200 voor toestellen met A+++ energielabel.",
         ],
@@ -115,34 +177,49 @@ PERIODES: list[dict] = [
             "Kierdichting en glasvervanging leveren bij deze bouwperiode vaak nog goede resultaten."
         ),
     },
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # PERIODE 4 — 1992–2014 (Moderne regelgeving en EPC)
+    # ──────────────────────────────────────────────────────────────────────────
     {
         "tot_en_met": 2014,
         "label": "1992-2014",
-        "naam": "Moderne regelgeving",
+        "naam": "Moderne regelgeving en EPC",
         "focus": "installaties",
         "inleiding_base": (
-            "Uw woning valt onder het Bouwbesluit van 1992 en latere aanscherpingen via de "
-            "Energieprestatiecoëfficiënt (EPC). De gebouwschil is goed en standaard voorzien van "
-            "dakisolatie, spouwisolatie en mechanische ventilatie. Met een basisisolatie van Rc 2,5 "
-            "zijn dit kwalitatief goede woningen. Het verbeterpotentieel zit bij deze woningen "
-            "vooral in optimalisatie en installaties als zonnepanelen, batterij-opslag etc."
+            "Uw woning valt onder het Bouwbesluit van 1992, met latere aanscherpingen via de "
+            "Energieprestatiecoëfficiënt (EPC). De schil is standaard voorzien van dakisolatie, "
+            "spouwvulling en mechanische ventilatie — een kwalitatief goede basis met Rc 2,5. "
+            "De focus verschuift hier van basisisolatie naar het optimaliseren van systemen "
+            "en het dichten van de laatste energielekken."
         ),
         "maatregelen": [
-            "Zonnepanelen (PV): de meeste daken kunnen goed gebruikt worden voor plaatsing van "
-            "PV-panelen, één paneel kan wel 300-400 kWh per jaar opleveren.",
-            "Batterij-opslag: terugleveren van stroom aan het net wordt steeds duurder, waardoor "
-            "opslag van energie steeds belangrijker wordt.",
+            "Luchtdichtheid: verbeter de naad- en kierdichting om onnodig warmteverlies "
+            "te voorkomen.",
+            "Ventilatie: upgrade de mechanische afvoer (Type C) naar balansventilatie "
+            "met WTW (Type D).",
+            "Zonne-energie: benut het dakvlak maximaal voor PV-panelen of een zonneboiler.",
+            "Warmte-afgifte: regel de installatie waterzijdig in om de woning klaar te maken "
+            "voor een volledige warmtepomp.",
         ],
         "risicos": [
-            "Vervuilde of verkeerd ingestelde ventilatie: de mechanische afzuiging is vaak niet "
-            "onderhouden. Dit kost energie en verslechtert de luchtkwaliteit merkbaar.",
-            "Sluipverbruik: sluipverbruik van apparatuur en inefficiënte instellingen van "
-            "ventilatiesystemen zijn de grootste verliesposten — onzichtbaar maar structureel "
-            "aanwezig op de energierekening.",
+            "Slechte luchtkwaliteit: deze woningen zijn bij oplevering al redelijk luchtdicht. "
+            "Het verder dichten van kieren zonder het ventilatiesysteem te upgraden leidt direct "
+            "tot een ongezond binnenklimaat en verhoogde kans op schimmelgroei.",
+            "Vervuilde ventilatie: de mechanische afzuiging is vaak niet onderhouden. "
+            "Dit kost energie en verslechtert de luchtkwaliteit merkbaar.",
+            "Oververhitting in de zomer: de goede isolatieschil houdt warmte ook binnen. "
+            "Bij het vervangen van glas voor zonwerende beglazing houdt dit in de winter "
+            "ook 'gratis' zonnewarmte tegen. Overweeg een CO2-indicator om de luchtkwaliteit "
+            "na verduurzaming te monitoren.",
+            "Sluipverbruik: inefficiënte instellingen van ventilatiesystemen zijn de grootste "
+            "verliesposten — onzichtbaar maar structureel aanwezig op de energierekening.",
         ],
         "subsidies_periode": [
-            "LTV-check: doe de 50-graden test om te zien of uw afgiftesysteem klaar is voor "
-            "een warmtepomp.",
+            "Woningen uit deze periode zijn al redelijk goed geïsoleerd (Rc ≥ 2,5). "
+            "De focus verschuift naar installatietechniek en het dichten van de laatste kieren.",
+            "LTV-check: doe de 50-graden test om te zien of uw afgiftesysteem klaar is "
+            "voor een warmtepomp.",
             "Warmtepomp via ISDE (2026): startbedrag € 1.025 + € 225 per kW vermogen. "
             "Extra bonus van € 200 voor toestellen met A+++ energielabel.",
         ],
@@ -151,34 +228,47 @@ PERIODES: list[dict] = [
             "de schil is al op orde, de installatie is de volgende logische stap."
         ),
     },
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # PERIODE 5 — vanaf 2015 (Hoogwaardige bouw)
+    # ──────────────────────────────────────────────────────────────────────────
     {
         "tot_en_met": 9999,
         "label": "vanaf 2015",
         "naam": "Hoogwaardige bouw",
         "focus": "optimalisatie",
         "inleiding_base": (
-            "Uw woning behoort tot de nieuwste generatie en voldoet aan strenge energienormen. "
-            "De schil is zeer goed geïsoleerd met Rc-waarden van 4,5 tot 6,0, de woning is "
-            "luchtdicht en voorzien van balansventilatie met warmteterugwinning (WTW). "
-            "Veel woningen uit deze periode zijn al gasloos opgeleverd."
+            "Uw woning behoort tot de nieuwste generatie en voldoet aan strenge energienormen "
+            "(Rc dak 6,0 / gevel 4,5). De woning is luchtdicht en voorzien van balansventilatie "
+            "met warmteterugwinning (WTW). Veel woningen uit deze periode zijn al gasloos "
+            "opgeleverd. De uitdaging ligt nu in het beheer van de complexe installaties "
+            "en het voorkomen van oververhitting in de zomer."
         ),
         "maatregelen": [
-            "Monitoring: gebruik slimme meters en apps om het energiegebruik per uur te volgen "
-            "en verbruikspieken te identificeren.",
-            "Passieve koeling: voorkom oververhitting in de zomer door de inzet van buitenzonwering.",
+            "Monitoring: gebruik slimme systemen om het energiegebruik en de "
+            "ventilatiebehoefte fijn te regelen.",
+            "Koeling: pas passieve koelingsmaatregelen toe (buitenzonwering, groen dak) "
+            "om zomerse hitte buiten te houden.",
+            "Onderhoud: reinig ventilatiekanalen en zonnepanelen regelmatig "
+            "om het rendement te waarborgen.",
+            "Opslag: verken de mogelijkheden voor energieopslag (batterijen) "
+            "in combinatie met eigen opwek.",
         ],
         "risicos": [
-            "Oververhitting in de zomer: de uitstekende isolatie houdt warmte ook binnen — "
-            "zonder zonwering of nachtventilatie kan dit leiden tot oncomfortabele temperaturen.",
-            "Gebruikersfouten: de complexiteit van de installaties vraagt om deskundig onderhoud "
-            "om het rendement te behouden. Het uitzetten van ventilatie of verkeerd instellen van "
-            "de warmtepomp heeft direct effect op comfort en energierekening.",
+            "Oververhitting in de zomer: de uitstekende isolatie houdt warmte ook binnen. "
+            "Zonder zonwering of nachtventilatie kan dit leiden tot oncomfortabele temperaturen.",
+            "Slechte luchtkwaliteit door te weinig ventilatie: verder dichten zonder "
+            "ventilatieupgrade leidt direct tot een ongezond binnenklimaat.",
+            "Gebruikersfouten: de complexiteit van de installaties vraagt om deskundig onderhoud. "
+            "Het uitzetten van ventilatie of verkeerd instellen van de warmtepomp heeft "
+            "direct effect op comfort en energierekening.",
         ],
         "subsidies_periode": [
-            "Warmtepomp via ISDE (2026): startbedrag € 1.025 + € 225 per kW vermogen. "
-            "Extra bonus van € 200 voor toestellen met A+++ energielabel.",
-            "Zelfs bij nieuwbouw kan PandIQ u helpen bij het optimaliseren van uw energieprestaties "
-            "en het checken van resterende subsidies.",
+            "Deze woningen voldoen aan zeer strenge eisen (Rc dak 6,0 / gevel 4,5) "
+            "en zijn vaak al gasloos. De winst zit in monitoring en hernieuwbare opwek.",
+            "Warmtepomp via ISDE (2026): mocht de woning nog een gasaansluiting hebben, "
+            "dan is de stap naar een warmtepomp financieel aantrekkelijk: startbedrag € 1.025 "
+            "+ € 225 per kW vermogen, met een mogelijke label-bonus van € 200 (A+++).",
         ],
         "actie": (
             "Focus op gebruiksoptimalisatie en overweeg zonnepanelen of een thuisbatterij "
@@ -187,6 +277,18 @@ PERIODES: list[dict] = [
     },
 ]
 
+# ── Subsidienuances (van toepassing op alle periodes) ─────────────────────────
+SUBSIDIE_NUANCES = [
+    "Verdubbeling: de genoemde m²-bedragen gelden bij twee of meer maatregelen (of één "
+    "isolatiemaatregel gecombineerd met een warmtepomp). Bij slechts één maatregel wordt "
+    "het bedrag gehalveerd.",
+    "Beperkingen: u ontvangt slechts subsidie voor één type vloerisolatie (bodem óf vloer) "
+    "en één type dakisolatie (dak óf zoldervloer).",
+    "Oppervlaktes: let op de minimale oppervlakte-eisen "
+    "(bijv. minimaal 10 m² voor gevel en 20 m² voor dak/vloer).",
+]
+
+# ── Label-duiding ─────────────────────────────────────────────────────────────
 _LABEL_DUIDING: dict[str, str] = {
     "A++++": "een uitzonderlijk efficiënte woning",
     "A+++":  "een zeer energiezuinige woning",
@@ -205,8 +307,8 @@ _LABEL_FOCUS: dict[str, str] = {
     "A++++": "Het verbeterpotentieel is minimaal; focus op beheer en comfort.",
     "A+++":  "Het verbeterpotentieel is minimaal; focus op beheer en comfort.",
     "A++":   "Het verbeterpotentieel is minimaal; focus op beheer en comfort.",
-    "A+":    "Gerichte optimalisatie van installaties is de meest logische volgende stap.",
-    "A":     "Gerichte optimalisatie van installaties is de meest logische volgende stap.",
+    "A+":    "",
+    "A":     "",
     "B":     "Kierdichting en glasverbetering zijn kosteneffectieve vervolgstappen.",
     "C":     "Er zijn concrete kansen op het gebied van isolatie en installaties.",
     "D":     "Isolatie van de schil (dak, gevel, vloer) levert hier de grootste besparing.",
@@ -225,6 +327,8 @@ _TYPE_CONTEXT: dict[str, str] = {
     "appartement":        "Bij een appartement is uw eigen schil beperkt — vloer, plafond en buitengevel(s) zijn het meest relevant.",
 }
 
+
+# ── Opzoekfuncties (niet aanpassen) ──────────────────────────────────────────
 
 def get_periode(bouwjaar: int) -> dict:
     for p in PERIODES:
@@ -274,13 +378,18 @@ def bouw_bouwperiode_tekst(bouwjaar: int, label: str | None, gebouwtype: str | N
       5. Actieadvies
     """
     periode = get_periode(bouwjaar)
-    delen = [periode["inleiding_base"]]
 
+    inleiding = periode["inleiding_base"]
     if label:
         lbl = label.upper().strip()
         duiding = _LABEL_DUIDING.get(lbl, "een woning waarvan de energieprestatie is geregistreerd")
         focus   = _LABEL_FOCUS.get(lbl, "")
-        delen.append(f"Met energielabel {lbl} betreft het {duiding}. {focus}")
+        label_tekst = f"Met energielabel {lbl} betreft het {duiding}."
+        if focus:
+            label_tekst += f" {focus}"
+        inleiding = inleiding + "\n" + label_tekst
+
+    delen = [inleiding]
 
     if gebouwtype:
         gt_lower = gebouwtype.lower()
@@ -289,12 +398,4 @@ def bouw_bouwperiode_tekst(bouwjaar: int, label: str | None, gebouwtype: str | N
                 delen.append(context)
                 break
 
-    # Verduurzamingsmaatregelen als eigen alinea
-    maatregelen = get_maatregelen(bouwjaar)
-    if maatregelen:
-        maatregel_tekst = "Aanbevolen verduurzamingsmaatregelen voor deze bouwperiode:\n" + \
-                          "\n".join(f"- {m}" for m in maatregelen)
-        delen.append(maatregel_tekst)
-
-    delen.append(periode["actie"])
     return "\n\n".join(delen)
