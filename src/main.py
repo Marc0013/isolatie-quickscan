@@ -11,6 +11,7 @@ from energielabels import find_label_for_address
 from narratives import narrative_from_facts
 from subsidies import likely_isde_subsidies
 from report import quickscan_scores, render_markdown
+from advisor import build_advice
 from fill_template import fill_docx
 from streetview import haal_streetview_op, status as sv_status
 
@@ -67,6 +68,7 @@ def _strip_md(text: str) -> str:
         return text
     text = re.sub(r'\*\*(.+?)\*\*', r'\1', text)   # **bold** → tekst
     text = re.sub(r'\*(.+?)\*', r'\1', text)         # *italic* → tekst
+    text = re.sub(r'_(.+?)_', r'\1', text)           # _italic_ → tekst
     text = re.sub(r'`(.+?)`', r'\1', text)           # `code` → tekst
     return text
 
@@ -166,6 +168,7 @@ def main(postcode: str, huisnummer: str, toevoeging: Optional[str] = None, huisl
     facts["score_glas"]  = scores_dict.get("glas")
 
     narrative = narrative_from_facts(facts) if use_narrative else None
+    advies = build_advice(facts)
 
     # ── Street View afbeelding ophalen ────────────────────────
     sv_foto: bytes | None = None
@@ -185,6 +188,7 @@ def main(postcode: str, huisnummer: str, toevoeging: Optional[str] = None, huisl
         scan=scan,
         subsidies=subs,
         narrative=narrative,
+        advies=advies,
     )
 
 
@@ -223,12 +227,26 @@ def main(postcode: str, huisnummer: str, toevoeging: Optional[str] = None, huisl
             "{{gebouwtype}}":            label.get("gebouwtype", "—") if label else "—",
             "{{ geldig_tot }}":          _fmt_geldig(label.get("geldig_tot") if label else None),
             # Narratives
-            "{{narrative_gebouw}}":      _strip_md(narrative.get("gebouw", "") if narrative else ""),
-            "{{ narrative_gebouw }}":    _strip_md(narrative.get("gebouw", "") if narrative else ""),
+            # Samenvatting wordt geprepend aan narrative_gebouw (geen aparte placeholder in template)
+            "{{narrative_gebouw}}":      _strip_md(
+                (advies.teksten.get("samenvatting", "") + "\n\n" if advies else "") +
+                (narrative.get("gebouw", "") if narrative else "")
+            ),
+            "{{ narrative_gebouw }}":    _strip_md(
+                (advies.teksten.get("samenvatting", "") + "\n\n" if advies else "") +
+                (narrative.get("gebouw", "") if narrative else "")
+            ),
             "{{narrative_energie}}":     _strip_md(narrative.get("energie", "") if narrative else ""),
             "{{ narrative_energie }}":   _strip_md(narrative.get("energie", "") if narrative else ""),
-            "{{narrative_aanpak}}":      _strip_md(narrative.get("aanpak", "") if narrative else ""),
-            "{{ narrative_aanpak }}":    _strip_md(narrative.get("aanpak", "") if narrative else ""),
+            # Persoonlijke maatregelen met kosten/besparing/TVT; fallback naar generieke aanpak
+            "{{narrative_aanpak}}":      _strip_md(
+                advies.teksten.get("prioriteiten_tekst", "") if advies
+                else (narrative.get("aanpak", "") if narrative else "")
+            ),
+            "{{ narrative_aanpak }}":    _strip_md(
+                advies.teksten.get("prioriteiten_tekst", "") if advies
+                else (narrative.get("aanpak", "") if narrative else "")
+            ),
             "{{narrative_bouwperiode}}": _strip_md(narrative.get("bouwperiode_inleiding", "") if narrative else ""),
             # Scores
             "{{score_dak}}":             str(scores.get("dak", "—")),
@@ -263,7 +281,7 @@ def main(postcode: str, huisnummer: str, toevoeging: Optional[str] = None, huisl
             sv_pad = outdir / f"streetview_{postcode}_{huisnummer}.jpg"
             sv_pad.write_bytes(sv_foto)
 
-        fill_docx(str(template_path), str(docx_out), docx_data, sv_foto_pad=str(sv_pad) if sv_pad else None, bouwjaar=bouwjaar, scores=scan.get("scores"))
+        fill_docx(str(template_path), str(docx_out), docx_data, sv_foto_pad=str(sv_pad) if sv_pad else None, bouwjaar=bouwjaar, scores=scan.get("scores"), advies=advies)
 
         # Tijdelijk Street View bestand opruimen
         if sv_pad and sv_pad.exists():

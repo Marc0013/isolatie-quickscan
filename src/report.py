@@ -93,6 +93,7 @@ def render_markdown(
     scan: dict,
     subsidies: list[dict] | None = None,
     narrative: dict | None = None,
+    advies: Any = None,
 ) -> str:
     today = date.today()
     today_nl = f"{today.day} {MAANDEN[today.month]} {today.year}"
@@ -118,6 +119,13 @@ def render_markdown(
         "met aannames die gebruikelijk zijn voor vergelijkbare woningen."
     )
     lines.append("")
+
+    # ─────────────────────────────────────────────
+    # Samenvatting  (persoonlijk, max 4–5 zinnen)
+    # ─────────────────────────────────────────────
+    if advies and advies.teksten.get("samenvatting"):
+        lines.append(advies.teksten["samenvatting"])
+        lines.append("")
 
     # ─────────────────────────────────────────────
     # Interpretatie & context  (hoofdstuk 1 — inleiding op de data)
@@ -229,47 +237,61 @@ def render_markdown(
     lines.append("")
 
     # ─────────────────────────────────────────────
-    # Inhoudelijk advies / optimalisaties
+    # Aanbevolen maatregelen (op situatie gebaseerd)
     # ─────────────────────────────────────────────
     lines.append("")
-    lines.append("## 4. Waarschijnlijke optimalisaties")
+    lines.append("## 4. Aanbevolen maatregelen")
     lines.append("")
     lines.append(
         "Op basis van bouwjaar, woningtype en geregistreerde prestaties zijn de volgende "
         "maatregelen het meest logisch om nader te onderzoeken:"
     )
     lines.append("")
-    lines.append(
-        "### 1. Controle en optimalisatie van bestaande isolatie\n"
-        "In woningen uit deze periode is isolatie aanwezig, maar de uitvoering en detaillering "
-        "verschillen sterk. Verbetering van aansluitingen, kierdichting en isolatiekwaliteit "
-        "kan het comfort verhogen en ongewenst warmteverlies beperken."
-    )
-    lines.append("")
-    lines.append(
-        "### 2. Glas en kozijnen\n"
-        "Indien nog niet volledig uitgevoerd, kan verbetering van glas (HR++ of triple) "
-        "zorgen voor merkbaar meer comfort, minder koudeval en betere geluidsisolatie."
-    )
-    lines.append("")
-    lines.append(
-        "### 3. Installaties en regeling\n"
-        "Bij een relatief goede schil ligt aanvullende winst vaak in de optimalisatie van "
-        "verwarming, regeling en eventueel duurzame opwek. Denk aan waterzijdig inregelen, "
-        "slimme thermostaten of voorbereiding op lage-temperatuurverwarming."
-    )
+
+    if advies and advies.teksten.get("prioriteiten_tekst"):
+        lines.append(advies.teksten["prioriteiten_tekst"])
+    else:
+        # Fallback: generieke blokken (ongewijzigd)
+        lines.append(
+            "### 1. Controle en optimalisatie van bestaande isolatie\n"
+            "In woningen uit deze periode is isolatie aanwezig, maar de uitvoering en detaillering "
+            "verschillen sterk. Verbetering van aansluitingen, kierdichting en isolatiekwaliteit "
+            "kan het comfort verhogen en ongewenst warmteverlies beperken."
+        )
+        lines.append("")
+        lines.append(
+            "### 2. Glas en kozijnen\n"
+            "Indien nog niet volledig uitgevoerd, kan verbetering van glas (HR++ of triple) "
+            "zorgen voor merkbaar meer comfort, minder koudeval en betere geluidsisolatie."
+        )
+        lines.append("")
+        lines.append(
+            "### 3. Installaties en regeling\n"
+            "Bij een relatief goede schil ligt aanvullende winst vaak in de optimalisatie van "
+            "verwarming, regeling en eventueel duurzame opwek. Denk aan waterzijdig inregelen, "
+            "slimme thermostaten of voorbereiding op lage-temperatuurverwarming."
+        )
 
     # ─────────────────────────────────────────────
-    # Subsidies
+    # Subsidies (persoonlijk berekend als advies beschikbaar)
     # ─────────────────────────────────────────────
     lines.append("")
     lines.append("## 5. Mogelijk relevante subsidies")
     lines.append("")
-    lines.append("| Subsidie | Bedrag | Voor wie |")
-    lines.append("|---|---|---|")
-    lines.append("| ISDE warmtepomp | € 1.025 + € 225/kW | Woningeigenaren warmtepomp |")
-    lines.append("| Gemeentelijke subsidie | Verschilt per gemeente | Isolatie en energieadvies |")
-    lines.append("| Nationaal Warmtefonds | Lening lage rente | Investering spreiden |")
+
+    if advies and advies.teksten.get("subsidie_indicatie_tekst"):
+        lines.append(advies.teksten["subsidie_indicatie_tekst"])
+        lines.append("")
+        lines.append("- **Nationaal Warmtefonds** — lening tegen lage rente voor woningeigenaren die de investering willen spreiden")
+        lines.append("- **Gemeentelijke subsidie** — verschilt per gemeente; raadpleeg uw gemeente of www.pandiq.nl/subsidie")
+    else:
+        # Fallback: generieke tabel
+        lines.append("| Subsidie | Bedrag | Voor wie |")
+        lines.append("|---|---|---|")
+        lines.append("| ISDE warmtepomp | € 1.025 + € 225/kW | Woningeigenaren warmtepomp |")
+        lines.append("| Gemeentelijke subsidie | Verschilt per gemeente | Isolatie en energieadvies |")
+        lines.append("| Nationaal Warmtefonds | Lening lage rente | Investering spreiden |")
+
     lines.append("")
     lines.append(
         "Exacte bedragen en voorwaarden wijzigen regelmatig. "
@@ -277,10 +299,23 @@ def render_markdown(
     )
 
     # ─────────────────────────────────────────────
+    # Risico’s en aandachtspunten (indien beschikbaar)
+    # ─────────────────────────────────────────────
+    risicos_tekst = (narrative or {}).get("risicos", "")
+    if risicos_tekst:
+        lines.append("")
+        lines.append("## 6. Aandachtspunten")
+        lines.append("")
+        lines.append(risicos_tekst)
+        vervolgstap_nr = "7"
+    else:
+        vervolgstap_nr = "6"
+
+    # ─────────────────────────────────────────────
     # Vervolg & CTA
     # ─────────────────────────────────────────────
     lines.append("")
-    lines.append("## 6. Vervolgstappen")
+    lines.append(f"## {vervolgstap_nr}. Vervolgstappen")
     lines.append("")
     lines.append(
         "Dit rapport is bedoeld als startpunt. Door aanvullende informatie of foto’s toe te voegen "
@@ -293,6 +328,12 @@ def render_markdown(
         "- Bevestig woningtype en eventuele renovatiejaren\n"
         "- Gebruik dit rapport als basis voor offerte- of adviesgesprekken"
     )
+
+    if advies:
+        lines.append("")
+        lines.append(f"**{advies.cta_primair}**")
+        lines.append("")
+        lines.append(f"_{advies.cta_secondair}_")
 
     # ─────────────────────────────────────────────
     # Disclaimer

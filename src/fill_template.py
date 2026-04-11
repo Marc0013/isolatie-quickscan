@@ -43,7 +43,7 @@ def _cel_tekst(cel, tekst: str, *, bold=False, size=11, kleur=None, italic=False
         run.font.color.rgb = kleur
 
 
-def _voeg_subsidietabel_bouwperiode_in(docx_pad: str, bouwjaar: int) -> None:
+def _voeg_subsidietabel_bouwperiode_in(docx_pad: str, bouwjaar: int, subsidie_indicatie: str = "") -> None:
     """
     Vervangt de sentinel-alinea door twee Word-tabellen (Isolatie + Glas)
     met periode-specifieke markering, warmtepomp combinatieblok en noten.
@@ -238,6 +238,13 @@ def _voeg_subsidietabel_bouwperiode_in(docx_pad: str, bouwjaar: int) -> None:
     tabel_noten = doc.add_table(rows=0, cols=1)
     try: tabel_noten.style = doc.styles['Table Grid']
     except KeyError: pass
+
+    # Persoonlijk indicatief subsidietotaal bovenaan de noten (indien beschikbaar)
+    if subsidie_indicatie:
+        rij = tabel_noten.add_row()
+        _cel_tekst(rij.cells[0], subsidie_indicatie, bold=True, kleur=GROEN_TXT)
+        _set_cel_achtergrond(rij.cells[0], _YELLOW_HEX)
+        _set_rij_hoogte(rij)
 
     if periode.get("notitie"):
         rij = tabel_noten.add_row()
@@ -784,7 +791,7 @@ def _voeg_element_teksten_in(docx_pad: str, data: dict, scores: dict | None = No
     doc.save(docx_pad)
 
 
-def _voeg_eindpagina_in(docx_pad: str) -> None:
+def _voeg_eindpagina_in(docx_pad: str, cta_primair: str | None = None, cta_url: str | None = None) -> None:
     """
     Vervangt de onopgemaakte PandIQ CTA-alinea's door een huisstijl eindpagina.
     Herkent de start aan 'regisseur in verduurzaming' in de tekst.
@@ -958,13 +965,19 @@ def _voeg_eindpagina_in(docx_pad: str) -> None:
     ))
     elems.append(p)
 
-    # Limoen CTA-box: dashboard link
+    # Limoen CTA-box: situatiegericht als advies beschikbaar, anders dashboard link
+    _cta_label = cta_primair or "Bekijk uw mogelijkheden op pandiq.nl/dashboard"
+    _cta_link  = cta_url or "pandiq.nl/dashboard"
+
     def _cta(tc):
         p = _p(bg_hex="D4E832", space_before=0, space_after=0)
-        p.append(_r("Bekijk uw mogelijkheden op ", pt=11, kleur_hex="1A1A1A"))
-        p.append(_r("pandiq.nl/dashboard", bold=True, pt=11, kleur_hex="1A1A1A"))
+        p.append(_r(_cta_label, bold=True, pt=11, kleur_hex="1A1A1A"))
         p.append(_r("  →", bold=True, pt=12, kleur_hex="1A1A1A"))
         tc.append(p)
+        if cta_url:
+            p2 = _p(bg_hex="D4E832", space_before=0, space_after=0)
+            p2.append(_r(_cta_link, pt=9, kleur_hex="333333"))
+            tc.append(p2)
     elems.append(_tabel("D4E832", 480, _cta, pad=(180, 320, 180, 320)))
 
     # Spacer voor disclaimer
@@ -1291,7 +1304,7 @@ def _stijl_voorblad(docx_pad: str, adres: str, datum: str) -> None:
     doc.save(docx_pad)
 
 
-def fill_docx(template_path: str, output_path: str, data: dict, sv_foto_pad: str | None = None, bouwjaar: int | None = None, scores: dict | None = None):
+def fill_docx(template_path: str, output_path: str, data: dict, sv_foto_pad: str | None = None, bouwjaar: int | None = None, scores: dict | None = None, advies=None):
     """
     Vult alle {{plaatshouders}} in en voegt optioneel een Street View foto in.
     Als sv_foto_pad None is of het invoegen mislukt, gaat het rapport gewoon door zonder foto.
@@ -1353,13 +1366,26 @@ def fill_docx(template_path: str, output_path: str, data: dict, sv_foto_pad: str
 
         os.replace(tmp_zip, output_path)
         if bouwjaar is not None:
-            _voeg_subsidietabel_bouwperiode_in(output_path, bouwjaar)
+            # Persoonlijk indicatief subsidietotaal als eerste noot in de tabel
+            sub_indicatie = ""
+            if advies and advies.subsidie_totaal_indicatie > 0:
+                sub_indicatie = (
+                    f"Indicatief ISDE-subsidietotaal voor uw woning: "
+                    f"tot \u20ac{advies.subsidie_totaal_indicatie:,.0f} "
+                    f"({'meervoudig' if advies.meervoudig_tarief else 'enkelvoudig'} tarief 2026, "
+                    f"op basis van geschatte oppervlaktes)"
+                )
+            _voeg_subsidietabel_bouwperiode_in(output_path, bouwjaar, subsidie_indicatie=sub_indicatie)
         _stijl_woninggegevens_tabel(output_path)
         _voeg_element_teksten_in(output_path, expanded, scores=scores)
         adres_str = expanded.get("{{adres}}", "")
         datum_str = expanded.get("{{datum}}", "")
         _stijl_voorblad(output_path, adres_str, datum_str)
-        _voeg_eindpagina_in(output_path)
+        _voeg_eindpagina_in(
+            output_path,
+            cta_primair=advies.cta_primair if advies else None,
+            cta_url=advies.cta_url if advies else None,
+        )
         print(f"OK: Opgeslagen: {output_path}")
 
     finally:

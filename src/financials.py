@@ -64,6 +64,17 @@ VERBETER_EFFICIENTIE: dict[int, float] = {
 }
 
 
+# ── ISDE minimale subsidiabele oppervlaktes ───────────────────────────────────
+# Bron: ISDE-regelgeving 2026 (RVO Uitvoeringsregeling ISDE).
+# Maatregelen onder dit minimum komen niet in aanmerking voor ISDE-subsidie.
+ISDE_MIN_OPP_ISOLATIE: dict[str, float] = {
+    "gevel": 10.0,   # gevelisolatie heeft een apart lager minimum van 10 m²
+    # dakisolatie, zoldervloer, spouwmuur, vloer, bodem: allen 20 m²
+}
+ISDE_MIN_OPP_DEFAULT: float = 20.0  # standaard minimum voor alle overige isolatiemaatregelen
+# Glas heeft geen minimum-m² eis in de ISDE; subsidie geldt per m² vervangen glas.
+
+
 # ── Default warmtebehoefte als EP-Online ontbreekt (kWh/m²/jr) ────────────────
 # Gebaseerd op BZK/RVO woningenergiemonitor, gemiddelden per bouwperiode.
 WARMTE_DEFAULT_KWH_M2: dict[str, float] = {
@@ -222,6 +233,10 @@ def bereken_subsidie_indicatie(
     tarief_sleutel = "meer" if meervoudig else "enkel"
 
     if maatregel_key in ISOLATIE_BEDRAGEN:
+        # Controleer ISDE minimale oppervlakte; onder minimum = geen subsidie.
+        min_opp = ISDE_MIN_OPP_ISOLATIE.get(maatregel_key, ISDE_MIN_OPP_DEFAULT)
+        if opp_element < min_opp:
+            return 0
         per_m2 = ISOLATIE_BEDRAGEN[maatregel_key][tarief_sleutel]
         return round(opp_element * per_m2)
 

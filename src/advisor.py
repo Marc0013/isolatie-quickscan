@@ -113,6 +113,9 @@ class AdviesResult:
     warmtebehoefte:  Optional[float]   # kWh/m²/jr (EP-Online)
     # Totale warmtebehoefte (kWh/jr) — berekend of geschat; zie financials.py
     warmte_totaal_kwh: float
+    # Databron gebruikt voor warmtebehoefte-schatting
+    # "ep_online_thermisch" | "ep_online_bag" | "default_bouwperiode_bag" | "default_bouwperiode_fallback"
+    warmte_bron: str
 
     # ── Quickscan scores ──────────────────────────────────────────────────────
     scores:         dict[str, int]   # {"dak": 4, "gevel": 4, "vloer": 4, "glas": 4}
@@ -123,6 +126,7 @@ class AdviesResult:
     prioriteiten: list[PrioriteitItem]
 
     # ── Subsidies ─────────────────────────────────────────────────────────────
+    meervoudig_tarief:          bool    # True als ≥2 maatregelen score ≥3 (combinatiekorting)
     subsidie_regels:            list[SubsidieRegel]
     subsidie_totaal_indicatie:  float   # EUR som indicatieve bedragen (indicatief)
 
@@ -223,6 +227,7 @@ def _bouw_prioriteiten(
     opp_m2:         Optional[float],
     gebouwtype:     Optional[str],
     warmte_totaal:  float,
+    meervoudig:     bool = True,
 ) -> list[PrioriteitItem]:
     """
     Bouwt de lijst van geprioriteerde maatregelen op, gesorteerd op:
@@ -230,13 +235,11 @@ def _bouw_prioriteiten(
     2. Verwachte besparing (hoog naar laag) bij gelijke score
 
     Bevat alleen elementen met score ≥ 2. Score 1 is 'goed'; geen actie nodig.
+    Elementen met opp_indicatief == 0 (bv. dak bij appartement) worden overgeslagen.
     """
     opp_schatting = schat_oppervlaktes(opp_m2 or 90.0, gebouwtype)
 
     items: list[PrioriteitItem] = []
-    # Bepaal of meervoudig tarief van toepassing is (≥2 maatregelen met score ≥3)
-    n_relevante = sum(1 for s in scores.values() if s is not None and s >= 3)
-    meervoudig  = n_relevante >= 2
 
     for element, score in scores.items():
         if score is None or score < 2:
@@ -244,6 +247,10 @@ def _bouw_prioriteiten(
 
         maatregel_key  = _element_naar_maatregel(element, bouwjaar)
         opp_elem       = opp_schatting.get(element, 0.0)
+
+        # Sla elementen over zonder oppervlakte (bv. dak bij appartement)
+        if opp_elem == 0.0:
+            continue
 
         besparing_min, besparing_max = bereken_besparing(
             element, score, warmte_totaal, bouwjaar
@@ -364,10 +371,11 @@ def _bouw_samenvatting(
                 else "doorgaans 4–8 jaar"
             )
             delen.append(
-                f"De meest rendabele eerste stap is {top.maatregel_naam.lower()} "
+                f"De meest kansrijke eerste maatregel om te onderzoeken is "
+                f"{top.maatregel_naam.lower()} "
                 f"({top.element_naam.lower()}, score {top.score}/5): "
-                f"u bespaart naar verwachting €{top.besparing_min:,.0f}–€{top.besparing_max:,.0f} "
-                f"per jaar en verdient de investering terug in {tvt_str} na ISDE-subsidie."
+                f"indicatief bespaart u €{top.besparing_min:,.0f}–€{top.besparing_max:,.0f} "
+                f"per jaar en is de terugverdientijd indicatief {tvt_str} na ISDE-subsidie."
             )
         if subsidie_totaal > 0:
             delen.append(
@@ -400,9 +408,9 @@ def _bouw_samenvatting(
         )
         wp = WARMTEPOMP
         delen.append(
-            f"De meest effectieve volgende stap is een duurzame installatie. "
-            f"Een warmtepomp past goed bij uw woning: via de ISDE ontvangt u "
-            f"een startbedrag van €{wp['startbedrag']:,} plus €{wp['per_kw']} per kW vermogen."
+            f"De meest kansrijke volgende stap is een duurzame installatie. "
+            f"Een warmtepomp kan een logische keuze zijn; via de ISDE is mogelijk "
+            f"een startbedrag van €{wp['startbedrag']:,} plus €{wp['per_kw']} per kW vermogen beschikbaar."
         )
 
     # Afsluiten met CTA
@@ -649,10 +657,23 @@ def build_advice(facts: dict[str, Any]) -> AdviesResult:
     warmte_totaal = schat_warmtebehoefte_totaal(
         warmbeh, opp_therm, opp_m2, bouwjaar
     )
+    # Registreer welke databron voor warmtebehoefte is gebruikt (transparantie)
+    if warmbeh and opp_therm:
+        warmte_bron = "ep_online_thermisch"
+    elif warmbeh and opp_m2:
+        warmte_bron = "ep_online_bag"
+    elif opp_m2:
+        warmte_bron = "default_bouwperiode_bag"
+    else:
+        warmte_bron = "default_bouwperiode_fallback"
 
     # ── 4. Geprioriteerde maatregelen ─────────────────────────────────────────
+    # Meervoudig tarief: ≥2 elementen met score ≥3 (combinatiekorting ISDE 2026)
+    n_relevante    = sum(1 for s in scores.values() if s is not None and s >= 3)
+    meervoudig_tarief = n_relevante >= 2
+
     prioriteiten = _bouw_prioriteiten(
-        scores, bouwjaar, opp_m2, gebouwtype, warmte_totaal
+        scores, bouwjaar, opp_m2, gebouwtype, warmte_totaal, meervoudig_tarief
     )
 
     # ── 5. Subsidieregels ─────────────────────────────────────────────────────
@@ -695,9 +716,11 @@ def build_advice(facts: dict[str, Any]) -> AdviesResult:
         energiebehoefte          = energiebeh,
         warmtebehoefte           = warmbeh,
         warmte_totaal_kwh        = warmte_totaal,
+        warmte_bron              = warmte_bron,
         scores                   = scores,
         gemiddelde_score         = gemiddelde_score,
         prioriteiten             = prioriteiten,
+        meervoudig_tarief        = meervoudig_tarief,
         subsidie_regels          = subsidie_regels,
         subsidie_totaal_indicatie = subsidie_totaal,
         teksten                  = teksten,
