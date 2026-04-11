@@ -211,8 +211,22 @@ def render_markdown(
     )
     lines.append("")
 
+    from teksten_elementen import get_slottekst_kansen
+    element_namen = {"dak": "Dak", "gevel": "Gevel", "vloer": "Vloer", "glas": "Glas"}
     for k, v in scan["scores"].items():
-        lines.append(f"- **{k.capitalize()}**: {v}/5")
+        naam       = element_namen.get(k, k.capitalize())
+        score_label = narrative.get(f"score_{k}_tekst", str(v)) if narrative else str(v)
+        lines.append(f"### {naam} — score {v}/5 ({score_label})")
+        lines.append("")
+        if narrative:
+            tekst = narrative.get(f"element_tekst_{k}", "")
+            if tekst:
+                lines.append(tekst)
+                lines.append("")
+
+    slottekst = get_slottekst_kansen(scan["scores"])
+    lines.append(slottekst)
+    lines.append("")
 
     # ─────────────────────────────────────────────
     # Inhoudelijk advies / optimalisaties

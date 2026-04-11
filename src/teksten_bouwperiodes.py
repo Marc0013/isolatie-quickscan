@@ -43,7 +43,7 @@ PERIODES: list[dict] = [
             "om de verhoogde luchtvochtigheid na kierdichting te beheersen.",
         ],
         "risicos": [
-            "Vocht en houtrot: deze woningen zijn often 'dampopen' gebouwd zonder spouw of met een "
+            "Vocht en houtrot: deze woningen zijn vaak 'dampopen' gebouwd zonder spouw of met een "
             "zeer smalle spouw. Bij binnenisolatie daalt de temperatuur van de oorspronkelijke muur "
             "sterk, met condensatierisico als gevolg. Gebruik vochtregulerende folies (zoals Intello) "
             "en dampopen materialen zoals houtvezel of vlas — vermijd volledig dampdichte plastics.",

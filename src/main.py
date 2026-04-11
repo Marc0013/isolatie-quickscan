@@ -70,6 +70,30 @@ def _strip_md(text: str) -> str:
     text = re.sub(r'`(.+?)`', r'\1', text)           # `code` → tekst
     return text
 
+def _find_ghostscript() -> str | None:
+    """Zoekt Ghostscript op Windows en Unix. Geeft pad terug of None."""
+    import glob as _glob, subprocess as _sp
+    candidates = [
+        r"C:\Program Files\gs\gs*\bin\gswin64c.exe",
+        r"C:\Program Files (x86)\gs\gs*\bin\gswin64c.exe",
+        r"C:\Program Files\gs\gs*\bin\gswin32c.exe",
+        "gswin64c", "gswin32c", "gs",
+    ]
+    for cand in candidates:
+        if '*' in cand:
+            matches = sorted(_glob.glob(cand))
+            if matches:
+                return matches[-1]
+        else:
+            try:
+                r = _sp.run([cand, "--version"], capture_output=True, timeout=5)
+                if r.returncode == 0:
+                    return cand
+            except (FileNotFoundError, _sp.TimeoutExpired):
+                pass
+    return None
+
+
 def main(postcode: str, huisnummer: str, toevoeging: Optional[str] = None, huisletter: Optional[str] = None):
     load_dotenv()
     config = load_config()
@@ -219,6 +243,11 @@ def main(postcode: str, huisnummer: str, toevoeging: Optional[str] = None, huisl
             "{{score_gevel_tekst}}":     narrative.get("score_gevel_tekst", "—") if narrative else "—",
             "{{score_vloer_tekst}}":     narrative.get("score_vloer_tekst", "—") if narrative else "—",
             "{{score_glas_tekst}}":      narrative.get("score_glas_tekst", "—") if narrative else "—",
+            # Element-specifieke uitleg
+            "{{element_tekst_dak}}":     _strip_md(narrative.get("element_tekst_dak", "") if narrative else ""),
+            "{{element_tekst_gevel}}":   _strip_md(narrative.get("element_tekst_gevel", "") if narrative else ""),
+            "{{element_tekst_vloer}}":   _strip_md(narrative.get("element_tekst_vloer", "") if narrative else ""),
+            "{{element_tekst_glas}}":    _strip_md(narrative.get("element_tekst_glas", "") if narrative else ""),
             # Aandachtspunten, subsidies, vervolgstappen
             "{{risicos}}":               _strip_md(narrative.get("risicos", "") if narrative else ""),
             "{{subsidies}}":             _strip_md(narrative.get("subsidies_blok", sub_tekst) if narrative else sub_tekst),
@@ -234,13 +263,13 @@ def main(postcode: str, huisnummer: str, toevoeging: Optional[str] = None, huisl
             sv_pad = outdir / f"streetview_{postcode}_{huisnummer}.jpg"
             sv_pad.write_bytes(sv_foto)
 
-        fill_docx(str(template_path), str(docx_out), docx_data, sv_foto_pad=str(sv_pad) if sv_pad else None, bouwjaar=bouwjaar)
+        fill_docx(str(template_path), str(docx_out), docx_data, sv_foto_pad=str(sv_pad) if sv_pad else None, bouwjaar=bouwjaar, scores=scan.get("scores"))
 
         # Tijdelijk Street View bestand opruimen
         if sv_pad and sv_pad.exists():
             sv_pad.unlink()
 
-        # ── PDF maken via LibreOffice ──────────────────────────
+        # ── PDF maken via LibreOffice + optionele Ghostscript print-optimalisatie ──
         import subprocess, sys, os, tempfile
         pdf_out = outdir / f"quickscan_{postcode}_{huisnummer}.pdf"
 
@@ -251,20 +280,20 @@ def main(postcode: str, huisnummer: str, toevoeging: Optional[str] = None, huisl
         ]
         lo_exe = next((p for p in lo_candidates if Path(p).exists() or p == "soffice"), "soffice")
 
-        # UserInstallation in temp-map zonder spaties (fix voor Windows paden met spaties)
         tmp_profile = Path(tempfile.mkdtemp())
         env = os.environ.copy()
         env["UserInstallation"] = tmp_profile.as_uri()
 
-        # Verwijder bestaande PDF zodat LibreOffice hem niet probeert te overschrijven
         if pdf_out.exists():
             try:
                 pdf_out.unlink()
             except Exception:
                 pass
 
-        result = subprocess.run(
-            [lo_exe, "--headless", "--norestore", "--convert-to", "pdf",
+        # Stap 1: LibreOffice — gebruik writer_pdf_Export filter voor volledige font-embedding
+        lo_result = subprocess.run(
+            [lo_exe, "--headless", "--norestore",
+             "--convert-to", "pdf:writer_pdf_Export",
              "--outdir", str(outdir), str(docx_out)],
             capture_output=True, text=True, env=env
         )
@@ -274,10 +303,46 @@ def main(postcode: str, huisnummer: str, toevoeging: Optional[str] = None, huisl
         except Exception:
             pass
 
-        if result.returncode == 0:
-            print(f"OK: PDF geschreven: {pdf_out}")
+        if lo_result.returncode != 0:
+            print(f"Let op: PDF-conversie mislukt: {lo_result.stderr or lo_result.stdout}")
         else:
-            print(f"Let op: PDF-conversie mislukt: {result.stderr or result.stdout}")
+            print(f"OK: PDF geschreven: {pdf_out}")
+
+            # Stap 2: Ghostscript post-processing (optioneel, vereist Ghostscript installatie)
+            # Vlakt transparantie af, forceert font-embedding en zet PDF op versie 1.4.
+            # PDF 1.4 is breed ondersteund door printercontrollers en -drivers.
+            gs_exe = _find_ghostscript()
+            if gs_exe and pdf_out.exists():
+                pdf_tmp = pdf_out.with_suffix(".gs_tmp.pdf")
+                gs_result = subprocess.run([
+                    gs_exe,
+                    "-dBATCH", "-dNOPAUSE", "-dQUIET",
+                    "-sDEVICE=pdfwrite",
+                    "-dCompatibilityLevel=1.4",      # PDF 1.4: transparantie geflattened, breed ondersteund
+                    "-dPDFSETTINGS=/printer",        # 300 DPI downsampling, optimale compressie
+                    "-dEmbedAllFonts=true",           # Alle fonts insluiten (voorkomt substitutie)
+                    "-dSubsetFonts=true",             # Subset houdt bestandsgrootte beperkt
+                    "-dHaveTransparency=false",       # Transparantiegroepen afvlakken
+                    "-dColorConversionStrategy=/sRGB",# Uniforme kleurruimte voor printercompatibiliteit
+                    "-dColorImageResolution=300",
+                    "-dGrayImageResolution=300",
+                    "-dMonoImageResolution=1200",
+                    "-dDetectDuplicateImages=true",
+                    f"-sOutputFile={pdf_tmp}",
+                    str(pdf_out),
+                ], capture_output=True, text=True)
+
+                if gs_result.returncode == 0 and pdf_tmp.exists():
+                    pdf_tmp.replace(pdf_out)
+                    print(f"OK: PDF geoptimaliseerd voor afdrukken (Ghostscript)")
+                else:
+                    if pdf_tmp.exists():
+                        pdf_tmp.unlink()
+                    print(f"Let op: Ghostscript post-processing mislukt — basis-PDF gebruikt")
+                    print(f"        {gs_result.stderr.strip()[:200]}" if gs_result.stderr else "")
+            else:
+                print(f"Info: Ghostscript niet gevonden — basis-PDF gebruikt (printproblemen mogelijk)")
+                print(f"      Installeer Ghostscript via https://www.ghostscript.com/releases/")
     else:
         print(f"Let op: template niet gevonden op {template_path} — alleen .md gegenereerd.")
 

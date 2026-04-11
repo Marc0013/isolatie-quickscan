@@ -1,6 +1,6 @@
 ---
 pagetitle: "Visstraat 25, 8501BR Joure"
-date: "3 april 2026"
+date: "6 april 2026"
 lang: nl
 ---
 
@@ -12,8 +12,6 @@ Dit rapport is opgesteld op basis van openbare registraties (BAG en EP-Online) v
 
 Er zijn geen EP-Online kengetallen beschikbaar voor deze woning. De energieprestatie kan daardoor niet automatisch worden geduid. Een maatwerkadvies geeft hier meer inzicht.
 
-Een logische aanpak volgt de isolatietrias: (1) beperk warmteverlies via de schil, (2) optimaliseer het afgiftesysteem, (3) verduurzaam de opwek (warmtepomp of zonnepanelen).
-
 Aanbevolen maatregelen voor deze bouwperiode:
 - Gevel: isoleer de binnenzijde of buitenzijde bij massieve muren, of na-isoleer de spouw indien deze aanwezig en schoon is.
 - Dak: breng volledige isolatie aan, aangezien de oorspronkelijke waarde nagenoeg nul is.
@@ -23,12 +21,12 @@ Aanbevolen maatregelen voor deze bouwperiode:
 
 Laat een schil-scan uitvoeren om te bepalen welke isolatiemaatregel het meest rendabel is voor uw specifieke situatie.
 
-De bovenstaande aanbevelingen zijn indicatief op basis van registratiedata. Bevestiging via foto-inspectie of een maatwerkadvies is altijd aan te raden.
+De bovenstaande aanbevelingen zijn indicatief op basis van registratiedata. Maatwerkadvies door erkende bedrijven is altijd aan te raden.
 
 ## 2. Woninggegevens
 
 **Adres:** Visstraat 25, 8501BR Joure  
-**Datum rapport:** 3 april 2026  
+**Datum rapport:** 6 april 2026  
 **Bouwjaar (BAG):** 1876 — bouwperiode: voor 1975  
 **Gebruiksoppervlakte (BAG):** 82 m²  
 **Energielabel:** niet gevonden of niet gekoppeld
@@ -39,10 +37,36 @@ _Bron: Basisregistratie Adressen en Gebouwen (BAG/PDOK) en landelijke energielab
 
 De onderstaande scores geven een indicatie van het verwachte verbeterpotentieel per onderdeel. Een lage score betekent niet dat geen actie mogelijk is, maar dat het rendement ten opzichte van de investering doorgaans beperkter is.
 
-- **Dak**: 4/5
-- **Gevel**: 4/5
-- **Vloer**: 4/5
-- **Glas**: 4/5
+### Dak — score 4/5 (Slecht)
+
+Dakisolatie houdt opstijgende warme lucht binnen de woning vast en is daarmee een van de meest effectieve energiemaatregelen. Een slecht geïsoleerd dak is verantwoordelijk voor een groot deel van het totale warmteverlies. Uw woning lijkt te voldoen aan de standaard waardoor u op dit onderdeel weinig winst kan behalen.
+
+Uw dak is niet of gering geïsoleerd, maar onvoldoende dik voor de huidige normen. Er is nog aanzienlijk warmteverlies via de kap. Opschalen naar een hogere Rc-waarde verbetert het binnenklimaat op de bovenverdieping en verlaagt de stookkosten.
+
+### Gevel — score 4/5 (Slecht)
+
+Gevelisolatie brengt een thermische laag aan in de spouw of tegen de muren om warmteverlies te beperken. Zonder isolatie ontsnapt warmte via het metselwerk en koelen binnenmuren af.
+
+De huidige gevelisolatie is er niet of onvoldoende waardoor de verwarmingsinstallatie harder werkt dan nodig is. Bijzetten naar een hogere Rc-waardezorgt voor minder energieverlies, een lagere warmtevraag en verbetert binnenklimaat.
+
+### Vloer — score 4/5 (Slecht)
+
+Vloerisolatie vormt een barrière tussen de warme leefruimte en de koude grond of kruipruimte. Het stopt warmteverlies via de onderzijde en gaat optrekkend vocht uit de kruipruimte tegen.Uw woning lijkt goed geïsoleerd waardoor u op dit onderdeel weinig winst kan behalen. 
+
+De huidige vloerisolatie is onvoldoende, waardoor er nog warmteverlies via de onderkant optreedt en de kruipruimte invloed heeft op het binnenklimaat. Vervangen van de isolatie naar een hogere Rc verlaagd het verlies en verhoogt het wooncomfort.
+
+### Glas — score 4/5 (Slecht)
+
+Isolerend glas vervangt enkel of verouderd dubbel glas door ruiten met een warmtereflecterende coating die warmte binnenhoudt en koudeval bij de ramen voorkomt. Ramen zijn de zwakste plekken in de isolatieschil van een woning.
+
+Het aanwezige enkel of oud dubbel glas is verouderd of lek en presteert  niet meer als bij aanleg. Vervangen door nieuwe HR++ ruiten verbetert het binnenklimaat direct en elimineert koude luchtstromen langs de ramen.
+
+Heeft u al verbeteringen uitgevoerd of wilt u dit aanpakken en nog een stap verder gaan, dan kunt u zich richten op het optimaliseren van installaties en het verder verlagen van uw energieverbruik.
+
+Denk aan het toepassen van zonnepanelen, het overstappen naar een (hybride) warmtepomp en het verbeteren van uw verwarmingssysteem. In combinatie met goede ventilatie zorgt dit voor een comfortabel en gezond binnenklimaat. Ook batterijopslag kan interessant zijn om energie tijdelijk op te slaan.
+
+Door isolatie en installaties slim te combineren, werkt u stap voor stap toe naar een woning die klaar is voor een toekomst met minder of geen aardgas.
+
 
 ## 4. Waarschijnlijke optimalisaties
 

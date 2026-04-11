@@ -8,10 +8,10 @@ W  = f'{{{NS}}}'
 
 # ── Subsidietabel configuratie ────────────────────────────────────────────────
 _SUBSIDIE_SENTINEL = "##PANDIQ_SUBSIDIETABEL##"
-_NAVY_HEX   = "2F6FA3"   # titelbalk blauw (consistent met woningtabel)
+_NAVY_HEX   = "5AAA00"   # titelbalk groen (PandIQ huisstijl)
 _YELLOW_HEX = "FFFFFF"   # aanbevolen rij — wit (geen gele achtergrond)
 _GREEN_BG   = "FFFFFF"   # warmtepomp blok — wit
-_GREEN_HEAD = "2F6FA3"   # warmtepomp header — zelfde titelblauw
+_GREEN_HEAD = "5AAA00"   # warmtepomp header — PandIQ groen
 _BLUE_BG    = "FFFFFF"   # noten — geen achtergrondkleur
 _WARN_BG    = "FFFFFF"   # waarschuwingsnoot — geen achtergrondkleur
 
@@ -30,13 +30,14 @@ def _set_cel_achtergrond(cel, kleur_hex: str) -> None:
     tcPr.append(shd)
 
 
-def _cel_tekst(cel, tekst: str, *, bold=False, size=9, kleur=None, italic=False):
+def _cel_tekst(cel, tekst: str, *, bold=False, size=11, kleur=None, italic=False):
     """Zet tekst in een cel met opmaak. Vervangt eventuele bestaande inhoud."""
     from docx.shared import Pt
     cel.text = ""
     run = cel.paragraphs[0].add_run(tekst)
     run.bold = bold
     run.italic = italic
+    run.font.name = "Calibri"
     run.font.size = Pt(size)
     if kleur:
         run.font.color.rgb = kleur
@@ -87,11 +88,59 @@ def _voeg_subsidietabel_bouwperiode_in(docx_pad: str, bouwjaar: int) -> None:
     parent        = sentinel_elem.getparent()
     positie       = list(parent).index(sentinel_elem)
 
+    def _set_kolom_breedtes(tabel, breedtes: list) -> None:
+        """Stelt expliciete kolombreedtes in (twips). Overschrijft auto-layout."""
+        from docx.oxml.ns import qn as _qn
+        from docx.oxml import OxmlElement as _el
+        tbl = tabel._tbl
+        # Totale tabelbreedte op fixed zetten
+        tblPr = tbl.find(_qn('w:tblPr'))
+        if tblPr is not None:
+            for old in tblPr.findall(_qn('w:tblW')):
+                tblPr.remove(old)
+            tblW = _el('w:tblW')
+            tblW.set(_qn('w:w'), str(sum(breedtes)))
+            tblW.set(_qn('w:type'), 'dxa')
+            tblPr.insert(0, tblW)
+        # tblGrid vervangen
+        for old in tbl.findall(_qn('w:tblGrid')):
+            tbl.remove(old)
+        tblGrid = _el('w:tblGrid')
+        for b in breedtes:
+            gc = _el('w:gridCol'); gc.set(_qn('w:w'), str(b)); tblGrid.append(gc)
+        tblPr_elem = tbl.find(_qn('w:tblPr'))
+        if tblPr_elem is not None:
+            tblPr_elem.addnext(tblGrid)
+        else:
+            tbl.insert(0, tblGrid)
+        # Breedte per cel per rij
+        for rij in tabel.rows:
+            for cel, b in zip(rij.cells, breedtes):
+                tcPr = cel._tc.get_or_add_tcPr()
+                for old in tcPr.findall(_qn('w:tcW')):
+                    tcPr.remove(old)
+                tcW = _el('w:tcW'); tcW.set(_qn('w:w'), str(b)); tcW.set(_qn('w:type'), 'dxa')
+                tcPr.insert(0, tcW)
+
+    def _set_rij_hoogte(rij, twips=400):
+        """Minimale rijhoogte instellen (twips = 1/20 pt; 400 ≈ 7 mm)."""
+        from docx.oxml.ns import qn as _qn
+        from docx.oxml import OxmlElement as _el
+        trPr = rij._tr.get_or_add_trPr()
+        for old in trPr.findall(_qn('w:trHeight')):
+            trPr.remove(old)
+        trH = _el('w:trHeight')
+        trH.set(_qn('w:val'), str(twips))
+        trH.set(_qn('w:hRule'), 'atLeast')
+        trPr.append(trH)
+
     def _header_rij(tabel, kolommen, achtergrond=_NAVY_HEX):
+        rij = tabel.rows[0]
         for j, kop in enumerate(kolommen):
-            cel = tabel.rows[0].cells[j]
+            cel = rij.cells[j]
             _cel_tekst(cel, kop, bold=True, kleur=WIT)
             _set_cel_achtergrond(cel, achtergrond)
+        _set_rij_hoogte(rij)
 
     def _data_rij(tabel, cellen: list, aanbevolen: bool):
         """Voegt een datarij toe. Aanbevolen = gele bg + vet; anders grijs."""
@@ -101,6 +150,7 @@ def _voeg_subsidietabel_bouwperiode_in(docx_pad: str, bouwjaar: int) -> None:
             _cel_tekst(rij.cells[j], tekst, bold=(bold and aanbevolen), kleur=kleur)
             if aanbevolen:
                 _set_cel_achtergrond(rij.cells[j], _YELLOW_HEX)
+        _set_rij_hoogte(rij)
 
     # ── Tabel 1: Isolatie ─────────────────────────────────────────────────────
     ISO_VOLGORDE = ["gevel", "dakisolatie", "zoldervloer", "spouwmuur", "vloer", "bodem"]
@@ -109,6 +159,8 @@ def _voeg_subsidietabel_bouwperiode_in(docx_pad: str, bouwjaar: int) -> None:
     tabel_iso = doc.add_table(rows=1, cols=len(ISO_COLS))
     try: tabel_iso.style = doc.styles['Table Grid']
     except KeyError: pass
+    # Kolom 1 (Maatregel) 3200 tw, overige 4 kolommen elk ~1456 tw  (totaal 9026)
+    _set_kolom_breedtes(tabel_iso, [3200, 1456, 1457, 1457, 1456])
     _header_rij(tabel_iso, ISO_COLS)
 
     for sleutel in ISO_VOLGORDE:
@@ -124,23 +176,24 @@ def _voeg_subsidietabel_bouwperiode_in(docx_pad: str, bouwjaar: int) -> None:
 
     # ── Tabel 2: Glas ─────────────────────────────────────────────────────────
     GLAS_VOLGORDE = ["hrpp", "vacuum", "triple", "deuren"]
-    GLAS_COLS     = ["Type glas", "Enkelvoudig", "Meervoudig", "Monument enkv.", "Monument meerv."]
+    GLAS_COLS     = ["Type glas", "Enkelvoudig", "Meervoudig", "Min. U-waarde"]
 
     spatie1 = doc.add_paragraph("")
 
     tabel_glas = doc.add_table(rows=1, cols=len(GLAS_COLS))
     try: tabel_glas.style = doc.styles['Table Grid']
     except KeyError: pass
+    # Kolom 1 (Type glas) 3200 tw, overige 3 kolommen elk ~1942 tw  (totaal 9026)
+    _set_kolom_breedtes(tabel_glas, [3200, 1942, 1942, 1942])
     _header_rij(tabel_glas, GLAS_COLS)
 
     for sleutel in GLAS_VOLGORDE:
         g = GLAS_BEDRAGEN[sleutel]
         _data_rij(tabel_glas, [
-            (g["naam"],                               True),
-            (f"€ {g['enkel']:.2f}/m²",               False),
-            (f"€ {g['meer']:.2f}/m²",                True),
-            (f"€ {MONUMENT_GLAS['enkel']:.2f}/m²",   False),
-            (f"€ {MONUMENT_GLAS['meer']:.2f}/m²",    False),
+            (g["naam"],               True),
+            (f"€ {g['enkel']:.2f}/m²", False),
+            (f"€ {g['meer']:.2f}/m²",  True),
+            (g["ug"],                  False),
         ], aanbevolen=sleutel in aanbevolen_glas)
 
     # ── Warmtepomp combinatieblok ──────────────────────────────────────────────
@@ -152,6 +205,8 @@ def _voeg_subsidietabel_bouwperiode_in(docx_pad: str, bouwjaar: int) -> None:
     tabel_wp = doc.add_table(rows=3, cols=4)
     try: tabel_wp.style = doc.styles['Table Grid']
     except KeyError: pass
+    # Kolom 1 (Combinatie) 3200 tw, overige 3 kolommen elk ~1942 tw  (totaal 9026)
+    _set_kolom_breedtes(tabel_wp, [3200, 1942, 1942, 1942])
 
     # Header
     _header_rij(tabel_wp, ["Combinatie", "Startbedrag", "Per kW vermogen", "A+++ bonus"],
@@ -167,13 +222,14 @@ def _voeg_subsidietabel_bouwperiode_in(docx_pad: str, bouwjaar: int) -> None:
     ]):
         _cel_tekst(cel, tekst, bold=(tekst == "Isolatie + warmtepomp"), kleur=GROEN_TXT)
         _set_cel_achtergrond(cel, _GREEN_BG)
+    _set_rij_hoogte(rij_wp)
 
     # Toelichting rij (samengevoegde cel)
     rij_toel = tabel_wp.rows[2]
     cel_toel = rij_toel.cells[0]
     for i in range(1, 4):
         cel_toel = cel_toel.merge(rij_toel.cells[i])
-    _cel_tekst(cel_toel, wp_toel, size=8, italic=True, kleur=GROEN_TXT)
+    _cel_tekst(cel_toel, wp_toel, italic=True, kleur=GROEN_TXT)
     _set_cel_achtergrond(rij_toel.cells[0], _GREEN_BG)
 
     # ── Noten ─────────────────────────────────────────────────────────────────
@@ -185,12 +241,12 @@ def _voeg_subsidietabel_bouwperiode_in(docx_pad: str, bouwjaar: int) -> None:
 
     if periode.get("notitie"):
         rij = tabel_noten.add_row()
-        _cel_tekst(rij.cells[0], f"Let op: {periode['notitie']}", size=8, italic=True)
+        _cel_tekst(rij.cells[0], f"Let op: {periode['notitie']}", italic=True)
         _set_cel_achtergrond(rij.cells[0], _WARN_BG)
 
     for noot in SUBSIDIE_NUANCES:
         rij = tabel_noten.add_row()
-        _cel_tekst(rij.cells[0], f"• {noot}", size=8)
+        _cel_tekst(rij.cells[0], f"• {noot}")
         _set_cel_achtergrond(rij.cells[0], _BLUE_BG)
 
     # ── Verplaats alles naar sentinel-positie ──────────────────────────────────
@@ -466,7 +522,7 @@ def _stijl_woninggegevens_tabel(docx_pad: str) -> None:
     except ImportError:
         return
 
-    TITELBLAUW = "2F6FA3"
+    TITELBLAUW = "5AAA00"
     LIJNKLEUR  = "D6E2EE"
     WIT        = "FFFFFF"
     TEKST_RGB  = RGBColor(0x1F, 0x29, 0x37)
@@ -491,8 +547,9 @@ def _stijl_woninggegevens_tabel(docx_pad: str) -> None:
         tcPr.append(tcB)
 
     def _run_opmaak(run, *, bold=False, kleur=None):
-        run.bold      = bold
-        run.font.size = Pt(10.5)
+        run.bold           = bold
+        run.font.name      = "Calibri"
+        run.font.size      = Pt(11)
         if kleur:
             run.font.color.rgb = kleur
 
@@ -540,6 +597,10 @@ def _stijl_woninggegevens_tabel(docx_pad: str) -> None:
         p = OxmlElement('w:p')
         r = OxmlElement('w:r')
         rPr = OxmlElement('w:rPr')
+        rFonts = OxmlElement('w:rFonts')
+        for attr in ('w:ascii', 'w:hAnsi', 'w:cs'):
+            rFonts.set(qn(attr), 'Calibri')
+        rPr.append(rFonts)
         for tag, waarde in [('w:b', None), ('w:color', 'FFFFFF'),
                              ('w:sz', '22'), ('w:szCs', '22')]:
             el = OxmlElement(tag)
@@ -604,7 +665,633 @@ def _stijl_woninggegevens_tabel(docx_pad: str) -> None:
     doc.save(docx_pad)
 
 
-def fill_docx(template_path: str, output_path: str, data: dict, sv_foto_pad: str | None = None, bouwjaar: int | None = None):
+def _voeg_element_teksten_in(docx_pad: str, data: dict, scores: dict | None = None) -> None:
+    """
+    Zoekt de scores-tabel (Dak/Gevel/Vloer/Glas) en voegt per element
+    een subkop + beschrijvende tekst in direct ná de tabel.
+    Herkent de teksten via de data-mapping die ook aan fill_docx is meegegeven.
+    """
+    try:
+        from docx import Document
+        from docx.oxml.ns import qn
+        from docx.oxml import OxmlElement
+    except ImportError:
+        return
+
+    ELEMENTEN = [
+        ("Dak",   "{{element_tekst_dak}}",   "{{score_dak}}",   "{{score_dak_tekst}}"),
+        ("Gevel", "{{element_tekst_gevel}}", "{{score_gevel}}", "{{score_gevel_tekst}}"),
+        ("Vloer", "{{element_tekst_vloer}}", "{{score_vloer}}", "{{score_vloer_tekst}}"),
+        ("Glas",  "{{element_tekst_glas}}",  "{{score_glas}}",  "{{score_glas_tekst}}"),
+    ]
+
+    invoegblokken = []
+    for naam, tekst_key, score_key, label_key in ELEMENTEN:
+        tekst = data.get(tekst_key, "").strip()
+        score = data.get(score_key, "")
+        label = data.get(label_key, "")
+        if tekst:
+            invoegblokken.append((naam, tekst, score, label))
+
+    if not invoegblokken:
+        return
+
+    doc = Document(docx_pad)
+
+    # Zoek scores-tabel: bevat "dak", "gevel", "vloer" of "glas" in eerste kolom
+    HERKENNING = {"dak", "gevel", "vloer", "glas"}
+    scoretabel = None
+    for tabel in doc.tables:
+        cel_teksten = {rij.cells[0].text.strip().lower() for rij in tabel.rows}
+        if len(cel_teksten & HERKENNING) >= 2:
+            scoretabel = tabel
+            break
+
+    if scoretabel is None:
+        return
+
+    tbl_elem = scoretabel._tbl
+    parent   = tbl_elem.getparent()
+    idx      = list(parent).index(tbl_elem) + 1  # invoegen ná de tabel
+
+    def _maak_alinea(tekst: str, *, bold=False, pt_val="22", kleur_hex=None) -> etree._Element:
+        p   = OxmlElement('w:p')
+        pPr = OxmlElement('w:pPr')
+        # Gebruik Normal-stijl zodat regelafstand en opmaak consistent zijn met de template
+        pSt = OxmlElement('w:pStyle')
+        pSt.set(qn('w:val'), 'Normal')
+        pPr.append(pSt)
+        spacing = OxmlElement('w:spacing')
+        spacing.set(qn('w:before'), '0')
+        spacing.set(qn('w:after'),  '160')
+        pPr.append(spacing)
+        p.append(pPr)
+
+        r   = OxmlElement('w:r')
+        rPr = OxmlElement('w:rPr')
+        if bold:
+            rPr.append(OxmlElement('w:b'))
+        fonts = OxmlElement('w:rFonts')
+        for attr in ('w:ascii', 'w:hAnsi', 'w:cs'):
+            fonts.set(qn(attr), 'Calibri')
+        rPr.append(fonts)
+        sz = OxmlElement('w:sz');   sz.set(qn('w:val'), pt_val);   rPr.append(sz)
+        szC = OxmlElement('w:szCs'); szC.set(qn('w:val'), pt_val); rPr.append(szC)
+        if kleur_hex:
+            kl = OxmlElement('w:color'); kl.set(qn('w:val'), kleur_hex); rPr.append(kl)
+        r.append(rPr)
+
+        t = OxmlElement('w:t')
+        t.text = tekst
+        t.set('{http://www.w3.org/XML/1998/namespace}space', 'preserve')
+        r.append(t)
+        p.append(r)
+        return p
+
+    # Kleine witregel direct na de tabel
+    parent.insert(idx, _maak_alinea(""))
+    idx += 1
+
+    for naam, tekst, score, label in invoegblokken:
+        # Subkop: "Dak — score 2/5 (Matig)"
+        kop_tekst = f"{naam} — score {score}/5 ({label})" if score and label else naam
+        parent.insert(idx, _maak_alinea(kop_tekst, bold=True, pt_val="22", kleur_hex="5AAA00"))
+        idx += 1
+
+        # Tekst (splits op dubbele newline voor aparte alinea's)
+        for deel in tekst.split('\n\n'):
+            deel = deel.strip()
+            if deel:
+                parent.insert(idx, _maak_alinea(deel, pt_val="22"))
+                idx += 1
+
+        # Witregel tussen elementen
+        parent.insert(idx, _maak_alinea(""))
+        idx += 1
+
+    # Slottekst eenmalig onderaan het hoofdstuk
+    if scores is not None:
+        import sys, os as _os
+        sys.path.insert(0, _os.path.dirname(__file__))
+        from teksten_elementen import get_slottekst_kansen
+        slottekst = get_slottekst_kansen(scores)
+        for deel in slottekst.split('\n\n'):
+            deel = deel.strip()
+            if deel:
+                parent.insert(idx, _maak_alinea(deel, pt_val="22"))
+                idx += 1
+
+    doc.save(docx_pad)
+
+
+def _voeg_eindpagina_in(docx_pad: str) -> None:
+    """
+    Vervangt de onopgemaakte PandIQ CTA-alinea's door een huisstijl eindpagina.
+    Herkent de start aan 'regisseur in verduurzaming' in de tekst.
+    """
+    try:
+        from docx import Document
+        from docx.oxml.ns import qn
+        from docx.oxml import OxmlElement
+    except ImportError:
+        return
+
+    doc  = Document(docx_pad)
+    body = doc.element.body
+    kinderen = list(body)
+
+    # ── Zoek startpunt van bestaande CTA-inhoud ───────────────────────────────
+    start_elem = None
+    for elem in kinderen:
+        if elem.tag.endswith('}p'):
+            text = ''.join(t.text or '' for t in elem.iter(f'{W}t')).lower()
+            if 'regisseur in verduurzaming' in text:
+                start_elem = elem
+                break
+
+    if start_elem is None:
+        return
+
+    start_idx = kinderen.index(start_elem)
+
+    # Verwijder alles van startpunt t/m einde body (behalve w:sectPr)
+    for elem in kinderen[start_idx:]:
+        if elem.tag.endswith('}sectPr'):
+            break
+        body.remove(elem)
+
+    # ── Hulpfuncties ──────────────────────────────────────────────────────────
+    def _r(tekst, *, bold=False, italic=False, pt=11, kleur_hex):
+        r = OxmlElement('w:r')
+        rPr = OxmlElement('w:rPr')
+        if bold:   rPr.append(OxmlElement('w:b'))
+        if italic: rPr.append(OxmlElement('w:i'))
+        fonts = OxmlElement('w:rFonts')
+        for attr in ('w:ascii', 'w:hAnsi', 'w:cs'):
+            fonts.set(qn(attr), 'Calibri')
+        rPr.append(fonts)
+        sz  = OxmlElement('w:sz');   sz.set(qn('w:val'), str(pt * 2));  rPr.append(sz)
+        szC = OxmlElement('w:szCs'); szC.set(qn('w:val'), str(pt * 2)); rPr.append(szC)
+        kl = OxmlElement('w:color'); kl.set(qn('w:val'), kleur_hex.upper()); rPr.append(kl)
+        r.append(rPr)
+        t = OxmlElement('w:t')
+        t.text = tekst
+        t.set('{http://www.w3.org/XML/1998/namespace}space', 'preserve')
+        r.append(t)
+        return r
+
+    def _p(space_before=0, space_after=160, bg_hex=None):
+        p = OxmlElement('w:p')
+        pPr = OxmlElement('w:pPr')
+        sp = OxmlElement('w:spacing')
+        sp.set(qn('w:before'), str(space_before))
+        sp.set(qn('w:after'),  str(space_after))
+        pPr.append(sp)
+        if bg_hex:
+            shd = OxmlElement('w:shd')
+            shd.set(qn('w:val'), 'clear'); shd.set(qn('w:color'), 'auto')
+            shd.set(qn('w:fill'), bg_hex.upper()); pPr.append(shd)
+        p.append(pPr)
+        return p
+
+    def _tabel(bg_hex, hoogte, inhoud_fn, pad=(220, 320, 220, 320)):
+        tbl = OxmlElement('w:tbl')
+        tblPr = OxmlElement('w:tblPr')
+        tblW = OxmlElement('w:tblW'); tblW.set(qn('w:w'), '5000'); tblW.set(qn('w:type'), 'pct')
+        tblPr.append(tblW)
+        tblBrd = OxmlElement('w:tblBorders')
+        for kant in ('top', 'left', 'bottom', 'right', 'insideH', 'insideV'):
+            el = OxmlElement(f'w:{kant}'); el.set(qn('w:val'), 'none'); tblBrd.append(el)
+        tblPr.append(tblBrd)
+        tbl.append(tblPr)
+        tblGrid = OxmlElement('w:tblGrid')
+        gc = OxmlElement('w:gridCol'); gc.set(qn('w:w'), '9026'); tblGrid.append(gc)
+        tbl.append(tblGrid)
+        tr = OxmlElement('w:tr')
+        trPr = OxmlElement('w:trPr')
+        trH = OxmlElement('w:trHeight'); trH.set(qn('w:val'), str(hoogte)); trH.set(qn('w:hRule'), 'atLeast')
+        trPr.append(trH); tr.append(trPr)
+        tc = OxmlElement('w:tc')
+        tcPr = OxmlElement('w:tcPr')
+        tcW = OxmlElement('w:tcW'); tcW.set(qn('w:w'), '5000'); tcW.set(qn('w:type'), 'pct')
+        tcPr.append(tcW)
+        shd = OxmlElement('w:shd'); shd.set(qn('w:val'), 'clear'); shd.set(qn('w:color'), 'auto')
+        shd.set(qn('w:fill'), bg_hex.upper()); tcPr.append(shd)
+        tcMar = OxmlElement('w:tcMar')
+        for kant, val in zip(('top', 'left', 'bottom', 'right'), pad):
+            el = OxmlElement(f'w:{kant}'); el.set(qn('w:w'), str(val)); el.set(qn('w:type'), 'dxa')
+            tcMar.append(el)
+        tcPr.append(tcMar); tc.append(tcPr)
+        inhoud_fn(tc)
+        tr.append(tc); tbl.append(tr)
+        return tbl
+
+    # ── Eindpagina opbouwen ───────────────────────────────────────────────────
+    elems = []
+
+    # Pagina-einde
+    p_br = _p(space_before=0, space_after=0)
+    r_br = OxmlElement('w:r')
+    br = OxmlElement('w:br'); br.set(qn('w:type'), 'page')
+    r_br.append(br); p_br.append(r_br)
+    elems.append(p_br)
+
+    # Logo-balk (donker, iets kleiner dan voorblad)
+    def _logo(tc):
+        p1 = _p(bg_hex="1A1A1A", space_before=0, space_after=60)
+        p1.append(_r("Pand", bold=True, pt=22, kleur_hex="FFFFFF"))
+        p1.append(_r("IQ",   bold=True, pt=22, kleur_hex="5AAA00"))
+        tc.append(p1)
+        p2 = _p(bg_hex="1A1A1A", space_before=0, space_after=0)
+        p2.append(_r("WONEN", bold=True, pt=8, kleur_hex="5AAA00"))
+        tc.append(p2)
+    elems.append(_tabel("1A1A1A", 1100, _logo))
+
+    # Limoen accent-streep
+    def _accent(tc): tc.append(_p(bg_hex="D4E832"))
+    elems.append(_tabel("D4E832", 80, _accent))
+
+    # Witruimte
+    elems.append(_p(space_before=400, space_after=0))
+
+    # Hoofdtitel
+    p = _p(space_before=0, space_after=100)
+    p.append(_r("Uw regisseur in verduurzaming", bold=True, pt=22, kleur_hex="1A1A1A"))
+    elems.append(p)
+
+    # Intro tekst
+    p = _p(space_before=0, space_after=200)
+    p.append(_r(
+        "Met de juiste keuzes haalt u meer uit uw woning en uw budget. "
+        "Door maatregelen slim te combineren kan uw subsidie zelfs verdubbelen.",
+        pt=11, kleur_hex="333333"
+    ))
+    elems.append(p)
+
+    # Lichtgroen info-blok: PandIQ aanbod
+    def _info(tc):
+        p = _p(bg_hex="EEF6E0", space_before=0, space_after=0)
+        p.append(_r(
+            "PandIQ geeft u overzicht en helpt u met het inschatten van bouwkosten, "
+            "het aanvragen van offertes, subsidieaanvragen en andere besparingen "
+            "— alles in één dashboard.",
+            pt=11, kleur_hex="1A4A00"
+        ))
+        tc.append(p)
+    elems.append(_tabel("EEF6E0", 400, _info))
+
+    # CTA-tekst
+    elems.append(_p(space_before=200, space_after=0))
+    p = _p(space_before=0, space_after=160)
+    p.append(_r(
+        "Maak een account aan en ontdek wat er mogelijk is. "
+        "Het kost weinig moeite en levert vaak direct voordeel op.",
+        pt=11, kleur_hex="333333"
+    ))
+    elems.append(p)
+
+    # Groene slogan
+    p = _p(space_before=80, space_after=280)
+    p.append(_r(
+        "Word geen slapende betaler, maar wees slim en bespaar.",
+        bold=True, pt=13, kleur_hex="5AAA00"
+    ))
+    elems.append(p)
+
+    # Limoen CTA-box: dashboard link
+    def _cta(tc):
+        p = _p(bg_hex="D4E832", space_before=0, space_after=0)
+        p.append(_r("Bekijk uw mogelijkheden op ", pt=11, kleur_hex="1A1A1A"))
+        p.append(_r("pandiq.nl/dashboard", bold=True, pt=11, kleur_hex="1A1A1A"))
+        p.append(_r("  →", bold=True, pt=12, kleur_hex="1A1A1A"))
+        tc.append(p)
+    elems.append(_tabel("D4E832", 480, _cta, pad=(180, 320, 180, 320)))
+
+    # Spacer voor disclaimer
+    elems.append(_p(space_before=480, space_after=0))
+
+    # Disclaimer
+    p = _p(space_before=0, space_after=0)
+    p.append(_r(
+        "Disclaimer: dit rapport is indicatief en gebaseerd op registraties en aannames. "
+        "Aan dit document kunnen geen rechten worden ontleend. "
+        "Uitvoering vereist altijd verificatie op locatie en controle van actuele regelgeving.",
+        italic=True, pt=9, kleur_hex="999999"
+    ))
+    elems.append(p)
+
+    # ── Invoegen vóór w:sectPr ────────────────────────────────────────────────
+    kinderen_na = list(body)
+    insert_at = len(kinderen_na)
+    for i, elem in enumerate(kinderen_na):
+        if elem.tag.endswith('}sectPr'):
+            insert_at = i
+            break
+
+    for i, elem in enumerate(elems):
+        body.insert(insert_at + i, elem)
+
+    doc.save(docx_pad)
+
+
+def _stijl_voorblad(docx_pad: str, adres: str, datum: str) -> None:
+    """
+    Vervangt het bestaande voorblad door een PandIQ Wonen huisstijl-cover.
+    Behoudt eventuele Street View afbeeldingen van het originele voorblad.
+    Brand: #1a1a1a (donker), #5aaa00 (groen), #d4e832 (limoeneel).
+    """
+    try:
+        from docx import Document
+        from docx.oxml.ns import qn
+        from docx.oxml import OxmlElement
+    except ImportError:
+        return
+
+    doc  = Document(docx_pad)
+    body = doc.element.body
+
+    # ── Zoek eerste Heading-alinea ─────────────────────────────────────────────
+    eerste_heading = None
+    for elem in list(body):
+        if elem.tag.endswith('}p'):
+            pPr = elem.find(f'{W}pPr')
+            if pPr is not None:
+                pStyle = pPr.find(f'{W}pStyle')
+                if pStyle is not None:
+                    val = pStyle.get(f'{W}val', '').lower()
+                    if 'heading' in val or 'kop' in val:
+                        eerste_heading = elem
+                        break
+
+    if eerste_heading is None:
+        return
+
+    kinderen = list(body)
+    stop = kinderen.index(eerste_heading)
+
+    # ── Bewaar eventuele afbeeldingen van het originele voorblad ──────────────
+    foto_paras = []
+    for elem in kinderen[:stop]:
+        if elem.tag.endswith('}p') and list(elem.iter(f'{W}drawing')):
+            foto_paras.append(elem)
+
+    # ── Verwijder bestaand voorblad ────────────────────────────────────────────
+    for elem in kinderen[:stop]:
+        body.remove(elem)
+
+    # ── Hulpfuncties ───────────────────────────────────────────────────────────
+    def _run_el(tekst, *, bold=False, pt=11, kleur_hex, char_spacing=None):
+        r = OxmlElement('w:r')
+        rPr = OxmlElement('w:rPr')
+        if bold:
+            rPr.append(OxmlElement('w:b'))
+        fonts = OxmlElement('w:rFonts')
+        for attr in ('w:ascii', 'w:hAnsi', 'w:cs'):
+            fonts.set(qn(attr), 'Calibri')
+        rPr.append(fonts)
+        sz  = OxmlElement('w:sz');   sz.set(qn('w:val'), str(pt * 2));  rPr.append(sz)
+        szC = OxmlElement('w:szCs'); szC.set(qn('w:val'), str(pt * 2)); rPr.append(szC)
+        kl = OxmlElement('w:color'); kl.set(qn('w:val'), kleur_hex.upper()); rPr.append(kl)
+        if char_spacing is not None:
+            sp_cs = OxmlElement('w:spacing'); sp_cs.set(qn('w:val'), str(char_spacing)); rPr.append(sp_cs)
+        r.append(rPr)
+        t = OxmlElement('w:t')
+        t.text = tekst
+        t.set('{http://www.w3.org/XML/1998/namespace}space', 'preserve')
+        r.append(t)
+        return r
+
+    def _p_el(space_before=0, space_after=0, bg_hex=None, align=None):
+        p = OxmlElement('w:p')
+        pPr = OxmlElement('w:pPr')
+        sp = OxmlElement('w:spacing')
+        sp.set(qn('w:before'), str(space_before))
+        sp.set(qn('w:after'),  str(space_after))
+        pPr.append(sp)
+        if align:
+            jc = OxmlElement('w:jc'); jc.set(qn('w:val'), align); pPr.append(jc)
+        if bg_hex:
+            shd = OxmlElement('w:shd')
+            shd.set(qn('w:val'), 'clear'); shd.set(qn('w:color'), 'auto')
+            shd.set(qn('w:fill'), bg_hex.upper()); pPr.append(shd)
+        p.append(pPr)
+        return p
+
+    def _tabel_balk(bg_hex, hoogte, inhoud_fn):
+        """Volledige breedte tabel (100% paginabreedte) met één cel."""
+        tbl = OxmlElement('w:tbl')
+
+        tblPr = OxmlElement('w:tblPr')
+        tblW = OxmlElement('w:tblW'); tblW.set(qn('w:w'), '5000'); tblW.set(qn('w:type'), 'pct')
+        tblPr.append(tblW)
+        tblBrd = OxmlElement('w:tblBorders')
+        for kant in ('top', 'left', 'bottom', 'right', 'insideH', 'insideV'):
+            el = OxmlElement(f'w:{kant}'); el.set(qn('w:val'), 'none'); tblBrd.append(el)
+        tblPr.append(tblBrd)
+        tbl.append(tblPr)
+
+        tblGrid = OxmlElement('w:tblGrid')
+        gc = OxmlElement('w:gridCol'); gc.set(qn('w:w'), '9026'); tblGrid.append(gc)
+        tbl.append(tblGrid)
+
+        tr = OxmlElement('w:tr')
+        trPr = OxmlElement('w:trPr')
+        trH = OxmlElement('w:trHeight')
+        trH.set(qn('w:val'), str(hoogte)); trH.set(qn('w:hRule'), 'atLeast')
+        trPr.append(trH); tr.append(trPr)
+
+        tc = OxmlElement('w:tc')
+        tcPr = OxmlElement('w:tcPr')
+        tcW = OxmlElement('w:tcW'); tcW.set(qn('w:w'), '5000'); tcW.set(qn('w:type'), 'pct')
+        tcPr.append(tcW)
+        shd = OxmlElement('w:shd'); shd.set(qn('w:val'), 'clear'); shd.set(qn('w:color'), 'auto')
+        shd.set(qn('w:fill'), bg_hex.upper()); tcPr.append(shd)
+        tcMar = OxmlElement('w:tcMar')
+        for kant, val in [('top', 240), ('left', 360), ('bottom', 240), ('right', 360)]:
+            el = OxmlElement(f'w:{kant}'); el.set(qn('w:w'), str(val)); el.set(qn('w:type'), 'dxa')
+            tcMar.append(el)
+        tcPr.append(tcMar); tc.append(tcPr)
+
+        inhoud_fn(tc)
+        tr.append(tc); tbl.append(tr)
+        return tbl
+
+    # ── Cover-elementen opbouwen ────────────────────────────────────────────────
+
+    cover = []
+
+    # 1. Logo-balk (donker #1a1a1a)
+    def _logo_inhoud(tc):
+        p1 = _p_el(bg_hex="1A1A1A", space_before=0, space_after=80)
+        p1.append(_run_el("Pand", bold=True, pt=30, kleur_hex="FFFFFF"))
+        p1.append(_run_el("IQ",   bold=True, pt=30, kleur_hex="5AAA00"))
+        tc.append(p1)
+        p2 = _p_el(bg_hex="1A1A1A", space_before=0, space_after=0)
+        p2.append(_run_el("WONEN", bold=True, pt=9, kleur_hex="5AAA00", char_spacing=40))
+        tc.append(p2)
+
+    cover.append(_tabel_balk("1A1A1A", 1600, _logo_inhoud))
+
+    # 2. Limoen accent-streep (#d4e832)
+    def _accent_inhoud(tc):
+        tc.append(_p_el(bg_hex="D4E832"))
+
+    cover.append(_tabel_balk("D4E832", 100, _accent_inhoud))
+
+    # 3. Witruimte vóór titel
+    cover.append(_p_el(space_before=600))
+
+    # 4. Rapporttitel
+    p = _p_el(space_before=0, space_after=120)
+    p.append(_run_el("Isolatie Quickscan", bold=True, pt=32, kleur_hex="1A1A1A"))
+    cover.append(p)
+
+    # 5. Ondertitel
+    p = _p_el(space_before=0, space_after=0)
+    p.append(_run_el("Energierapport verduurzaming", pt=13, kleur_hex="666666"))
+    cover.append(p)
+
+    # 6. Spacer
+    cover.append(_p_el(space_before=640))
+
+    # 7. Adres (vet)
+    p = _p_el(space_before=0, space_after=80)
+    p.append(_run_el(adres, bold=True, pt=14, kleur_hex="1A1A1A"))
+    cover.append(p)
+
+    # 8. Datum
+    p = _p_el(space_before=0, space_after=0)
+    p.append(_run_el(datum, pt=11, kleur_hex="666666"))
+    cover.append(p)
+
+    # 9. Bewaard Street View foto (indien aanwezig in origineel voorblad)
+    if foto_paras:
+        cover.append(_p_el(space_before=240))
+        for foto_p in foto_paras:
+            pPr = foto_p.find(f'{W}pPr')
+            if pPr is None:
+                pPr = OxmlElement('w:pPr')
+                foto_p.insert(0, pPr)
+            for old_sp in pPr.findall(f'{W}spacing'):
+                pPr.remove(old_sp)
+            sp = OxmlElement('w:spacing')
+            sp.set(qn('w:before'), '0'); sp.set(qn('w:after'), '0')
+            pPr.append(sp)
+            cover.append(foto_p)
+
+    # 10. Grote spacer richting onderkant pagina
+    cover.append(_p_el(space_before=800))
+
+    # 11. Tagline onderaan
+    p = _p_el(space_before=0, space_after=0)
+    p.append(_run_el(
+        "Indicatief rapport op basis van openbare registraties (BAG & EP-Online)",
+        pt=9, kleur_hex="999999"
+    ))
+    cover.append(p)
+
+    # 12. Pagina-einde vóór hoofdstuk 1
+    p_br = _p_el(space_before=0, space_after=0)
+    r_br = OxmlElement('w:r')
+    br = OxmlElement('w:br'); br.set(qn('w:type'), 'page')
+    r_br.append(br); p_br.append(r_br)
+    cover.append(p_br)
+
+    # ── Invoegen vóór de eerste heading ─────────────────────────────────────────
+    for i, elem in enumerate(cover):
+        body.insert(i, elem)
+
+    # ── Koptekst: leeg op voorblad, huisstijl op overige pagina's ────────────
+    section = doc.sections[0]
+    section.different_first_page_header_footer = True
+
+    # Eerste pagina: volledig lege koptekst
+    fph_elem = section.first_page_header._element
+    for child in list(fph_elem):
+        fph_elem.remove(child)
+    fph_elem.append(_p_el())
+
+    # Standaard koptekst herbouwen met PandIQ Wonen huisstijl
+    hdr_elem = section.header._element
+    for child in list(hdr_elem):
+        hdr_elem.remove(child)
+
+    # Tabel: logo links | rapporttitel rechts
+    tbl_kop = OxmlElement('w:tbl')
+    tblPr_kop = OxmlElement('w:tblPr')
+    tblW_kop = OxmlElement('w:tblW')
+    tblW_kop.set(qn('w:w'), '9026'); tblW_kop.set(qn('w:type'), 'dxa')
+    tblPr_kop.append(tblW_kop)
+    # Alleen onderrand: limoen accent-streep
+    tblBrd = OxmlElement('w:tblBorders')
+    for kant in ('top', 'left', 'right', 'insideH', 'insideV'):
+        el = OxmlElement(f'w:{kant}')
+        el.set(qn('w:val'), 'none'); el.set(qn('w:sz'), '0')
+        el.set(qn('w:space'), '0'); el.set(qn('w:color'), 'FFFFFF')
+        tblBrd.append(el)
+    btm = OxmlElement('w:bottom')
+    btm.set(qn('w:val'), 'single'); btm.set(qn('w:sz'), '6')
+    btm.set(qn('w:space'), '0'); btm.set(qn('w:color'), 'D4E832')
+    tblBrd.append(btm)
+    tblPr_kop.append(tblBrd)
+    tcMar_kop = OxmlElement('w:tblCellMar')
+    for kant in ('left', 'right'):
+        el = OxmlElement(f'w:{kant}'); el.set(qn('w:w'), '10'); el.set(qn('w:type'), 'dxa')
+        tcMar_kop.append(el)
+    tblPr_kop.append(tcMar_kop)
+    tbl_kop.append(tblPr_kop)
+
+    tblGrid_kop = OxmlElement('w:tblGrid')
+    for w in ('4513', '4513'):
+        gc = OxmlElement('w:gridCol'); gc.set(qn('w:w'), w); tblGrid_kop.append(gc)
+    tbl_kop.append(tblGrid_kop)
+
+    tr_kop = OxmlElement('w:tr')
+
+    def _kop_cel(breedte, align=None):
+        tc = OxmlElement('w:tc')
+        tcPr = OxmlElement('w:tcPr')
+        tcW = OxmlElement('w:tcW'); tcW.set(qn('w:w'), str(breedte)); tcW.set(qn('w:type'), 'dxa')
+        tcPr.append(tcW)
+        tcBrd = OxmlElement('w:tcBorders')
+        for kant in ('top', 'left', 'bottom', 'right'):
+            el = OxmlElement(f'w:{kant}'); el.set(qn('w:val'), 'none')
+            el.set(qn('w:sz'), '0'); el.set(qn('w:space'), '0'); el.set(qn('w:color'), 'FFFFFF')
+            tcBrd.append(el)
+        tcPr.append(tcBrd)
+        va = OxmlElement('w:vAlign'); va.set(qn('w:val'), 'center'); tcPr.append(va)
+        tc.append(tcPr)
+        p = _p_el(space_before=0, space_after=0)
+        if align:
+            jc = OxmlElement('w:jc'); jc.set(qn('w:val'), align)
+            p.find(f'{W}pPr').append(jc)
+        return tc, p
+
+    # Links: "PandIQ Wonen"
+    tc_l, p_l = _kop_cel(4513)
+    p_l.append(_run_el("Pand",   bold=True,  pt=14, kleur_hex="1A1A1A"))
+    p_l.append(_run_el("IQ",     bold=True,  pt=14, kleur_hex="5AAA00"))
+    p_l.append(_run_el(" Wonen", bold=False, pt=9,  kleur_hex="5AAA00"))
+    tc_l.append(p_l)
+    tr_kop.append(tc_l)
+
+    # Rechts: "Isolatie Quickscan"
+    tc_r, p_r = _kop_cel(4513, align='right')
+    p_r.append(_run_el("Isolatie Quickscan", pt=9, kleur_hex="666666"))
+    tc_r.append(p_r)
+    tr_kop.append(tc_r)
+
+    tbl_kop.append(tr_kop)
+    hdr_elem.append(tbl_kop)
+
+    # Kleine witruimte na de tabel in de koptekst
+    p_na = _p_el(space_before=60, space_after=60)
+    hdr_elem.append(p_na)
+
+    doc.save(docx_pad)
+
+
+def fill_docx(template_path: str, output_path: str, data: dict, sv_foto_pad: str | None = None, bouwjaar: int | None = None, scores: dict | None = None):
     """
     Vult alle {{plaatshouders}} in en voegt optioneel een Street View foto in.
     Als sv_foto_pad None is of het invoegen mislukt, gaat het rapport gewoon door zonder foto.
@@ -668,7 +1355,12 @@ def fill_docx(template_path: str, output_path: str, data: dict, sv_foto_pad: str
         if bouwjaar is not None:
             _voeg_subsidietabel_bouwperiode_in(output_path, bouwjaar)
         _stijl_woninggegevens_tabel(output_path)
-        print(f"✅ Opgeslagen: {output_path}")
+        _voeg_element_teksten_in(output_path, expanded, scores=scores)
+        adres_str = expanded.get("{{adres}}", "")
+        datum_str = expanded.get("{{datum}}", "")
+        _stijl_voorblad(output_path, adres_str, datum_str)
+        _voeg_eindpagina_in(output_path)
+        print(f"OK: Opgeslagen: {output_path}")
 
     finally:
         shutil.rmtree(tmp_dir, ignore_errors=True)

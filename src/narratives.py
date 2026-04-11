@@ -259,12 +259,7 @@ def _bouw_aanpak(
             "installaties: ventilatie, verwarming en warm tapwater."
         )
     else:
-        delen.append(
-            "Een logische aanpak volgt de isolatietrias: "
-            "(1) beperk warmteverlies via de schil, "
-            "(2) optimaliseer het afgiftesysteem, "
-            "(3) verduurzaam de opwek (warmtepomp of zonnepanelen)."
-        )
+        pass
 
     if maatregelen:
         maatregel_tekst = "Aanbevolen maatregelen voor deze bouwperiode:\n" + \
@@ -276,7 +271,7 @@ def _bouw_aanpak(
 
     delen.append(
         "De bovenstaande aanbevelingen zijn indicatief op basis van registratiedata. "
-        "Bevestiging via foto-inspectie of een maatwerkadvies is altijd aan te raden."
+        "Maatwerkadvies door erkende bedrijven is altijd aan te raden."
     )
 
     return "\n\n".join(delen)
@@ -301,6 +296,22 @@ def generate_actionable_advice(
         risicos = get_risicos_tekst(bouwjaar)
         if risicos:
             delen.append(risicos)
+
+    # Bouwfysisch risico bij na-isoleren: van toepassing zodra er al isolatie aanwezig is
+    # (score ≤ 3 wijst op bestaande isolatie die aangevuld zou worden)
+    heeft_bestaande_isolatie = any(
+        v is not None and v <= 3 for v in scores.values()
+    )
+    if heeft_bestaande_isolatie:
+        delen.append(
+            "Bouwfysisch risico bij na-isoleren: als uw woning al (gedeeltelijk) geïsoleerd is, "
+            "brengt aanvullende isolatie bouwfysische risico's met zich mee. "
+            "Een verstoorde dampdiffusie of onvoldoende ventilatie kan leiden tot vocht, "
+            "condensatie en schimmelvorming in de constructie — schade die niet altijd direct "
+            "zichtbaar is maar de constructie ernstig kan aantasten. "
+            "Laat een erkend bedrijf of bouwfysisch adviseur daarom altijd eerst een technisch "
+            "onderzoek uitvoeren voordat u overgaat tot na-isoleren."
+        )
 
     if warmte and warmte > 150:
         delen.append(
@@ -406,6 +417,7 @@ def narrative_from_facts(facts: dict[str, Any]) -> dict[str, str]:
     }
 
     from subsidies_isolatie_glas import genereer_subsidietekst
+    from teksten_elementen import get_element_tekst
 
     return {
         # Bestaande placeholders
@@ -425,4 +437,10 @@ def narrative_from_facts(facts: dict[str, Any]) -> dict[str, str]:
         "score_gevel_tekst": score_label(scores.get("gevel")),
         "score_vloer_tekst": score_label(scores.get("vloer")),
         "score_glas_tekst":  score_label(scores.get("glas")),
+
+        # Element-specifieke uitleg bij kansen & verbeterpotentieel
+        "element_tekst_dak":   get_element_tekst("dak",   scores.get("dak")),
+        "element_tekst_gevel": get_element_tekst("gevel", scores.get("gevel")),
+        "element_tekst_vloer": get_element_tekst("vloer", scores.get("vloer")),
+        "element_tekst_glas":  get_element_tekst("glas",  scores.get("glas")),
     }
