@@ -11,7 +11,9 @@
       "Bash(python tests/test_nieuw.py)",
       "Bash(python main.py --help)",
       "Bash(python main.py 9746CR 107 --woningtype tussenwoning)",
-      "Bash(python src/main.py 9746CR 107 --woningtype tussenwoning)"
+      "Bash(python src/main.py 9746CR 107 --woningtype tussenwoning)",
+      "Bash(python main.py 8501BR 25 --woningtype tussenwoning)",
+      "Bash(python src/main.py 8501BR 25 --woningtype tussenwoning)"
     ]
   }
 }

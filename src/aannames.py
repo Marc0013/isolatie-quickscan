@@ -225,7 +225,7 @@ RC_TABEL: dict[str, list[dict]] = {
         {"van": 2012, "tot": 9999, "rc": 3.5,  "toelichting": "Bouwbesluit 2012+, Rc ≥ 3.5 m²K/W",                       "bron": "ISSO 82.1 tabel 3"},
     ],
     "spouw": [
-        {"van": 0,    "tot": 1920, "rc": 0.0,  "toelichting": "Geen spouw aanwezig (massief metselwerk)",                 "bron": "ISSO 82.1 tabel 3"},
+        {"van": 0,    "tot": 1920, "rc": 0.01, "toelichting": "Geen spouw aanwezig (massief metselwerk)",                 "bron": "ISSO 82.1 tabel 3"},
         {"van": 1920, "tot": 1945, "rc": 0.15, "toelichting": "Lege spouw ~50 mm, alleen luchtspouw-Rc",                  "bron": "ISSO 82.1 tabel 3"},
         {"van": 1945, "tot": 1975, "rc": 0.20, "toelichting": "Lege spouw 60–80 mm",                                      "bron": "ISSO 82.1 tabel 3"},
         {"van": 1975, "tot": 1992, "rc": 0.60, "toelichting": "Deels gevulde spouw of dunne PUR-injectie",                "bron": "ISSO 82.1 tabel 3"},

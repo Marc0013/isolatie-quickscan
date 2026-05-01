@@ -294,9 +294,9 @@ def render_markdown(
     if advies and advies.teksten.get("fysische_analyse"):
         lines.append("")
         lines.append(
-            "Onderstaande berekeningen zijn gebaseerd op de geschatte oppervlaktes "
+            "Onderstaande technische situatie is gebaseerd op de geschatte oppervlaktes "
             "van uw woning en de indicatieve isolatiewaarden voor uw bouwperiode "
-            "(bron: ISSO 82.1, NEN 1068). Alle bedragen zijn indicatief."
+            "(bron: ISSO 82.1, NEN 1068)."
         )
         lines.append("")
         lines.append(advies.teksten["fysische_analyse"])

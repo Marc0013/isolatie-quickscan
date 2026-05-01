@@ -459,17 +459,16 @@ def _bouw_fysische_analyse(
 
     regels.append(
         f"_Oppervlaktes berekend op basis van woningtype '{wtype}' "
-        f"en bouwjaar {bouwjaar}. Alle bedragen zijn indicatief._"
+        f"en bouwjaar {bouwjaar}._"
     )
     regels.append("")
 
     for el in ("dak", "vloer", "spouw", "gevel", "glas"):
-        opp_info   = oppervlaktes.get(el, {})
-        opp_m2     = opp_info.get("opp_m2", 0.0) if isinstance(opp_info, dict) else 0.0
+        opp_info    = oppervlaktes.get(el, {})
+        opp_m2      = opp_info.get("opp_m2", 0.0) if isinstance(opp_info, dict) else 0.0
         toelichting = opp_info.get("toelichting", "") if isinstance(opp_info, dict) else ""
 
         if el == "glas":
-            # Glas apart: toon alleen oppervlak, geen Rc-berekening
             if opp_m2 > 0:
                 from aannames import u_oud_glas as _u_oud_glas
                 u_info = _u_oud_glas(bouwjaar)
@@ -483,7 +482,6 @@ def _bouw_fysische_analyse(
         rc_info   = rc_waarden.get(el, {})
         rc_huidig = rc_info.get("rc", 0.0) if isinstance(rc_info, dict) else 0.0
         rc_doel   = RC_NIEUW[el]
-        maatr_key = MAATREGEL_KEY[el]
 
         naam = ELEMENT_NAAM[el]
         regels.append(f"**{naam}**")
@@ -497,119 +495,17 @@ def _bouw_fysische_analyse(
 
         if rc_huidig >= rc_doel:
             regels.append(
-                f"Je Rc-waarde is {rc_huidig} m²K/W en voldoet aan de ISDE-eis "
-                f"en komt hierom niet in aanmerking voor subsidie."
+                f"Huidige Rc: {rc_huidig} m²K/W — voldoet aan de ISDE-minimumeis "
+                f"van Rc {rc_doel} m²K/W."
             )
             regels.append("")
             regels.append("")
             continue
 
         regels.append(f"_{toelichting}_")
-        regels.append(
-            f"Huidige Rc: {rc_huidig} m²K/W "
-            f"({rc_info.get('toelichting', '')})"
-        )
+        regels.append(f"Huidige Rc: {rc_huidig} m²K/W")
         regels.append(f"Streefwaarde Rc: {rc_doel} m²K/W (ISDE-minimumeis)")
-
-        verlies = warmteverlies_reductie(opp_m2, rc_huidig, rc_doel)
-        kosten_min, kosten_max = bereken_kosten(maatr_key, opp_m2)
-        subsidie = bereken_subsidie_indicatie(maatr_key, opp_m2)
-        netto    = max(0.0, (kosten_min + kosten_max) / 2 - subsidie)
-        tvt      = terugverdientijd_uitgebreid(netto, verlies["euro_jr"])
-
-        regels.append(
-            f"Besparing na isolatie naar Rc {rc_doel}: "
-            f"**{verlies['kwh_jr']:,.0f} kWh/jr** | "
-            f"{verlies['m3_gas_jr']:,.0f} m³ gas/jr | "
-            f"**€ {verlies['euro_jr']:,.0f}/jr**"
-        )
-        regels.append(
-            f"Investering: €{kosten_min:,.0f}–€{kosten_max:,.0f} | "
-            f"ISDE-subsidie: tot €{subsidie:,.0f} | "
-            f"Netto: ~€{netto:,.0f}"
-        )
-        if tvt["tvt_jaar"] is not None:
-            dk = tvt["doorkijk"]
-            regels.append(
-                f"Terugverdientijd: **{tvt['tvt_jaar']} jaar** "
-                f"(bij {tvt['prijsstijging_gebruikt']*100:.0f}% energieprijsstijging/jr)"
-            )
-            if tvt["tvt_jaar"] > 20:
-                regels.append("")
-                regels.append(
-                    "_Enkel interessant in combinatie met groot onderhoud of verbouw._"
-                )
-            regels.append(
-                f"Doorkijk: "
-                f"5 jr → €{dk[5]['cum_besparing']:,.0f} | "
-                f"10 jr → €{dk[10]['cum_besparing']:,.0f} | "
-                f"20 jr → €{dk[20]['cum_besparing']:,.0f} cumulatief"
-            )
-        else:
-            regels.append("Terugverdientijd: niet berekend (controleer besparing en investering)")
-
         regels.append("")
-        regels.append("")
-
-    # ── Totaalsamenvatting alle maatregelen ───────────────────────────────────
-    tot_kosten_min = 0.0
-    tot_kosten_max = 0.0
-    tot_sub_basis  = 0.0
-    tot_besparing  = 0.0
-    n_maatregelen  = 0
-
-    for el in ("dak", "vloer", "spouw", "gevel"):
-        opp_info  = oppervlaktes.get(el, {})
-        opp_m2    = opp_info.get("opp_m2", 0.0) if isinstance(opp_info, dict) else 0.0
-        rc_info   = rc_waarden.get(el, {})
-        rc_huidig = rc_info.get("rc", 0.0) if isinstance(rc_info, dict) else 0.0
-        rc_doel   = RC_NIEUW[el]
-        maatr_key = MAATREGEL_KEY[el]
-
-        if opp_m2 == 0.0 or rc_huidig >= rc_doel:
-            continue
-
-        verlies         = warmteverlies_reductie(opp_m2, rc_huidig, rc_doel)
-        k_min, k_max    = bereken_kosten(maatr_key, opp_m2)
-        sub             = bereken_subsidie_indicatie(maatr_key, opp_m2)
-
-        tot_kosten_min += k_min
-        tot_kosten_max += k_max
-        tot_sub_basis  += sub
-        tot_besparing  += verlies["euro_jr"]
-        n_maatregelen  += 1
-
-    if n_maatregelen >= 2 and tot_besparing > 0:
-        tot_sub_dubbel  = min(tot_sub_basis * 2, (tot_kosten_min + tot_kosten_max) / 2)
-        netto_basis     = max(0.0, (tot_kosten_min + tot_kosten_max) / 2 - tot_sub_basis)
-        netto_dubbel    = max(0.0, (tot_kosten_min + tot_kosten_max) / 2 - tot_sub_dubbel)
-        tvt_basis       = terugverdientijd_uitgebreid(netto_basis,  tot_besparing)
-        tvt_dubbel      = terugverdientijd_uitgebreid(netto_dubbel, tot_besparing)
-
-        tvt_b_str = f"{tvt_basis['tvt_jaar']} jaar"  if tvt_basis["tvt_jaar"]  else ">"
-        tvt_d_str = f"{tvt_dubbel['tvt_jaar']} jaar" if tvt_dubbel["tvt_jaar"] else ">"
-
-        regels.append("---")
-        regels.append("")
-        regels.append("**Totaaloverzicht bij uitvoering van alle maatregelen**")
-        regels.append("")
-        regels.append(
-            "Wanneer u meerdere isolatiemaatregelen combineert — of een isolatiemaatregel "
-            "koppelt aan een warmtepomp — verdubbelt de ISDE-subsidie automatisch. "
-            f"Uw subsidie komt dan niet uit op **€{tot_sub_basis:,.0f}** maar op "
-            f"**€{tot_sub_dubbel:,.0f}**."
-        )
-        regels.append("")
-        regels.append(f"| | Bedrag |")
-        regels.append(f"|---|---|")
-        regels.append(f"| Totale investering | €{tot_kosten_min:,.0f} – €{tot_kosten_max:,.0f} |")
-        regels.append(f"| Subsidie (enkelvoudig) | €{tot_sub_basis:,.0f} |")
-        regels.append(f"| Subsidie (meervoudig, bij combinatie) | **€{tot_sub_dubbel:,.0f}** |")
-        regels.append(f"| Netto investering (enkelvoudig) | €{netto_basis:,.0f} |")
-        regels.append(f"| Netto investering (meervoudig) | **€{netto_dubbel:,.0f}** |")
-        regels.append(f"| Jaarlijkse energiebesparing | €{tot_besparing:,.0f}/jr |")
-        regels.append(f"| Terugverdientijd (enkelvoudig) | {tvt_b_str} |")
-        regels.append(f"| Terugverdientijd (meervoudig) | **{tvt_d_str}** |")
         regels.append("")
 
     return "\n".join(regels)

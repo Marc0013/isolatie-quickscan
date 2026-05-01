@@ -1492,7 +1492,7 @@ def _voeg_fysische_analyse_in(docx_pad: str, advies) -> None:
     from aannames import rc_oud as _rc_oud, get as _aanname
     from financials import (
         warmteverlies_reductie, terugverdientijd_uitgebreid,
-        bereken_kosten, bereken_subsidie_indicatie,
+        bereken_kosten, bereken_subsidie_indicatie, bereken_besparing_glas,
     )
 
     doc  = Document(docx_pad)
@@ -1621,137 +1621,30 @@ def _voeg_fysische_analyse_in(docx_pad: str, advies) -> None:
             continue
 
         if toelichting:
-            elems.append(_p(toelichting, italic=True, kleur='888888', pt='20', space_after=40))
+            elems.append(_p(toelichting, italic=True, kleur='888888', pt='20', space_after=20))
         elems.append(_p(
-            f'Huidige Rc: {rc_huidig} m\u00b2K/W  \u2014  {rc_info["toelichting"]}',
+            f'Huidige Rc: {rc_huidig} m\u00b2K/W',
             kleur='555555', pt='20', space_after=20,
         ))
         elems.append(_p(
             f'Streefwaarde Rc: {rc_doel} m\u00b2K/W (ISDE-minimumeis)',
-            kleur='555555', pt='20', space_after=60,
+            kleur='555555', pt='20', space_after=160,
         ))
 
-        verlies    = warmteverlies_reductie(opp_m2, rc_huidig, rc_doel)
-        kosten_min, kosten_max = bereken_kosten(MAATREGEL_KEY[el], opp_m2)
-        subsidie   = bereken_subsidie_indicatie(MAATREGEL_KEY[el], opp_m2)
-        netto      = max(0.0, (kosten_min + kosten_max) / 2 - subsidie)
-        tvt        = terugverdientijd_uitgebreid(netto, verlies["euro_jr"])
-
-        elems.append(_p(
-            f'Besparing:    {verlies["kwh_jr"]:,.0f} kWh/jr  |  '
-            f'{verlies["m3_gas_jr"]:,.0f} m\u00b3 gas/jr  |  '
-            f'\u20ac{verlies["euro_jr"]:,.0f} per jaar',
-            kleur='1D1D1B', pt='20', space_after=60,
-        ))
-        elems.append(_p(
-            f'Investering:  \u20ac{kosten_min:,.0f}\u2013\u20ac{kosten_max:,.0f}  |  '
-            f'ISDE-subsidie: tot \u20ac{subsidie:,.0f}  |  '
-            f'Netto: \u20ac{netto:,.0f}',
-            kleur='1D1D1B', pt='20', space_after=60,
-        ))
-        if tvt["tvt_jaar"] is not None:
-            dk = tvt["doorkijk"]
-            elems.append(_p(
-                f'Terugverdientijd: {tvt["tvt_jaar"]} jaar  |  '
-                f'Na 10 jr: \u20ac{dk[10]["cum_besparing"]:,.0f}  |  '
-                f'Na 20 jr: \u20ac{dk[20]["cum_besparing"]:,.0f} cumulatief bespaard',
-                kleur='1D1D1B', pt='20', space_after=60,
-            ))
-            if tvt["tvt_jaar"] > 20:
-                elems.append(_p(
-                    'Enkel interessant in combinatie met groot onderhoud of verbouw.',
-                    kleur='888888', pt='18', italic=True, space_after=60,
-                ))
-            elems.append(_p('', space_after=160))
-        else:
-            elems.append(_p('', space_after=160))
-
-    # Glas: alleen oppervlak tonen (geen Rc-berekening)
+    # Glas: toon alleen technische situatie
     from aannames import u_oud_glas as _u_oud_glas
     glas_info = oppervlaktes.get("glas", {})
     glas_opp  = glas_info.get("opp_m2", 0.0) if isinstance(glas_info, dict) else 0.0
     if glas_opp > 0:
         u_info = _u_oud_glas(bouwjaar)
-        elems.append(_p(
-            'Glas',
-            bold=True, kleur='5AAA00', pt='22', space_after=20,
-        ))
+        elems.append(_p('Glas', bold=True, kleur='5AAA00', pt='22', space_after=20))
         elems.append(_p(
             f'Aanname huidige situatie: {u_info.get("toelichting", "")}',
             kleur='888888', pt='20', space_after=40,
         ))
         glas_toel = glas_info.get("toelichting", "") if isinstance(glas_info, dict) else ""
         if glas_toel:
-            elems.append(_p(glas_toel, italic=True, kleur='888888', pt='20', space_after=200))
-
-    # ── Totaalsamenvatting alle maatregelen ───────────────────────────────────
-    tot_kosten_min = 0.0
-    tot_kosten_max = 0.0
-    tot_sub_basis  = 0.0
-    tot_besparing  = 0.0
-    n_maatregelen  = 0
-
-    for el in ("dak", "vloer", "spouw", "gevel"):
-        opp_info  = oppervlaktes.get(el, {})
-        opp_m2_t  = opp_info.get("opp_m2", 0.0) if isinstance(opp_info, dict) else 0.0
-        rc_info   = _rc_oud(el, bouwjaar)
-        rc_huidig = rc_info["rc"]
-        rc_doel   = RC_NIEUW[el]
-        maatr_key = MAATREGEL_KEY[el]
-
-        if opp_m2_t == 0.0 or rc_huidig >= rc_doel:
-            continue
-
-        verlies      = warmteverlies_reductie(opp_m2_t, rc_huidig, rc_doel)
-        k_min, k_max = bereken_kosten(maatr_key, opp_m2_t)
-        sub          = bereken_subsidie_indicatie(maatr_key, opp_m2_t)
-
-        tot_kosten_min += k_min
-        tot_kosten_max += k_max
-        tot_sub_basis  += sub
-        tot_besparing  += verlies["euro_jr"]
-        n_maatregelen  += 1
-
-    if n_maatregelen >= 2 and tot_besparing > 0:
-        gemiddeld       = (tot_kosten_min + tot_kosten_max) / 2
-        tot_sub_dubbel  = min(tot_sub_basis * 2, gemiddeld)
-        netto_basis     = max(0.0, gemiddeld - tot_sub_basis)
-        netto_dubbel    = max(0.0, gemiddeld - tot_sub_dubbel)
-        tvt_b           = terugverdientijd_uitgebreid(netto_basis,  tot_besparing)
-        tvt_d           = terugverdientijd_uitgebreid(netto_dubbel, tot_besparing)
-        tvt_b_str       = f"{tvt_b['tvt_jaar']} jaar" if tvt_b["tvt_jaar"] else "—"
-        tvt_d_str       = f"{tvt_d['tvt_jaar']} jaar" if tvt_d["tvt_jaar"] else "—"
-
-        elems.append(_p('', space_after=120))
-        elems.append(_p(
-            'Totaaloverzicht bij uitvoering van alle maatregelen',
-            bold=True, kleur='1D1D1B', pt='24', space_after=100,
-        ))
-        elems.append(_p(
-            'Wanneer u meerdere isolatiemaatregelen combineert — of een isolatiemaatregel '
-            'koppelt aan een warmtepomp — verdubbelt de ISDE-subsidie automatisch. '
-            f'Uw subsidie komt dan niet uit op \u20ac{tot_sub_basis:,.0f} '
-            f'maar op \u20ac{tot_sub_dubbel:,.0f}.',
-            kleur='1D1D1B', pt='20', space_after=120,
-        ))
-
-        RIJEN = [
-            ('Totale investering',               f'\u20ac{tot_kosten_min:,.0f} \u2013 \u20ac{tot_kosten_max:,.0f}', False),
-            ('Subsidie (enkelvoudig tarief)',     f'\u20ac{tot_sub_basis:,.0f}',    False),
-            ('Subsidie (meervoudig, combinatie)', f'\u20ac{tot_sub_dubbel:,.0f}',   True),
-            ('Netto investering (enkelvoudig)',   f'\u20ac{netto_basis:,.0f}',      False),
-            ('Netto investering (meervoudig)',    f'\u20ac{netto_dubbel:,.0f}',     True),
-            ('Jaarlijkse energiebesparing',       f'\u20ac{tot_besparing:,.0f}/jr', False),
-            ('Terugverdientijd (enkelvoudig)',     tvt_b_str,                       False),
-            ('Terugverdientijd (meervoudig)',      tvt_d_str,                       True),
-        ]
-        for label, waarde, highlight in RIJEN:
-            kleur = '1D1D1B' if not highlight else '2E5C00'
-            elems.append(_p(
-                f'{label}:  {waarde}',
-                bold=highlight, kleur=kleur, pt='20', space_after=40,
-            ))
-        elems.append(_p('', space_after=160))
+            elems.append(_p(glas_toel, italic=True, kleur='888888', pt='20', space_after=160))
 
     # ── Aandachtspunten / waarschuwingen ──────────────────────────────────────
     waarschuwingen = advies.waarschuwingen or []

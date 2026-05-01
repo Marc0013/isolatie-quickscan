@@ -1,6 +1,6 @@
 ---
 pagetitle: "Visstraat 25, 8501BR Joure"
-date: "30 april 2026"
+date: "1 mei 2026"
 lang: nl
 ---
 
@@ -28,7 +28,7 @@ De bovenstaande aanbevelingen zijn indicatief op basis van registratiedata. Maat
 ## 2. Woninggegevens
 
 **Adres:** Visstraat 25, 8501BR Joure  
-**Datum rapport:** 30 april 2026  
+**Datum rapport:** 1 mei 2026  
 **Woningtype:** tussenwoning  
 **Bouwjaar (BAG):** 1876 — bouwperiode: voor 1975  
 **Gebruiksoppervlakte (BAG):** 82 m²  
@@ -111,64 +111,40 @@ Terugverdientijd na subsidie: circa 3–6 jaar
 
 _Financiële indicaties zijn schattingen op basis van bouwjaar en gemiddelde woningkenmerken. Definitieve bedragen hangen af van de werkelijke situatie ter plaatse._
 
-Onderstaande berekeningen zijn gebaseerd op de geschatte oppervlaktes van uw woning en de indicatieve isolatiewaarden voor uw bouwperiode (bron: ISSO 82.1, NEN 1068). Alle bedragen zijn indicatief.
+Onderstaande technische situatie is gebaseerd op de geschatte oppervlaktes van uw woning en de indicatieve isolatiewaarden voor uw bouwperiode (bron: ISSO 82.1, NEN 1068).
 
-_Oppervlaktes berekend op basis van woningtype 'tussenwoning' en bouwjaar 1876. Alle bedragen zijn indicatief._
+_Oppervlaktes berekend op basis van woningtype 'tussenwoning' en bouwjaar 1876._
 
 **Dak**
+Aanname huidige situatie: Houten gordingenkap zonder isolatielaag
 _Hellend dak, footprint 50 m² × factor 1.25_
-Huidige Rc: 0.3 m²K/W (Houten gordingenkap zonder isolatielaag)
+Huidige Rc: 0.3 m²K/W
 Streefwaarde Rc: 3.5 m²K/W (ISDE-minimumeis)
-Besparing na isolatie naar Rc 3.5: **10,476 kWh/jr** | 1,375 m³ gas/jr | **€ 1,993/jr**
-Investering: €6,250–€9,375 | ISDE-subsidie: tot €1,016 | Netto: ~€6,796
-Terugverdientijd: **3.3 jaar** (bij 3% energieprijsstijging/jr)
-Doorkijk: 5 jr → €10,583 | 10 jr → €22,851 | 20 jr → €53,561 cumulatief
 
 
 **Vloer**
+Aanname huidige situatie: Houten balkenvloer op kruipruimte, geen isolatie
 _Vloer = footprint 50 m²_
-Huidige Rc: 0.2 m²K/W (Houten balkenvloer op kruipruimte, geen isolatie)
+Huidige Rc: 0.2 m²K/W
 Streefwaarde Rc: 3.5 m²K/W (ISDE-minimumeis)
-Besparing na isolatie naar Rc 3.5: **12,964 kWh/jr** | 1,701 m³ gas/jr | **€ 2,467/jr**
-Investering: €1,100–€1,500 | ISDE-subsidie: tot €275 | Netto: ~€1,025
-Terugverdientijd: **0.4 jaar** (bij 3% energieprijsstijging/jr)
-Doorkijk: 5 jr → €13,096 | 10 jr → €28,278 | 20 jr → €66,282 cumulatief
 
 
 **Spouwmuurisolatie**
+Aanname huidige situatie: Geen spouw aanwezig (massief metselwerk)
 Niet van toepassing voor dit woningtype.
 
 
 **Gevelisolatie (buiten/binnen)**
+Aanname huidige situatie: Massief metselwerk 30–45 cm, geen spouw
 _Netto gevel (excl. glas), tussenwoning; bruto 68 m² − glas 15 m²_
-Huidige Rc: 0.3 m²K/W (Massief metselwerk 30–45 cm, geen spouw)
+Huidige Rc: 0.3 m²K/W
 Streefwaarde Rc: 3.5 m²K/W (ISDE-minimumeis)
-Besparing na isolatie naar Rc 3.5: **8,884 kWh/jr** | 1,166 m³ gas/jr | **€ 1,690/jr**
-Investering: €9,275–€12,190 | ISDE-subsidie: tot €1,073 | Netto: ~€9,660
-Terugverdientijd: **5.3 jaar** (bij 3% energieprijsstijging/jr)
-Doorkijk: 5 jr → €8,975 | 10 jr → €19,379 | 20 jr → €45,422 cumulatief
 
 
 **Glas**
+Aanname huidige situatie: Enkel glas
 _Glasoppervlak o.b.v. hoeveelheden glas per gevelzijde, tussenwoning_
 
-
----
-
-**Totaaloverzicht bij uitvoering van alle maatregelen**
-
-Wanneer u meerdere isolatiemaatregelen combineert — of een isolatiemaatregel koppelt aan een warmtepomp — verdubbelt de ISDE-subsidie automatisch. Uw subsidie komt dan niet uit op **€2,364** maar op **€4,728**.
-
-| | Bedrag |
-|---|---|
-| Totale investering | €16,625 – €23,065 |
-| Subsidie (enkelvoudig) | €2,364 |
-| Subsidie (meervoudig, bij combinatie) | **€4,728** |
-| Netto investering (enkelvoudig) | €17,481 |
-| Netto investering (meervoudig) | **€15,117** |
-| Jaarlijkse energiebesparing | €6,150/jr |
-| Terugverdientijd (enkelvoudig) | 2.8 jaar |
-| Terugverdientijd (meervoudig) | **2.4 jaar** |
 
 
 ## 5. Mogelijk relevante subsidies

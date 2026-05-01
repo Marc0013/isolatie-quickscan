@@ -266,6 +266,31 @@ def bereken_terugverdientijd(
     return tvt_min, tvt_max
 
 
+# ── Glasbesparing: vaste norm per m² ──────────────────────────────────────────
+GAS_BESPARING_GLAS_M3_M2: float = 12.0  # m³ gas/m²/jr — enkel → HR++ glas
+# Bron: Milieu Centraal / EnergieNederland referentiewaarden 2024
+
+
+def bereken_besparing_glas(opp_m2: float) -> dict:
+    """
+    Berekent energiebesparing bij glasvervanging (enkel → HR++) via vaste m³/m²-norm.
+
+    Vaste waarde: 12 m³ gas per m² glas per jaar.
+    Bron: Milieu Centraal / EnergieNederland 2024.
+
+    Returns:
+        {"m3_gas_jr": float, "kwh_jr": float, "euro_jr": float}
+    """
+    m3_gas_jr = round(opp_m2 * GAS_BESPARING_GLAS_M3_M2, 1)
+    kwh_jr    = round(m3_gas_jr * KWH_PER_M3_GAS, 1)
+    euro_jr   = round(m3_gas_jr * GAS_PRIJS_EUR_M3, 2)
+    return {
+        "m3_gas_jr": m3_gas_jr,
+        "kwh_jr":    kwh_jr,
+        "euro_jr":   euro_jr,
+    }
+
+
 # ── Nieuwe fysische berekeningen (importeren uitsluitend uit aannames.py) ─────
 
 def warmteverlies_reductie(
