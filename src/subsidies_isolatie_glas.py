@@ -18,84 +18,73 @@ from __future__ import annotations
 
 ISOLATIE_BEDRAGEN: dict[str, dict] = {
     "dakisolatie": {
-        "naam":  "Dakisolatie",
-        "enkel": 8.13,
-        "meer":  16.25,
-        "bio":   5.00,
-        "rd":    "Rc ≥ 3,5 m²K/W",
+        "naam":   "Dakisolatie",
+        "bedrag": 16.25,
+        "bio":    5.00,
+        "rd":     "Rc ≥ 3,5 m²K/W",
     },
     "zoldervloer": {
-        "naam":  "Zoldervloerisolatie",
-        "enkel": 2.00,
-        "meer":  4.00,
-        "bio":   1.50,
-        "rd":    "Rc ≥ 3,5 m²K/W",
+        "naam":   "Zoldervloerisolatie",
+        "bedrag": 4.00,
+        "bio":    1.50,
+        "rd":     "Rc ≥ 3,5 m²K/W",
     },
     "spouwmuur": {
-        "naam":  "Spouwmuurisolatie",
-        "enkel": 2.63,
-        "meer":  5.25,
-        "bio":   1.50,
-        "rd":    "Rc ≥ 1,1 m²K/W",
+        "naam":   "Spouwmuurisolatie",
+        "bedrag": 5.25,
+        "bio":    1.50,
+        "rd":     "Rc ≥ 1,1 m²K/W",
     },
     "gevel": {
-        "naam":  "Gevelisolatie (binnen/buiten)",
-        "enkel": 10.13,
-        "meer":  20.25,
-        "bio":   6.00,
-        "rd":    "Rc ≥ 3,5 / Rd ≥ 2,5 m²K/W",
+        "naam":   "Gevelisolatie (binnen/buiten)",
+        "bedrag": 20.25,
+        "bio":    6.00,
+        "rd":     "Rc ≥ 3,5 / Rd ≥ 2,5 m²K/W",
     },
     "vloer": {
-        "naam":  "Vloerisolatie",
-        "enkel": 2.75,
-        "meer":  5.50,
-        "bio":   2.00,
-        "rd":    "Rc ≥ 3,5 m²K/W",
+        "naam":   "Vloerisolatie",
+        "bedrag": 5.50,
+        "bio":    2.00,
+        "rd":     "Rc ≥ 3,5 m²K/W",
     },
     "bodem": {
-        "naam":  "Bodemisolatie (kruipruimte)",
-        "enkel": 1.50,
-        "meer":  3.00,
-        "bio":   1.00,
-        "rd":    "Rc ≥ 1,3 m²K/W",
+        "naam":   "Bodemisolatie (kruipruimte)",
+        "bedrag": 3.00,
+        "bio":    1.00,
+        "rd":     "Rc ≥ 1,3 m²K/W",
     },
 }
 
 GLAS_BEDRAGEN: dict[str, dict] = {
     "hrpp": {
-        "naam":  "HR++ glas",
-        "enkel": 12.50,
-        "meer":  25.00,
-        "ug":    "U ≤ 1,2 W/m²K",
-        "noot":  "",
+        "naam":   "HR++ glas",
+        "bedrag": 12.50,
+        "ug":     "U ≤ 1,2 W/m²K",
+        "noot":   "",
     },
     "vacuum": {
-        "naam":  "Vacuümglas",
-        "enkel": 12.50,
-        "meer":  25.00,
-        "ug":    "U ≤ 0,7 W/m²K",
-        "noot":  "Past in bestaande kozijnen, telt als HR++ tarief.",
+        "naam":   "Vacuümglas",
+        "bedrag": 25.00,
+        "ug":     "U ≤ 0,7 W/m²K",
+        "noot":   "Past in bestaande kozijnen, telt als HR++ tarief.",
     },
     "triple": {
-        "naam":  "Triple glas",
-        "enkel": 55.50,
-        "meer":  111.00,
-        "ug":    "U ≤ 0,7 W/m²K",
-        "noot":  "Vereist vervanging van kozijnen (Uf ≤ 1,5 W/m²K).",
+        "naam":   "Triple glas",
+        "bedrag": 111.00,
+        "ug":     "U ≤ 0,7 W/m²K",
+        "noot":   "Vereist vervanging van kozijnen (Uf ≤ 1,5 W/m²K).",
     },
     "deuren": {
-        "naam":  "Isolerende deuren",
-        "enkel": 55.50,
-        "meer":  111.00,
-        "ug":    "U ≤ 1,0 W/m²K",
-        "noot":  "",
+        "naam":   "Isolerende deuren",
+        "bedrag": 111.00,
+        "ug":     "U ≤ 1,0 W/m²K",
+        "noot":   "",
     },
 }
 
 MONUMENT_GLAS = {
-    "enkel": 20.00,
-    "meer":  40.00,
-    "noot":  "Monumentaal tarief geldt voor alle glastypes bij erkend rijks- of gemeentelijk monument.",
+    "bedrag": 42.50,
+    "noot":   "Monumentaal tarief geldt voor alle glastypes bij erkend rijks- of gemeentelijk monument.",
 }
 
 WARMTEPOMP = {
@@ -103,13 +92,20 @@ WARMTEPOMP = {
     "per_kw":      225,
     "aplus_bonus": 200,
     "toelichting": (
-        "Combinatie van isolatie met een warmtepomp telt automatisch als meervoudig — "
-        "daardoor verdubbelt het subsidie per m² én ontvangt u extra warmtepomp-subsidie."
+        "Bij combinatie met isolatie ontvangt u naast de warmtepomp-subsidie ook het hogere isolatietarief."
     ),
 }
 
+MEERVOUDIG_DISCLAIMER = (
+    "De getoonde bedragen zijn de basisbedragen (ISDE 2026). "
+    "Uw subsidiebedrag verdubbelt als u meer dan één isolatiemaatregel uitvoert, "
+    "of een isolatiemaatregel combineert met een warmtepomp, zonneboiler of aansluiting op een warmtenet. "
+    "Vraag subsidie aan binnen 24 maanden na de eerste maatregel. "
+    "Subsidie verdubbelt niet bij combinatie met uitsluitend ventilatie, "
+    "en de biobased bonus verdubbelt niet bij de tweede maatregel."
+)
+
 ALGEMENE_NOTEN = [
-    "Meervoudig tarief geldt bij 2+ maatregelen, of bij 1 isolatiemaatregel gecombineerd met een warmtepomp.",
     "U ontvangt slechts subsidie voor één type dakisolatie (dak óf zoldervloer) "
     "en één type vloerisolatie (vloer óf bodem).",
     "Minimale oppervlakten: gevel 10 m², overige maatregelen 20 m².",
@@ -262,13 +258,17 @@ def genereer_subsidietekst(bouwjaar: int) -> str:
     periode = get_periode(bouwjaar)
     regels: list[str] = []
 
+    # ── Disclaimer meervoudig tarief ───────────────────────────────────────────
+    regels.append(f"_{MEERVOUDIG_DISCLAIMER}_")
+    regels.append("")
+
     # ── Isolatie ──────────────────────────────────────────────────────────────
     if periode["isolatie"]:
-        regels.append("Isolatie (meervoudig tarief — zie voetnoot voor enkelvoudig):")
+        regels.append("Isolatie (ISDE 2026):")
         for sleutel in periode["isolatie"]:
             m = ISOLATIE_BEDRAGEN[sleutel]
             bio = f"  |  biobased bonus + € {m['bio']:.2f}" if m.get("bio") else ""
-            regels.append(f"- {m['naam']}: € {m['meer']:.2f} per m²  |  {m['rd']}{bio}")
+            regels.append(f"- {m['naam']}: € {m['bedrag']:.2f} per m²  |  {m['rd']}{bio}")
     else:
         regels.append(
             "Isolatie: de woning voldoet al aan de huidige normen. "
@@ -279,11 +279,11 @@ def genereer_subsidietekst(bouwjaar: int) -> str:
 
     # ── Glas ──────────────────────────────────────────────────────────────────
     if periode["glas"]:
-        regels.append("Hoogrendementsglas (meervoudig tarief):")
+        regels.append("Hoogrendementsglas (ISDE 2026):")
         for sleutel in periode["glas"]:
             g = GLAS_BEDRAGEN[sleutel]
             noot = f"  ({g['noot']})" if g.get("noot") else ""
-            regels.append(f"- {g['naam']}: € {g['meer']:.2f} per m²  |  {g['ug']}{noot}")
+            regels.append(f"- {g['naam']}: € {g['bedrag']:.2f} per m²  |  {g['ug']}{noot}")
 
     regels.append("")
 
@@ -303,22 +303,6 @@ def genereer_subsidietekst(bouwjaar: int) -> str:
         regels.append(f"Aandachtspunt: {periode['notitie']}")
 
     regels.append("")
-
-    # ── Enkelvoudig voetnoot ──────────────────────────────────────────────────
-    enkel_iso = [
-        f"{ISOLATIE_BEDRAGEN[s]['naam']} € {ISOLATIE_BEDRAGEN[s]['enkel']:.2f}"
-        for s in periode["isolatie"]
-    ]
-    enkel_glas = [
-        f"{GLAS_BEDRAGEN[s]['naam']} € {GLAS_BEDRAGEN[s]['enkel']:.2f}"
-        for s in periode["glas"]
-    ]
-    alle_enkel = enkel_iso + enkel_glas
-    if alle_enkel:
-        regels.append(
-            "Enkelvoudig tarief (bij slechts 1 maatregel zonder warmtepomp): "
-            + " | ".join(alle_enkel)
-        )
 
     regels.append("")
 

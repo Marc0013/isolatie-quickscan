@@ -70,13 +70,27 @@ def quickscan_scores(bouwjaar: int, label: Optional[dict[str, Any]]) -> dict[str
     elif band == "voor 1975":
         base = {"dak": 4, "gevel": 4, "vloer": 4, "glas": 4}
 
-    # Correctie op label (indicatief)
+    # Correctie op label — harde bovengrens zodat label en score niet tegenspreken
     if label and label.get("labelklasse"):
-        lk = str(label["labelklasse"]).upper()
-        if lk in ["A", "A+", "A++", "A+++", "A++++"]:
+        lk = str(label["labelklasse"]).upper().strip()
+        if lk in ["A++++", "A+++", "A++"]:
+            # Uitstekende labels: scores maximaal 1 (geen verbeterpotentieel)
             for k in base:
-                base[k] = max(1, base[k] - 1)
-        if lk in ["E", "F", "G"]:
+                base[k] = 1
+        elif lk in ["A+", "A"]:
+            # Goed label: scores maximaal 1 (past bij "Goed"-tekst in rapport)
+            for k in base:
+                base[k] = 1
+        elif lk == "B":
+            # Redelijk label: scores maximaal 2
+            for k in base:
+                base[k] = min(2, base[k])
+        elif lk == "C":
+            # Matig label: scores maximaal 3
+            for k in base:
+                base[k] = min(3, base[k])
+        elif lk in ["E", "F", "G"]:
+            # Slecht label: scores minimaal 1 omhoog
             for k in base:
                 base[k] = min(5, base[k] + 1)
 
@@ -94,6 +108,7 @@ def render_markdown(
     subsidies: list[dict] | None = None,
     narrative: dict | None = None,
     advies: Any = None,
+    woningtype: Optional[str] = None,
 ) -> str:
     today = date.today()
     today_nl = f"{today.day} {MAANDEN[today.month]} {today.year}"
@@ -168,6 +183,8 @@ def render_markdown(
     lines.append("")
     lines.append(f"**Adres:** {adres}  ")
     lines.append(f"**Datum rapport:** {today_nl}  ")
+    if woningtype:
+        lines.append(f"**Woningtype:** {woningtype}  ")
     lines.append(f"**Bouwjaar (BAG):** {bouwjaar} — bouwperiode: {scan['band']}  ")
 
     if opp_m2 is not None:
@@ -224,11 +241,12 @@ def render_markdown(
     for k, v in scan["scores"].items():
         naam       = element_namen.get(k, k.capitalize())
         score_label = narrative.get(f"score_{k}_tekst", str(v)) if narrative else str(v)
-        lines.append(f"### {naam} — score {v}/5 ({score_label})")
+        lines.append(f"### {naam}")
         lines.append("")
         if narrative:
             tekst = narrative.get(f"element_tekst_{k}", "")
             if tekst:
+                lines.append(f"**Score {v}/5 — {score_label}**  ")
                 lines.append(tekst)
                 lines.append("")
 
@@ -239,8 +257,6 @@ def render_markdown(
     # ─────────────────────────────────────────────
     # Aanbevolen maatregelen (op situatie gebaseerd)
     # ─────────────────────────────────────────────
-    lines.append("")
-    lines.append("## 4. Aanbevolen maatregelen")
     lines.append("")
     lines.append(
         "Op basis van bouwjaar, woningtype en geregistreerde prestaties zijn de volgende "
@@ -273,6 +289,19 @@ def render_markdown(
         )
 
     # ─────────────────────────────────────────────
+    # Bouwfysische analyse (oppervlaktes, besparing, TVT per element)
+    # ─────────────────────────────────────────────
+    if advies and advies.teksten.get("fysische_analyse"):
+        lines.append("")
+        lines.append(
+            "Onderstaande berekeningen zijn gebaseerd op de geschatte oppervlaktes "
+            "van uw woning en de indicatieve isolatiewaarden voor uw bouwperiode "
+            "(bron: ISSO 82.1, NEN 1068). Alle bedragen zijn indicatief."
+        )
+        lines.append("")
+        lines.append(advies.teksten["fysische_analyse"])
+
+    # ─────────────────────────────────────────────
     # Subsidies (persoonlijk berekend als advies beschikbaar)
     # ─────────────────────────────────────────────
     lines.append("")
@@ -299,23 +328,24 @@ def render_markdown(
     )
 
     # ─────────────────────────────────────────────
-    # Risico’s en aandachtspunten (indien beschikbaar)
+    # Aandachtspunten: waarschuwingen + narratieve risico’s
     # ─────────────────────────────────────────────
-    risicos_tekst = (narrative or {}).get("risicos", "")
-    if risicos_tekst:
+    waarschuwingen_tekst = advies.teksten.get("waarschuwingen_tekst", "") if advies else ""
+    risicos_tekst        = (narrative or {}).get("risicos", "")
+
+    if waarschuwingen_tekst or risicos_tekst:
         lines.append("")
-        lines.append("## 6. Aandachtspunten")
-        lines.append("")
-        lines.append(risicos_tekst)
-        vervolgstap_nr = "7"
-    else:
-        vervolgstap_nr = "6"
+        if waarschuwingen_tekst:
+            lines.append(waarschuwingen_tekst)
+            lines.append("")
+        if risicos_tekst:
+            lines.append(risicos_tekst)
 
     # ─────────────────────────────────────────────
     # Vervolg & CTA
     # ─────────────────────────────────────────────
     lines.append("")
-    lines.append(f"## {vervolgstap_nr}. Vervolgstappen")
+    lines.append("## 6. Vervolgstappen")
     lines.append("")
     lines.append(
         "Dit rapport is bedoeld als startpunt. Door aanvullende informatie of foto’s toe te voegen "

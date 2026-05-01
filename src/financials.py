@@ -25,16 +25,16 @@ KWH_PER_M3_GAS:   float = 8.79   # calorische waarde aardgas (kWh/Nm³)
 # ── Indicatieve investeringskosten per maatregel (EUR/m², incl. arbeid, excl. BTW) ──
 # Aanpassen als marktprijzen significant veranderen.
 KOSTEN_PER_M2: dict[str, dict] = {
-    "dakisolatie": {"min": 30,   "max": 65,   "eenheid": "m²"},
-    "zoldervloer": {"min": 15,   "max": 35,   "eenheid": "m²"},
-    "spouwmuur":   {"min": 15,   "max": 28,   "eenheid": "m²"},
-    "gevel":       {"min": 90,   "max": 190,  "eenheid": "m²"},
-    "vloer":       {"min": 25,   "max": 55,   "eenheid": "m²"},
-    "bodem":       {"min": 10,   "max": 25,   "eenheid": "m²"},
-    "hrpp":        {"min": 80,   "max": 135,  "eenheid": "m²"},
-    "vacuum":      {"min": 100,  "max": 165,  "eenheid": "m²"},
-    "triple":      {"min": 180,  "max": 330,  "eenheid": "m²"},
-    "deuren":      {"min": 600,  "max": 1400, "eenheid": "stuk"},
+    "dakisolatie": {"min": 100,  "max": 150,   "eenheid": "m²"},
+    "zoldervloer": {"min": 65,   "max": 85,   "eenheid": "m²"},
+    "spouwmuur":   {"min": 15,   "max": 25,   "eenheid": "m²"},
+    "gevel":       {"min": 175,   "max": 230,  "eenheid": "m²"},
+    "vloer":       {"min": 22,   "max": 30,   "eenheid": "m²"},
+    "bodem":       {"min": 15,   "max": 25,   "eenheid": "m²"},
+    "hrpp":        {"min": 80,   "max": 150,  "eenheid": "m²"},
+    "vacuum":      {"min": 150,  "max": 200,  "eenheid": "m²"},
+    "triple":      {"min": 180,  "max": 200,  "eenheid": "m²"},
+    "deuren":      {"min": 1250,  "max": 2000, "eenheid": "stuk"},
 }
 
 
@@ -216,32 +216,25 @@ def bereken_kosten(maatregel_key: str, opp_element: float) -> tuple[float, float
 def bereken_subsidie_indicatie(
     maatregel_key: str,
     opp_element: float,
-    meervoudig: bool = True,
 ) -> float:
     """
     Geeft indicatief ISDE-subsidiebedrag in EUR voor een maatregel.
-
-    Args:
-        meervoudig: True als ≥2 maatregelen of combinatie met warmtepomp
-                    (geeft hoger tarief, is de standaard voor serieuze verduurzaming)
 
     Returns:
         Afgerond bedrag in EUR. Nul als maatregel geen ISDE heeft.
     """
     from subsidies_isolatie_glas import ISOLATIE_BEDRAGEN, GLAS_BEDRAGEN
 
-    tarief_sleutel = "meer" if meervoudig else "enkel"
-
     if maatregel_key in ISOLATIE_BEDRAGEN:
         # Controleer ISDE minimale oppervlakte; onder minimum = geen subsidie.
         min_opp = ISDE_MIN_OPP_ISOLATIE.get(maatregel_key, ISDE_MIN_OPP_DEFAULT)
         if opp_element < min_opp:
             return 0
-        per_m2 = ISOLATIE_BEDRAGEN[maatregel_key][tarief_sleutel]
+        per_m2 = ISOLATIE_BEDRAGEN[maatregel_key]["bedrag"]
         return round(opp_element * per_m2)
 
     if maatregel_key in GLAS_BEDRAGEN:
-        per_m2 = GLAS_BEDRAGEN[maatregel_key][tarief_sleutel]
+        per_m2 = GLAS_BEDRAGEN[maatregel_key]["bedrag"]
         return round(opp_element * per_m2)
 
     return 0
@@ -271,3 +264,156 @@ def bereken_terugverdientijd(
     tvt_max = round(netto_max / besparing_min, 1)
 
     return tvt_min, tvt_max
+
+
+# ── Nieuwe fysische berekeningen (importeren uitsluitend uit aannames.py) ─────
+
+def warmteverlies_reductie(
+    opp_m2: float,
+    rc_oud_waarde: float,
+    rc_nieuw: float,
+) -> dict:
+    """
+    Berekent de warmteverliesreductie bij isolatie van een bouwdeel.
+
+    Formule (NEN 1068, vereenvoudigd indicatief):
+        Q = opp × (1/Rc_oud − 1/Rc_nieuw) × ΔT × t / 1000   [kWh/jr]
+
+    Args:
+        opp_m2:        oppervlakte van het bouwdeel in m²
+        rc_oud_waarde: huidige Rc-waarde in m²K/W
+        rc_nieuw:      Rc-waarde na isolatie in m²K/W
+
+    Returns:
+        {
+            "kwh_jr":           float,
+            "m3_gas_jr":        float,
+            "euro_jr":          float,
+            "formule":          str,
+            "aannames_gebruikt": dict
+        }
+    """
+    from aannames import get as aanname, AANNAMES
+
+    dt    = aanname("temperatuurverschil_dt")
+    t     = aanname("verwarmingsuren_jr")
+    p_gas = aanname("gasprijs")
+    e_gas = aanname("energieinhoud_gas")
+    eta   = aanname("cv_rendement_oud")
+
+    rc_oud_safe = max(rc_oud_waarde, 0.01)  # voorkom deling door nul
+    u_oud       = 1.0 / rc_oud_safe
+    u_new       = 1.0 / rc_nieuw if rc_nieuw > 0 else 0.0
+    delta_u     = max(0.0, u_oud - u_new)
+
+    kwh_jr    = round(opp_m2 * delta_u * dt * t / 1000, 1)
+    m3_gas_jr = round(kwh_jr / (e_gas * eta), 1)
+    euro_jr   = round(m3_gas_jr * p_gas, 2)
+
+    formule = (
+        f"Q = {opp_m2:.1f} m² × (1/{rc_oud_safe} − 1/{rc_nieuw}) "
+        f"× {dt} K × {t} h / 1000 = {kwh_jr} kWh/jr"
+    )
+
+    return {
+        "kwh_jr":    kwh_jr,
+        "m3_gas_jr": m3_gas_jr,
+        "euro_jr":   euro_jr,
+        "formule":   formule,
+        "aannames_gebruikt": {
+            "temperatuurverschil_dt": {
+                "waarde":  dt,
+                "eenheid": AANNAMES["temperatuurverschil_dt"]["eenheid"],
+                "bron":    AANNAMES["temperatuurverschil_dt"]["bron"],
+            },
+            "verwarmingsuren_jr": {
+                "waarde":  t,
+                "eenheid": AANNAMES["verwarmingsuren_jr"]["eenheid"],
+                "bron":    AANNAMES["verwarmingsuren_jr"]["bron"],
+            },
+            "gasprijs": {
+                "waarde":  p_gas,
+                "eenheid": AANNAMES["gasprijs"]["eenheid"],
+                "bron":    AANNAMES["gasprijs"]["bron"],
+            },
+            "energieinhoud_gas": {
+                "waarde":  e_gas,
+                "eenheid": AANNAMES["energieinhoud_gas"]["eenheid"],
+                "bron":    AANNAMES["energieinhoud_gas"]["bron"],
+            },
+            "cv_rendement_oud": {
+                "waarde":  eta,
+                "eenheid": AANNAMES["cv_rendement_oud"]["eenheid"],
+                "bron":    AANNAMES["cv_rendement_oud"]["bron"],
+            },
+        },
+    }
+
+
+def terugverdientijd_uitgebreid(
+    netto_investering: float,
+    besparing_jr1: float,
+) -> dict:
+    """
+    Berekent de dynamische terugverdientijd met cumulatieve energieprijsstijging.
+
+    Formule cumulatieve besparing over N jaar:
+        C(N) = B1 × ((1+p)^N − 1) / p
+
+    Args:
+        netto_investering: investering minus subsidie in EUR
+        besparing_jr1:     jaarlijkse besparing in jaar 1 in EUR
+
+    Returns:
+        {
+            "tvt_jaar":               float | None,
+            "prijsstijging_gebruikt": float,
+            "doorkijk": {
+                1:  {"cum_besparing": float, "saldo": float},
+                3:  {...}, 5: {...}, 10: {...}, 15: {...}, 20: {...}
+            },
+            "formule": str
+        }
+    """
+    from aannames import get as aanname
+
+    p = aanname("energieprijsstijging_pct")
+
+    def cum_besparing(n: int) -> float:
+        if p == 0:
+            return round(besparing_jr1 * n, 2)
+        return round(besparing_jr1 * ((1 + p) ** n - 1) / p, 2)
+
+    # Zoek TVT: kleinste N waarbij C(N) >= netto_investering
+    tvt_jaar: Optional[float] = None
+    if besparing_jr1 > 0 and netto_investering >= 0:
+        for n in range(1, 51):
+            c_curr = cum_besparing(n)
+            if c_curr >= netto_investering:
+                c_prev   = cum_besparing(n - 1)
+                fractie  = (
+                    (netto_investering - c_prev) / (c_curr - c_prev)
+                    if c_curr > c_prev else 0.0
+                )
+                tvt_jaar = round(n - 1 + fractie, 1)
+                break
+
+    doorkijk: dict[int, dict] = {}
+    for jaar in (1, 3, 5, 10, 15, 20):
+        cb = cum_besparing(jaar)
+        doorkijk[jaar] = {
+            "cum_besparing": cb,
+            "saldo":         round(cb - netto_investering, 2),
+        }
+
+    formule = (
+        f"C(N) = {besparing_jr1:.2f} × ((1+{p})^N − 1) / {p}  "
+        f"[energieprijsstijging {p * 100:.1f}%/jr]"
+    )
+
+    return {
+        "tvt_jaar":               tvt_jaar,
+        "prijsstijging_gebruikt": p,
+        "doorkijk":               doorkijk,
+        "formule":                formule,
+    }

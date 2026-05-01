@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/info/OneDrive/Documents/Ontwikkeling website/Tools en templates/isolatie-quickscan/**)",
+      "Bash(python src/main.py 9746CR 107)",
+      "Bash(python src/main.py 8501BR 25)",
+      "Bash(cd:*)",
+      "Read(//c/Users/info/OneDrive/Documents/Ontwikkeling website/Tools en templates/Kostentool/**)",
+      "Bash(python -c \":*)",
+      "Bash(find /c/Users/info -name *ISDE* -o -name *Rekentool* -o -name *subsidie*)",
+      "Bash(python3 -c \":*)",
+      "Bash(py -3 -c \":*)",
+      "Bash(py -3 src/main.py 9746CR 107)",
+      "Bash(py:*)"
+    ]
+  }
+}

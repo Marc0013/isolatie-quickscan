@@ -21,6 +21,9 @@ from typing import Any, Optional
 from report import quickscan_scores, bouwjaar_band
 from narratives import narrative_from_facts, score_label
 from subsidies_isolatie_glas import get_periode, WARMTEPOMP
+from oppervlaktes import bereken_oppervlaktes
+from waarschuwingen import genereer_waarschuwingen
+from aannames import rc_oud as aannames_rc_oud
 from financials import (
     periode_sleutel,
     schat_oppervlaktes,
@@ -150,6 +153,10 @@ class AdviesResult:
     cta_secondair: str   # Tweede actie tekst (altijd: subsidiecheck)
     cta_url:       str   # Primaire URL
 
+    # ── Oppervlaktes en waarschuwingen (toegevoegd) ───────────────────────────
+    oppervlaktes:   dict = field(default_factory=dict)
+    waarschuwingen: list = field(default_factory=list)
+
 
 # ── Interne helpers ───────────────────────────────────────────────────────────
 
@@ -256,7 +263,7 @@ def _bouw_prioriteiten(
             element, score, warmte_totaal, bouwjaar
         )
         kosten_min, kosten_max = bereken_kosten(maatregel_key, opp_elem)
-        subsidie = bereken_subsidie_indicatie(maatregel_key, opp_elem, meervoudig)
+        subsidie = bereken_subsidie_indicatie(maatregel_key, opp_elem)
         tvt = bereken_terugverdientijd(
             kosten_min, kosten_max, subsidie, besparing_min, besparing_max
         )
@@ -304,7 +311,7 @@ def _bouw_subsidie_regels(
                 maatregel         = item.maatregel_naam,
                 maatregel_key     = key,
                 soort             = "isolatie",
-                bedrag_per_m2     = data["meer"],
+                bedrag_per_m2     = data["bedrag"],
                 opp_indicatief    = item.opp_indicatief,
                 indicatief_totaal = item.subsidie_max,
                 toelichting       = f"Rc-eis: {data['rd']}",
@@ -315,7 +322,7 @@ def _bouw_subsidie_regels(
                 maatregel         = item.maatregel_naam,
                 maatregel_key     = key,
                 soort             = "glas",
-                bedrag_per_m2     = data["meer"],
+                bedrag_per_m2     = data["bedrag"],
                 opp_indicatief    = item.opp_indicatief,
                 indicatief_totaal = item.subsidie_max,
                 toelichting       = f"U-eis: {data['ug']}",
@@ -361,25 +368,11 @@ def _bouw_samenvatting(
         )
         delen.append(
             f"Uw woning uit {bouwjaar}{type_str} heeft op {onderdelen_str} "
-            f"een significant verbeterpotentieel (gemiddelde score: {gemiddelde_score:.1f}/5)."
+            f"een significant verbeterpotentieel."
         )
-        if hoge_prio:
-            top = hoge_prio[0]
-            tvt_str = (
-                f"circa {top.terugverdien_min:.0f}–{top.terugverdien_max:.0f} jaar"
-                if top.terugverdien_min and top.terugverdien_max
-                else "doorgaans 4–8 jaar"
-            )
-            delen.append(
-                f"De meest kansrijke eerste maatregel om te onderzoeken is "
-                f"{top.maatregel_naam.lower()} "
-                f"({top.element_naam.lower()}, score {top.score}/5): "
-                f"indicatief bespaart u €{top.besparing_min:,.0f}–€{top.besparing_max:,.0f} "
-                f"per jaar en is de terugverdientijd indicatief {tvt_str} na ISDE-subsidie."
-            )
         if subsidie_totaal > 0:
             delen.append(
-                f"Uw indicatieve ISDE-subsidie voor de meest kansrijke maatregelen samen: "
+                f"Uw indicatieve ISDE-subsidie voor de relevante maatregelen samen: "
                 f"tot €{subsidie_totaal:,.0f}."
             )
 
@@ -387,7 +380,7 @@ def _bouw_samenvatting(
         # Matige woning: verbeterpotentieel, maar geruststellend
         delen.append(
             f"Uw woning uit {bouwjaar}{type_str} heeft een redelijke isolatiebasis, "
-            f"maar er zijn gerichte verbeterkansen (gemiddelde score: {gemiddelde_score:.1f}/5)."
+            f"maar er zijn gerichte verbeterkansen."
         )
         if middel_prio or hoge_prio:
             top = (hoge_prio + middel_prio)[0]
@@ -403,14 +396,12 @@ def _bouw_samenvatting(
     else:
         # Goede woning: installaties/gasloos als volgende stap
         delen.append(
-            f"Uw woning uit {bouwjaar}{type_str} heeft een sterke gebouwschil "
-            f"(gemiddelde score: {gemiddelde_score:.1f}/5)."
+            f"Uw woning uit {bouwjaar}{type_str} heeft een sterke gebouwschil."
         )
         wp = WARMTEPOMP
         delen.append(
-            f"De meest kansrijke volgende stap is een duurzame installatie. "
-            f"Een warmtepomp kan een logische keuze zijn; via de ISDE is mogelijk "
-            f"een startbedrag van €{wp['startbedrag']:,} plus €{wp['per_kw']} per kW vermogen beschikbaar."
+            f"Via de ISDE is mogelijk een startbedrag van €{wp['startbedrag']:,} "
+            f"plus €{wp['per_kw']} per kW vermogen beschikbaar voor een warmtepomp."
         )
 
     # Afsluiten met CTA
@@ -425,6 +416,227 @@ def _bouw_samenvatting(
         )
 
     return " ".join(delen)
+
+
+def _bouw_fysische_analyse(
+    oppervlaktes:  dict,
+    rc_waarden:    dict,
+    bouwjaar:      int,
+    woningtype:    Optional[str],
+) -> str:
+    """
+    Genereert een sectie met de bouwfysische berekening per bouwdeel:
+    oppervlakte, huidige Rc, warmteverliesreductie (kWh/m³/EUR),
+    investering, subsidie en dynamische terugverdientijd met doorkijk.
+    """
+    from aannames import get as aanname
+    from financials import (
+        warmteverlies_reductie, terugverdientijd_uitgebreid,
+        bereken_kosten, bereken_subsidie_indicatie, KOSTEN_PER_M2,
+    )
+
+    RC_NIEUW: dict[str, float] = {
+        "dak":   aanname("rc_eis_dak"),
+        "vloer": aanname("rc_eis_vloer"),
+        "gevel": aanname("rc_eis_gevel"),
+        "spouw": aanname("rc_eis_spouw"),
+    }
+    MAATREGEL_KEY: dict[str, str] = {
+        "dak":   "dakisolatie",
+        "vloer": "vloer",
+        "gevel": "gevel",
+        "spouw": "spouwmuur",
+    }
+    ELEMENT_NAAM: dict[str, str] = {
+        "dak":   "Dak",
+        "vloer": "Vloer",
+        "gevel": "Gevelisolatie (buiten/binnen)",
+        "spouw": "Spouwmuurisolatie",
+    }
+
+    regels: list[str] = []
+    wtype = (woningtype or "tussenwoning").lower()
+
+    regels.append(
+        f"_Oppervlaktes berekend op basis van woningtype '{wtype}' "
+        f"en bouwjaar {bouwjaar}. Alle bedragen zijn indicatief._"
+    )
+    regels.append("")
+
+    for el in ("dak", "vloer", "spouw", "gevel", "glas"):
+        opp_info   = oppervlaktes.get(el, {})
+        opp_m2     = opp_info.get("opp_m2", 0.0) if isinstance(opp_info, dict) else 0.0
+        toelichting = opp_info.get("toelichting", "") if isinstance(opp_info, dict) else ""
+
+        if el == "glas":
+            # Glas apart: toon alleen oppervlak, geen Rc-berekening
+            if opp_m2 > 0:
+                from aannames import u_oud_glas as _u_oud_glas
+                u_info = _u_oud_glas(bouwjaar)
+                regels.append(f"**Glas**")
+                regels.append(f"Aanname huidige situatie: {u_info.get('toelichting', '')}")
+                regels.append(f"_{toelichting}_")
+                regels.append("")
+                regels.append("")
+            continue
+
+        rc_info   = rc_waarden.get(el, {})
+        rc_huidig = rc_info.get("rc", 0.0) if isinstance(rc_info, dict) else 0.0
+        rc_doel   = RC_NIEUW[el]
+        maatr_key = MAATREGEL_KEY[el]
+
+        naam = ELEMENT_NAAM[el]
+        regels.append(f"**{naam}**")
+        regels.append(f"Aanname huidige situatie: {rc_info.get('toelichting', '')}")
+
+        if opp_m2 == 0.0:
+            regels.append("Niet van toepassing voor dit woningtype.")
+            regels.append("")
+            regels.append("")
+            continue
+
+        if rc_huidig >= rc_doel:
+            regels.append(
+                f"Je Rc-waarde is {rc_huidig} m²K/W en voldoet aan de ISDE-eis "
+                f"en komt hierom niet in aanmerking voor subsidie."
+            )
+            regels.append("")
+            regels.append("")
+            continue
+
+        regels.append(f"_{toelichting}_")
+        regels.append(
+            f"Huidige Rc: {rc_huidig} m²K/W "
+            f"({rc_info.get('toelichting', '')})"
+        )
+        regels.append(f"Streefwaarde Rc: {rc_doel} m²K/W (ISDE-minimumeis)")
+
+        verlies = warmteverlies_reductie(opp_m2, rc_huidig, rc_doel)
+        kosten_min, kosten_max = bereken_kosten(maatr_key, opp_m2)
+        subsidie = bereken_subsidie_indicatie(maatr_key, opp_m2)
+        netto    = max(0.0, (kosten_min + kosten_max) / 2 - subsidie)
+        tvt      = terugverdientijd_uitgebreid(netto, verlies["euro_jr"])
+
+        regels.append(
+            f"Besparing na isolatie naar Rc {rc_doel}: "
+            f"**{verlies['kwh_jr']:,.0f} kWh/jr** | "
+            f"{verlies['m3_gas_jr']:,.0f} m³ gas/jr | "
+            f"**€ {verlies['euro_jr']:,.0f}/jr**"
+        )
+        regels.append(
+            f"Investering: €{kosten_min:,.0f}–€{kosten_max:,.0f} | "
+            f"ISDE-subsidie: tot €{subsidie:,.0f} | "
+            f"Netto: ~€{netto:,.0f}"
+        )
+        if tvt["tvt_jaar"] is not None:
+            dk = tvt["doorkijk"]
+            regels.append(
+                f"Terugverdientijd: **{tvt['tvt_jaar']} jaar** "
+                f"(bij {tvt['prijsstijging_gebruikt']*100:.0f}% energieprijsstijging/jr)"
+            )
+            if tvt["tvt_jaar"] > 20:
+                regels.append("")
+                regels.append(
+                    "_Enkel interessant in combinatie met groot onderhoud of verbouw._"
+                )
+            regels.append(
+                f"Doorkijk: "
+                f"5 jr → €{dk[5]['cum_besparing']:,.0f} | "
+                f"10 jr → €{dk[10]['cum_besparing']:,.0f} | "
+                f"20 jr → €{dk[20]['cum_besparing']:,.0f} cumulatief"
+            )
+        else:
+            regels.append("Terugverdientijd: niet berekend (controleer besparing en investering)")
+
+        regels.append("")
+        regels.append("")
+
+    # ── Totaalsamenvatting alle maatregelen ───────────────────────────────────
+    tot_kosten_min = 0.0
+    tot_kosten_max = 0.0
+    tot_sub_basis  = 0.0
+    tot_besparing  = 0.0
+    n_maatregelen  = 0
+
+    for el in ("dak", "vloer", "spouw", "gevel"):
+        opp_info  = oppervlaktes.get(el, {})
+        opp_m2    = opp_info.get("opp_m2", 0.0) if isinstance(opp_info, dict) else 0.0
+        rc_info   = rc_waarden.get(el, {})
+        rc_huidig = rc_info.get("rc", 0.0) if isinstance(rc_info, dict) else 0.0
+        rc_doel   = RC_NIEUW[el]
+        maatr_key = MAATREGEL_KEY[el]
+
+        if opp_m2 == 0.0 or rc_huidig >= rc_doel:
+            continue
+
+        verlies         = warmteverlies_reductie(opp_m2, rc_huidig, rc_doel)
+        k_min, k_max    = bereken_kosten(maatr_key, opp_m2)
+        sub             = bereken_subsidie_indicatie(maatr_key, opp_m2)
+
+        tot_kosten_min += k_min
+        tot_kosten_max += k_max
+        tot_sub_basis  += sub
+        tot_besparing  += verlies["euro_jr"]
+        n_maatregelen  += 1
+
+    if n_maatregelen >= 2 and tot_besparing > 0:
+        tot_sub_dubbel  = min(tot_sub_basis * 2, (tot_kosten_min + tot_kosten_max) / 2)
+        netto_basis     = max(0.0, (tot_kosten_min + tot_kosten_max) / 2 - tot_sub_basis)
+        netto_dubbel    = max(0.0, (tot_kosten_min + tot_kosten_max) / 2 - tot_sub_dubbel)
+        tvt_basis       = terugverdientijd_uitgebreid(netto_basis,  tot_besparing)
+        tvt_dubbel      = terugverdientijd_uitgebreid(netto_dubbel, tot_besparing)
+
+        tvt_b_str = f"{tvt_basis['tvt_jaar']} jaar"  if tvt_basis["tvt_jaar"]  else ">"
+        tvt_d_str = f"{tvt_dubbel['tvt_jaar']} jaar" if tvt_dubbel["tvt_jaar"] else ">"
+
+        regels.append("---")
+        regels.append("")
+        regels.append("**Totaaloverzicht bij uitvoering van alle maatregelen**")
+        regels.append("")
+        regels.append(
+            "Wanneer u meerdere isolatiemaatregelen combineert — of een isolatiemaatregel "
+            "koppelt aan een warmtepomp — verdubbelt de ISDE-subsidie automatisch. "
+            f"Uw subsidie komt dan niet uit op **€{tot_sub_basis:,.0f}** maar op "
+            f"**€{tot_sub_dubbel:,.0f}**."
+        )
+        regels.append("")
+        regels.append(f"| | Bedrag |")
+        regels.append(f"|---|---|")
+        regels.append(f"| Totale investering | €{tot_kosten_min:,.0f} – €{tot_kosten_max:,.0f} |")
+        regels.append(f"| Subsidie (enkelvoudig) | €{tot_sub_basis:,.0f} |")
+        regels.append(f"| Subsidie (meervoudig, bij combinatie) | **€{tot_sub_dubbel:,.0f}** |")
+        regels.append(f"| Netto investering (enkelvoudig) | €{netto_basis:,.0f} |")
+        regels.append(f"| Netto investering (meervoudig) | **€{netto_dubbel:,.0f}** |")
+        regels.append(f"| Jaarlijkse energiebesparing | €{tot_besparing:,.0f}/jr |")
+        regels.append(f"| Terugverdientijd (enkelvoudig) | {tvt_b_str} |")
+        regels.append(f"| Terugverdientijd (meervoudig) | **{tvt_d_str}** |")
+        regels.append("")
+
+    return "\n".join(regels)
+
+
+def _bouw_waarschuwingen_tekst(waarschuwingen: list[dict]) -> str:
+    """
+    Formatteert de lijst van waarschuwingen als leesbare Markdown-tekst.
+    """
+    if not waarschuwingen:
+        return ""
+
+    NIVEAU_PREFIX = {
+        "info":    "**Info**",
+        "let_op":  "**Let op**",
+        "risico":  "**Aandachtspunt**",
+    }
+
+    regels: list[str] = []
+    for w in waarschuwingen:
+        prefix = NIVEAU_PREFIX.get(w["niveau"], "**Opmerking**")
+        regels.append(
+            f"- {prefix} ({w['element']}): {w['bericht']}  \n"
+            f"  _{w['aanbeveling']}_"
+        )
+
+    return "\n".join(regels)
 
 
 def _bouw_prioriteiten_tekst(
@@ -477,8 +689,7 @@ def _bouw_prioriteiten_tekst(
                 )
             if item.subsidie_max > 0:
                 regels.append(
-                    f"ISDE-subsidie indicatie: tot €{item.subsidie_max:,.0f} "
-                    f"(meervoudig tarief 2026)"
+                    f"ISDE-subsidie indicatie: tot €{item.subsidie_max:,.0f}"
                 )
             if item.terugverdien_min is not None and item.terugverdien_max is not None:
                 regels.append(
@@ -528,7 +739,7 @@ def _bouw_subsidie_indicatie_tekst(
     opp_str = f" ({opp_m2:.0f} m²)" if opp_m2 else ""
     regels: list[str] = [
         f"Op basis van uw woning{opp_str} met bouwjaar {bouwjaar} zijn de "
-        f"volgende ISDE-subsidies indicatief van toepassing (meervoudig tarief 2026):",
+        f"volgende ISDE-subsidies indicatief van toepassing (tarieven 2026):",
         "",
     ]
 
@@ -541,8 +752,17 @@ def _bouw_subsidie_indicatie_tekst(
 
     regels.append("")
     regels.append(
-        f"**Indicatief subsidietotaal: tot €{subsidie_totaal:,.0f}** "
-        f"(bij meervoudig tarief; enkelvoudig tarief is lager)"
+        f"**Indicatief subsidietotaal: tot €{subsidie_totaal:,.0f}**"
+    )
+
+    regels.append("")
+    regels.append(
+        "**Wanneer wordt het subsidiebedrag verdubbeld?**  \n"
+        "Het meervoudig tarief geldt als u een isolatiemaatregel combineert met de installatie "
+        "van een warmtepomp, zonneboiler of aansluiting op een warmtenet. "
+        "Vraag de subsidie aan binnen 24 maanden na het uitvoeren van de eerste maatregel.  \n"
+        "Het subsidiebedrag wordt _niet_ verdubbeld als u de isolatiemaatregel alleen combineert "
+        "met ventilatie, of als u isoleert met biobased milieuvriendelijke isolatiematerialen."
     )
 
     # Warmtepomp toevoegen als aanvulling
@@ -705,6 +925,37 @@ def build_advice(facts: dict[str, Any]) -> AdviesResult:
         gemiddelde_score, focus, data_volledigheid
     )
 
+    # ── 8. Oppervlaktes en waarschuwingen (nieuwe modules) ────────────────────
+    woningtype_input = facts.get("woningtype")
+    dak_type_input   = facts.get("dak_type", "hellend")
+    bvo              = opp_m2 or 90.0
+
+    berekende_oppervlaktes = bereken_oppervlaktes(
+        bvo_m2    = bvo,
+        woningtype = woningtype_input,
+        bouwjaar  = bouwjaar,
+        dak_type  = dak_type_input,
+    )
+
+    rc_waarden_huidig = {
+        el: aannames_rc_oud(el, bouwjaar)
+        for el in ("dak", "vloer", "gevel", "spouw")
+    }
+
+    berekende_waarschuwingen = genereer_waarschuwingen(
+        facts        = facts,
+        oppervlaktes = berekende_oppervlaktes,
+        rc_waarden   = rc_waarden_huidig,
+    )
+
+    teksten["fysische_analyse"] = _bouw_fysische_analyse(
+        oppervlaktes = berekende_oppervlaktes,
+        rc_waarden   = rc_waarden_huidig,
+        bouwjaar     = bouwjaar,
+        woningtype   = woningtype_input,
+    )
+    teksten["waarschuwingen_tekst"] = _bouw_waarschuwingen_tekst(berekende_waarschuwingen)
+
     return AdviesResult(
         adres                    = adres,
         bouwjaar                 = bouwjaar,
@@ -727,4 +978,6 @@ def build_advice(facts: dict[str, Any]) -> AdviesResult:
         cta_primair              = cta_primair,
         cta_secondair            = cta_secondair,
         cta_url                  = cta_url,
+        oppervlaktes             = berekende_oppervlaktes,
+        waarschuwingen           = berekende_waarschuwingen,
     )

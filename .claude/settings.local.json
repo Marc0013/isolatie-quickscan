@@ -4,7 +4,14 @@
       "Read(//c/Users/info/OneDrive/Documents/Ontwikkeling website/Tools en templates/**)",
       "Bash(python -c \":*)",
       "Bash(pip install:*)",
-      "Bash(python -c \"from teksten_bouwperiodes import get_periode, get_maatregelen_tekst, get_risicos_tekst, get_subsidies_periode_tekst; p = get_periode\\(1960\\); print\\(p[''label''], ''-'', p[''naam'']\\); print\\(\\); print\\(get_maatregelen_tekst\\(1960\\)\\)\")"
+      "Bash(python -c \"from teksten_bouwperiodes import get_periode, get_maatregelen_tekst, get_risicos_tekst, get_subsidies_periode_tekst; p = get_periode\\(1960\\); print\\(p[''label''], ''-'', p[''naam'']\\); print\\(\\); print\\(get_maatregelen_tekst\\(1960\\)\\)\")",
+      "Bash(python src/main.py 9746CR 107)",
+      "Bash(python src/main.py 8501BR 25)",
+      "Bash(python src/main.py 9746CR 109)",
+      "Bash(python tests/test_nieuw.py)",
+      "Bash(python main.py --help)",
+      "Bash(python main.py 9746CR 107 --woningtype tussenwoning)",
+      "Bash(python src/main.py 9746CR 107 --woningtype tussenwoning)"
     ]
   }
 }

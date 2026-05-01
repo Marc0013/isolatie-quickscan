@@ -96,7 +96,9 @@ def _find_ghostscript() -> str | None:
     return None
 
 
-def main(postcode: str, huisnummer: str, toevoeging: Optional[str] = None, huisletter: Optional[str] = None):
+WONINGTYPE_OPTIES = ("tussenwoning", "hoekwoning", "vrijstaand", "twee-onder-een-kap", "appartement")
+
+def main(postcode: str, huisnummer: str, toevoeging: Optional[str] = None, huisletter: Optional[str] = None, woningtype: Optional[str] = None):
     load_dotenv()
     config = load_config()
 
@@ -149,7 +151,7 @@ def main(postcode: str, huisnummer: str, toevoeging: Optional[str] = None, huisl
 
     scan = quickscan_scores(bouwjaar, label)
 
-    facts = {"adres": adres, "postcode": postcode, "huisnummer": huisnummer, "bouwjaar": bouwjaar, "opp_bag": opp}
+    facts = {"adres": adres, "postcode": postcode, "huisnummer": huisnummer, "bouwjaar": bouwjaar, "opp_bag": opp, "woningtype": woningtype}
     if label:
         facts.update({
             "labelklasse": label.get("labelklasse"),
@@ -189,12 +191,14 @@ def main(postcode: str, huisnummer: str, toevoeging: Optional[str] = None, huisl
         subsidies=subs,
         narrative=narrative,
         advies=advies,
+        woningtype=woningtype,
     )
 
 
     outdir = Path(config["report"]["output_folder"])
     outdir.mkdir(parents=True, exist_ok=True)
-    outfile = outdir / f"quickscan_{postcode}_{huisnummer}.md"
+    hnr_suffix = f"{huisnummer}{huisletter}" if huisletter else huisnummer
+    outfile = outdir / f"quickscan_{postcode}_{hnr_suffix}.md"
     outfile.write_text(md, encoding="utf-8")
     print(f"OK: markdown geschreven: {outfile}")
 
@@ -225,6 +229,7 @@ def main(postcode: str, huisnummer: str, toevoeging: Optional[str] = None, huisl
             "{{energiebehoefte}}":       _fmt_getal(label.get("energiebehoefte") if label else None, "kWh/m².jr"),
             "{{warmtebehoefte}}":        _fmt_getal(label.get("warmtebehoefte") if label else None, "kWh/m².jr"),
             "{{gebouwtype}}":            label.get("gebouwtype", "—") if label else "—",
+            "{{woningtype}}":            woningtype or "—",
             "{{ geldig_tot }}":          _fmt_geldig(label.get("geldig_tot") if label else None),
             # Narratives
             # Samenvatting wordt geprepend aan narrative_gebouw (geen aparte placeholder in template)
@@ -266,6 +271,9 @@ def main(postcode: str, huisnummer: str, toevoeging: Optional[str] = None, huisl
             "{{element_tekst_gevel}}":   _strip_md(narrative.get("element_tekst_gevel", "") if narrative else ""),
             "{{element_tekst_vloer}}":   _strip_md(narrative.get("element_tekst_vloer", "") if narrative else ""),
             "{{element_tekst_glas}}":    _strip_md(narrative.get("element_tekst_glas", "") if narrative else ""),
+            # Bouwfysische analyse en waarschuwingen (nieuwe modules)
+            "{{fysische_analyse}}":      _strip_md(advies.teksten.get("fysische_analyse", "") if advies else ""),
+            "{{waarschuwingen}}":        _strip_md(advies.teksten.get("waarschuwingen_tekst", "") if advies else ""),
             # Aandachtspunten, subsidies, vervolgstappen
             "{{risicos}}":               _strip_md(narrative.get("risicos", "") if narrative else ""),
             "{{subsidies}}":             _strip_md(narrative.get("subsidies_blok", sub_tekst) if narrative else sub_tekst),
@@ -274,11 +282,11 @@ def main(postcode: str, huisnummer: str, toevoeging: Optional[str] = None, huisl
             # Streetview: altijd leeg als er geen foto is
             "{{streetview}}":            "",
         }
-        docx_out = outdir / f"quickscan_{postcode}_{huisnummer}.docx"
+        docx_out = outdir / f"quickscan_{postcode}_{hnr_suffix}.docx"
         # Sla Street View foto tijdelijk op als het beschikbaar is
         sv_pad = None
         if sv_foto:
-            sv_pad = outdir / f"streetview_{postcode}_{huisnummer}.jpg"
+            sv_pad = outdir / f"streetview_{postcode}_{hnr_suffix}.jpg"
             sv_pad.write_bytes(sv_foto)
 
         fill_docx(str(template_path), str(docx_out), docx_data, sv_foto_pad=str(sv_pad) if sv_pad else None, bouwjaar=bouwjaar, scores=scan.get("scores"), advies=advies)
@@ -289,7 +297,7 @@ def main(postcode: str, huisnummer: str, toevoeging: Optional[str] = None, huisl
 
         # ── PDF maken via LibreOffice + optionele Ghostscript print-optimalisatie ──
         import subprocess, sys, os, tempfile
-        pdf_out = outdir / f"quickscan_{postcode}_{huisnummer}.pdf"
+        pdf_out = outdir / f"quickscan_{postcode}_{hnr_suffix}.pdf"
 
         lo_candidates = [
             r"C:\Program Files\LibreOffice\program\soffice.exe",
@@ -373,10 +381,28 @@ if __name__ == "__main__":
     parser.add_argument("huisnummer", help="Huisnummer, bijv. 107")
     parser.add_argument("--toevoeging", default=None, help="Huisnummertoevoeging (optioneel)")
     parser.add_argument("--huisletter", default=None, help="Huisletter (optioneel)")
+    parser.add_argument(
+        "--woningtype", default=None,
+        choices=WONINGTYPE_OPTIES,
+        help="Type woning: tussenwoning, hoekwoning, vrijstaand, twee-onder-een-kap, appartement",
+    )
     args = parser.parse_args()
+
+    # Splits "188a" automatisch op in huisnummer=188 en huisletter=A
+    import re as _re
+    hnr_raw = args.huisnummer.strip()
+    m = _re.fullmatch(r'(\d+)([A-Za-z])', hnr_raw)
+    if m:
+        hnr = m.group(1)
+        hletter = m.group(2).upper()
+    else:
+        hnr = hnr_raw
+        hletter = args.huisletter.upper() if args.huisletter else None
+
     main(
         args.postcode.replace(" ", "").upper(),
-        args.huisnummer,
+        hnr,
         toevoeging=args.toevoeging,
-        huisletter=args.huisletter,
+        huisletter=hletter,
+        woningtype=args.woningtype,
     )

@@ -59,7 +59,7 @@ def _voeg_subsidietabel_bouwperiode_in(docx_pad: str, bouwjaar: int, subsidie_in
     import sys, os
     sys.path.insert(0, os.path.dirname(__file__))
     from subsidies_isolatie_glas import (
-        ISOLATIE_BEDRAGEN, GLAS_BEDRAGEN, MONUMENT_GLAS,
+        ISOLATIE_BEDRAGEN, GLAS_BEDRAGEN, MONUMENT_GLAS, MEERVOUDIG_DISCLAIMER,
         WARMTEPOMP, ALGEMENE_NOTEN, get_periode,
     )
     from teksten_bouwperiodes import SUBSIDIE_NUANCES
@@ -154,13 +154,13 @@ def _voeg_subsidietabel_bouwperiode_in(docx_pad: str, bouwjaar: int, subsidie_in
 
     # ── Tabel 1: Isolatie ─────────────────────────────────────────────────────
     ISO_VOLGORDE = ["gevel", "dakisolatie", "zoldervloer", "spouwmuur", "vloer", "bodem"]
-    ISO_COLS     = ["Maatregel", "Enkelvoudig", "Meervoudig", "Biobased bonus", "Min. Rc/Rd"]
+    ISO_COLS     = ["Maatregel", "ISDE 2026 (€/m²)", "Biobased bonus", "Min. Rc/Rd"]
 
     tabel_iso = doc.add_table(rows=1, cols=len(ISO_COLS))
     try: tabel_iso.style = doc.styles['Table Grid']
     except KeyError: pass
-    # Kolom 1 (Maatregel) 3200 tw, overige 4 kolommen elk ~1456 tw  (totaal 9026)
-    _set_kolom_breedtes(tabel_iso, [3200, 1456, 1457, 1457, 1456])
+    # Kolom 1 (Maatregel) 3200 tw, overige 3 kolommen elk ~1942 tw  (totaal 9026)
+    _set_kolom_breedtes(tabel_iso, [3200, 1942, 1942, 1942])
     _header_rij(tabel_iso, ISO_COLS)
 
     for sleutel in ISO_VOLGORDE:
@@ -168,31 +168,29 @@ def _voeg_subsidietabel_bouwperiode_in(docx_pad: str, bouwjaar: int, subsidie_in
         bio = f"+ € {m['bio']:.2f}/m²" if m.get("bio") else "—"
         _data_rij(tabel_iso, [
             (m["naam"],               True),
-            (f"€ {m['enkel']:.2f}/m²", False),
-            (f"€ {m['meer']:.2f}/m²",  True),
+            (f"€ {m['bedrag']:.2f}/m²",  True),
             (bio,                      False),
             (m["rd"],                  False),
         ], aanbevolen=sleutel in aanbevolen_iso)
 
     # ── Tabel 2: Glas ─────────────────────────────────────────────────────────
     GLAS_VOLGORDE = ["hrpp", "vacuum", "triple", "deuren"]
-    GLAS_COLS     = ["Type glas", "Enkelvoudig", "Meervoudig", "Min. U-waarde"]
+    GLAS_COLS     = ["Type glas", "ISDE 2026 (€/m²)", "Min. U-waarde"]
 
     spatie1 = doc.add_paragraph("")
 
     tabel_glas = doc.add_table(rows=1, cols=len(GLAS_COLS))
     try: tabel_glas.style = doc.styles['Table Grid']
     except KeyError: pass
-    # Kolom 1 (Type glas) 3200 tw, overige 3 kolommen elk ~1942 tw  (totaal 9026)
-    _set_kolom_breedtes(tabel_glas, [3200, 1942, 1942, 1942])
+    # Kolom 1 (Type glas) 3200 tw, overige 2 kolommen elk ~2913 tw  (totaal 9026)
+    _set_kolom_breedtes(tabel_glas, [3200, 2913, 2913])
     _header_rij(tabel_glas, GLAS_COLS)
 
     for sleutel in GLAS_VOLGORDE:
         g = GLAS_BEDRAGEN[sleutel]
         _data_rij(tabel_glas, [
             (g["naam"],               True),
-            (f"€ {g['enkel']:.2f}/m²", False),
-            (f"€ {g['meer']:.2f}/m²",  True),
+            (f"€ {g['bedrag']:.2f}/m²",  True),
             (g["ug"],                  False),
         ], aanbevolen=sleutel in aanbevolen_glas)
 
@@ -245,6 +243,12 @@ def _voeg_subsidietabel_bouwperiode_in(docx_pad: str, bouwjaar: int, subsidie_in
         _cel_tekst(rij.cells[0], subsidie_indicatie, bold=True, kleur=GROEN_TXT)
         _set_cel_achtergrond(rij.cells[0], _YELLOW_HEX)
         _set_rij_hoogte(rij)
+
+    # Disclaimer meervoudig tarief
+    rij = tabel_noten.add_row()
+    _cel_tekst(rij.cells[0], MEERVOUDIG_DISCLAIMER, italic=True)
+    _set_cel_achtergrond(rij.cells[0], _BLUE_BG)
+    _set_rij_hoogte(rij)
 
     if periode.get("notitie"):
         rij = tabel_noten.add_row()
@@ -719,7 +723,8 @@ def _voeg_element_teksten_in(docx_pad: str, data: dict, scores: dict | None = No
 
     tbl_elem = scoretabel._tbl
     parent   = tbl_elem.getparent()
-    idx      = list(parent).index(tbl_elem) + 1  # invoegen ná de tabel
+    idx      = list(parent).index(tbl_elem)
+    parent.remove(tbl_elem)  # scoretabel verwijderen
 
     def _maak_alinea(tekst: str, *, bold=False, pt_val="22", kleur_hex=None) -> etree._Element:
         p   = OxmlElement('w:p')
@@ -760,10 +765,11 @@ def _voeg_element_teksten_in(docx_pad: str, data: dict, scores: dict | None = No
     idx += 1
 
     for naam, tekst, score, label in invoegblokken:
-        # Subkop: "Dak — score 2/5 (Matig)"
-        kop_tekst = f"{naam} — score {score}/5 ({label})" if score and label else naam
-        parent.insert(idx, _maak_alinea(kop_tekst, bold=True, pt_val="22", kleur_hex="5AAA00"))
+        parent.insert(idx, _maak_alinea(naam, bold=True, pt_val="22", kleur_hex="5AAA00"))
         idx += 1
+        if score and label:
+            parent.insert(idx, _maak_alinea(f"Score {score}/5 — {label}", bold=True, pt_val="22"))
+            idx += 1
 
         # Tekst (splits op dubbele newline voor aparte alinea's)
         for deel in tekst.split('\n\n'):
@@ -1304,6 +1310,534 @@ def _stijl_voorblad(docx_pad: str, adres: str, datum: str) -> None:
     doc.save(docx_pad)
 
 
+def _vervang_aanpak_sectie(docx_pad: str, advies) -> None:
+    """
+    Verwijdert de hardcoded 'Mogelijke aanpak' sectie (isolatietrias +
+    lege alinea's + gevulde {{narrative_aanpak}}) en vervangt die door
+    opgemaakte prioriteitenblokken op basis van AdviesResult.
+    """
+    try:
+        from docx import Document
+        from docx.oxml.ns import qn
+        from docx.oxml import OxmlElement
+    except ImportError:
+        return
+
+    if not advies:
+        return
+
+    doc  = Document(docx_pad)
+    body = doc.element.body
+    kinderen = list(body)
+
+    # Zoek "Mogelijke aanpak" alinea als startpunt
+    start_elem = None
+    for elem in kinderen:
+        if elem.tag.endswith('}p'):
+            tekst = ''.join(t.text or '' for t in elem.iter(f'{W}t')).strip()
+            if tekst == 'Mogelijke aanpak':
+                start_elem = elem
+                break
+
+    if start_elem is None:
+        return
+
+    start_idx = kinderen.index(start_elem)
+
+    # Zoek eerstvolgende Heading-alinea na start als eindgrens
+    einde_idx = None
+    for i, elem in enumerate(kinderen[start_idx + 1:], start_idx + 1):
+        if elem.tag.endswith('}p'):
+            pPr = elem.find(f'{W}pPr')
+            if pPr is not None:
+                pStyle = pPr.find(f'{W}pStyle')
+                if pStyle is not None:
+                    val = pStyle.get(f'{W}val', '').lower()
+                    if 'heading' in val or 'kop' in val or val == '1':
+                        einde_idx = i
+                        break
+
+    if einde_idx is None:
+        return
+
+    # Verwijder alles van start t/m einde-1 (de heading zelf blijft staan)
+    te_verwijderen = list(kinderen[start_idx:einde_idx])
+    invoeg_positie = start_idx
+    for elem in te_verwijderen:
+        body.remove(elem)
+
+    # ── Bouw hulpfunctie voor alinea's ────────────────────────────────────────
+    def _p(tekst='', *, bold=False, kleur='1D1D1B', pt='22', space_after=120):
+        p   = OxmlElement('w:p')
+        pPr = OxmlElement('w:pPr')
+        pSt = OxmlElement('w:pStyle'); pSt.set(qn('w:val'), 'Normal'); pPr.append(pSt)
+        sp  = OxmlElement('w:spacing')
+        sp.set(qn('w:before'), '0'); sp.set(qn('w:after'), str(space_after))
+        pPr.append(sp); p.append(pPr)
+        if tekst:
+            r   = OxmlElement('w:r')
+            rPr = OxmlElement('w:rPr')
+            if bold: rPr.append(OxmlElement('w:b'))
+            f = OxmlElement('w:rFonts')
+            for attr in ('w:ascii', 'w:hAnsi', 'w:cs'): f.set(qn(attr), 'Calibri')
+            rPr.append(f)
+            sz = OxmlElement('w:sz');   sz.set(qn('w:val'), pt);  rPr.append(sz)
+            sc = OxmlElement('w:szCs'); sc.set(qn('w:val'), pt);  rPr.append(sc)
+            kl = OxmlElement('w:color'); kl.set(qn('w:val'), kleur.upper()); rPr.append(kl)
+            r.append(rPr)
+            t = OxmlElement('w:t'); t.text = tekst
+            t.set('{http://www.w3.org/XML/1998/namespace}space', 'preserve')
+            r.append(t); p.append(r)
+        return p
+
+    # ── Bouw nieuwe inhoud ────────────────────────────────────────────────────
+    elems: list = []
+
+    # Sectietitel (vervangt de verwijderde "Mogelijke aanpak" header)
+    elems.append(_p('', space_after=200))
+
+    hoge  = [item for item in advies.prioriteiten if item.score >= 3]
+    lage  = [item for item in advies.prioriteiten if item.score < 3]
+    urg_labels = {'hoog': 'Hoge urgentie', 'middel': 'Gemiddelde prioriteit', 'laag': 'Lage prioriteit'}
+
+    if hoge:
+        for rang, item in enumerate(hoge, 1):
+            urg = urg_labels.get(item.urgentie, item.urgentie)
+            elems.append(_p(
+                f'{rang}. {item.element_naam}  \u2014  score {item.score}/5  \u2014  {urg}',
+                bold=True, kleur='5AAA00', pt='22', space_after=60
+            ))
+            elems.append(_p(f'Aanbevolen maatregel: {item.maatregel_naam}', kleur='1D1D1B', space_after=60))
+            if item.opp_indicatief > 0:
+                elems.append(_p(f'Geschatte oppervlakte: ca. {item.opp_indicatief:.0f} m\u00b2', kleur='666666', space_after=60))
+            if item.besparing_max > 0:
+                elems.append(_p(
+                    f'Indicatieve besparing: \u20ac{item.besparing_min:,.0f}\u2013\u20ac{item.besparing_max:,.0f} per jaar',
+                    kleur='1D1D1B', space_after=60
+                ))
+            if item.kosten_max > 0:
+                elems.append(_p(
+                    f'Indicatieve investering: \u20ac{item.kosten_min:,.0f}\u2013\u20ac{item.kosten_max:,.0f}',
+                    kleur='1D1D1B', space_after=60
+                ))
+            if item.subsidie_max > 0:
+                elems.append(_p(
+                    f'ISDE-subsidie indicatie: tot \u20ac{item.subsidie_max:,.0f}',
+                    kleur='2E7D32', space_after=60
+                ))
+            tvt_space = 200 if rang < len(hoge) else 160
+            if item.terugverdien_min is not None and item.terugverdien_max is not None:
+                elems.append(_p(
+                    f'Terugverdientijd na subsidie: ca. {item.terugverdien_min:.0f}\u2013{item.terugverdien_max:.0f} jaar',
+                    kleur='1D1D1B', space_after=tvt_space
+                ))
+            else:
+                elems.append(_p('', space_after=tvt_space))
+    else:
+        # Goede woning: geen isolatieprioriteiten
+        elems.append(_p(
+            'De gebouwschil is op orde. De meeste winst zit in het optimaliseren van '
+            'installaties: ventilatie, verwarming en eventuele duurzame opwek.',
+            kleur='1D1D1B', space_after=160
+        ))
+
+    # Score 1–2: korte positieve noot
+    for item in lage:
+        elems.append(_p(
+            f'{item.element_naam} (score {item.score}/5) \u2014 dit onderdeel is goed op orde.',
+            kleur='2E7D32', space_after=80
+        ))
+    if lage:
+        elems.append(_p('', space_after=80))
+
+    # Basis totstandkoming
+    elems.append(_p(
+        'Basis totstandkoming van dit rapport',
+        bold=True, kleur='1D1D1B', pt='24', space_after=80,
+    ))
+    elems.append(_p(
+        'Financiële indicaties zijn schattingen op basis van bouwjaar en gemiddelde '
+        'woningkenmerken. Definitieve bedragen hangen af van de werkelijke situatie ter plaatse.',
+        kleur='555555', pt='20', space_after=60,
+    ))
+    elems.append(_p(
+        'Berekend op basis van woningtype, bouwjaar en isolatiewaarden per bouwperiode '
+        '(ISSO 82.1, NEN 1068). Alle bedragen zijn indicatief.',
+        kleur='555555', pt='20', space_after=160,
+    ))
+
+    # Invoegen op de vrijgekomen positie
+    for i, elem in enumerate(elems):
+        body.insert(invoeg_positie + i, elem)
+
+    doc.save(docx_pad)
+
+
+def _voeg_fysische_analyse_in(docx_pad: str, advies) -> None:
+    """
+    Injecteert de bouwfysische analyse (oppervlaktes, besparing, TVT per element)
+    en waarschuwingen als gestileerde Word-alinea's, direct na de 'Aanbevolen
+    maatregelen' sectie. Vereist geen placeholder in de template.
+    """
+    if not advies:
+        return
+
+    try:
+        from docx import Document
+        from docx.oxml.ns import qn
+        from docx.oxml import OxmlElement
+    except ImportError:
+        return
+
+    from aannames import rc_oud as _rc_oud, get as _aanname
+    from financials import (
+        warmteverlies_reductie, terugverdientijd_uitgebreid,
+        bereken_kosten, bereken_subsidie_indicatie,
+    )
+
+    doc  = Document(docx_pad)
+    body = doc.element.body
+
+    # ── Zoek anker: laatste alinea van _vervang_aanpak_sectie ─────────────────
+    # Die eindigt altijd met de financiële-indicaties-disclaimer.
+    anker = None
+    for elem in list(body):
+        if elem.tag.endswith('}p'):
+            tekst = ''.join(t.text or '' for t in elem.iter(f'{W}t')).lower()
+            if 'financi' in tekst and 'indicaties' in tekst and 'schattingen' in tekst:
+                anker = elem
+
+    # Fallback: zoek eerste heading die 'subsidie' bevat
+    if anker is None:
+        for elem in list(body):
+            if elem.tag.endswith('}p'):
+                pPr = elem.find(f'{W}pPr')
+                if pPr is not None:
+                    pStyle = pPr.find(f'{W}pStyle')
+                    if pStyle is not None:
+                        val = pStyle.get(f'{W}val', '').lower()
+                        if 'heading' in val or 'kop' in val:
+                            tekst = ''.join(t.text or '' for t in elem.iter(f'{W}t')).lower()
+                            if 'subsidie' in tekst:
+                                anker = elem
+                                break
+
+    if anker is None:
+        return
+
+    invoeg_idx = list(body).index(anker) + 1
+
+    # ── Hulpfunctie voor alinea's ─────────────────────────────────────────────
+    def _p(tekst='', *, bold=False, italic=False, kleur='1D1D1B', pt='22', space_after=120):
+        p   = OxmlElement('w:p')
+        pPr = OxmlElement('w:pPr')
+        pSt = OxmlElement('w:pStyle'); pSt.set(qn('w:val'), 'Normal'); pPr.append(pSt)
+        sp  = OxmlElement('w:spacing')
+        sp.set(qn('w:before'), '0'); sp.set(qn('w:after'), str(space_after))
+        pPr.append(sp); p.append(pPr)
+        if tekst:
+            r   = OxmlElement('w:r')
+            rPr = OxmlElement('w:rPr')
+            if bold:   rPr.append(OxmlElement('w:b'))
+            if italic: rPr.append(OxmlElement('w:i'))
+            f = OxmlElement('w:rFonts')
+            for attr in ('w:ascii', 'w:hAnsi', 'w:cs'): f.set(qn(attr), 'Calibri')
+            rPr.append(f)
+            sz  = OxmlElement('w:sz');   sz.set(qn('w:val'), pt);  rPr.append(sz)
+            szC = OxmlElement('w:szCs'); szC.set(qn('w:val'), pt); rPr.append(szC)
+            kl  = OxmlElement('w:color'); kl.set(qn('w:val'), kleur.upper()); rPr.append(kl)
+            r.append(rPr)
+            t = OxmlElement('w:t'); t.text = tekst
+            t.set('{http://www.w3.org/XML/1998/namespace}space', 'preserve')
+            r.append(t); p.append(r)
+        return p
+
+    elems: list = []
+
+    # ── Sectietitel ───────────────────────────────────────────────────────────
+    elems.append(_p('', space_after=200))
+    elems.append(_p(
+        'Berekend op basis van woningtype, bouwjaar en isolatiewaarden per bouwperiode '
+        '(ISSO 82.1, NEN 1068). Alle bedragen zijn indicatief.',
+        italic=True, kleur='666666', pt='20', space_after=200,
+    ))
+
+    # ── Per bouwdeel ──────────────────────────────────────────────────────────
+    RC_NIEUW = {
+        "dak":   _aanname("rc_eis_dak"),
+        "vloer": _aanname("rc_eis_vloer"),
+        "gevel": _aanname("rc_eis_gevel"),
+        "spouw": _aanname("rc_eis_spouw"),
+    }
+    MAATREGEL_KEY = {
+        "dak":   "dakisolatie",
+        "vloer": "vloer",
+        "gevel": "gevel",
+        "spouw": "spouwmuur",
+    }
+    ELEMENT_NAAM = {
+        "dak":   "Dak",
+        "vloer": "Vloer",
+        "gevel": "Gevelisolatie (buiten/binnen)",
+        "spouw": "Spouwmuurisolatie",
+    }
+
+    oppervlaktes = advies.oppervlaktes or {}
+    bouwjaar     = advies.bouwjaar
+
+    for el in ("dak", "vloer", "spouw", "gevel"):
+        opp_info    = oppervlaktes.get(el, {})
+        opp_m2      = opp_info.get("opp_m2", 0.0)      if isinstance(opp_info, dict) else 0.0
+        toelichting = opp_info.get("toelichting", "")   if isinstance(opp_info, dict) else ""
+
+        rc_info   = _rc_oud(el, bouwjaar)
+        rc_huidig = rc_info["rc"]
+        rc_doel   = RC_NIEUW[el]
+        naam      = ELEMENT_NAAM[el]
+
+        elems.append(_p(
+            naam,
+            bold=True, kleur='5AAA00', pt='22', space_after=20,
+        ))
+        elems.append(_p(
+            f'Aanname huidige situatie: {rc_info["toelichting"]}',
+            kleur='888888', pt='20', space_after=40,
+        ))
+
+        if opp_m2 == 0.0:
+            elems.append(_p(
+                'Niet van toepassing voor dit woningtype.',
+                italic=True, kleur='888888', pt='20', space_after=160,
+            ))
+            continue
+
+        if rc_huidig >= rc_doel:
+            elems.append(_p(
+                f'Je Rc-waarde is {rc_huidig} m\u00b2K/W en voldoet aan de ISDE-eis '
+                f'en komt hierom niet in aanmerking voor subsidie.',
+                kleur='2E7D32', pt='20', space_after=60,
+            ))
+            elems.append(_p('', space_after=160))
+            continue
+
+        if toelichting:
+            elems.append(_p(toelichting, italic=True, kleur='888888', pt='20', space_after=40))
+        elems.append(_p(
+            f'Huidige Rc: {rc_huidig} m\u00b2K/W  \u2014  {rc_info["toelichting"]}',
+            kleur='555555', pt='20', space_after=20,
+        ))
+        elems.append(_p(
+            f'Streefwaarde Rc: {rc_doel} m\u00b2K/W (ISDE-minimumeis)',
+            kleur='555555', pt='20', space_after=60,
+        ))
+
+        verlies    = warmteverlies_reductie(opp_m2, rc_huidig, rc_doel)
+        kosten_min, kosten_max = bereken_kosten(MAATREGEL_KEY[el], opp_m2)
+        subsidie   = bereken_subsidie_indicatie(MAATREGEL_KEY[el], opp_m2)
+        netto      = max(0.0, (kosten_min + kosten_max) / 2 - subsidie)
+        tvt        = terugverdientijd_uitgebreid(netto, verlies["euro_jr"])
+
+        elems.append(_p(
+            f'Besparing:    {verlies["kwh_jr"]:,.0f} kWh/jr  |  '
+            f'{verlies["m3_gas_jr"]:,.0f} m\u00b3 gas/jr  |  '
+            f'\u20ac{verlies["euro_jr"]:,.0f} per jaar',
+            kleur='1D1D1B', pt='20', space_after=60,
+        ))
+        elems.append(_p(
+            f'Investering:  \u20ac{kosten_min:,.0f}\u2013\u20ac{kosten_max:,.0f}  |  '
+            f'ISDE-subsidie: tot \u20ac{subsidie:,.0f}  |  '
+            f'Netto: \u20ac{netto:,.0f}',
+            kleur='1D1D1B', pt='20', space_after=60,
+        ))
+        if tvt["tvt_jaar"] is not None:
+            dk = tvt["doorkijk"]
+            elems.append(_p(
+                f'Terugverdientijd: {tvt["tvt_jaar"]} jaar  |  '
+                f'Na 10 jr: \u20ac{dk[10]["cum_besparing"]:,.0f}  |  '
+                f'Na 20 jr: \u20ac{dk[20]["cum_besparing"]:,.0f} cumulatief bespaard',
+                kleur='1D1D1B', pt='20', space_after=60,
+            ))
+            if tvt["tvt_jaar"] > 20:
+                elems.append(_p(
+                    'Enkel interessant in combinatie met groot onderhoud of verbouw.',
+                    kleur='888888', pt='18', italic=True, space_after=60,
+                ))
+            elems.append(_p('', space_after=160))
+        else:
+            elems.append(_p('', space_after=160))
+
+    # Glas: alleen oppervlak tonen (geen Rc-berekening)
+    from aannames import u_oud_glas as _u_oud_glas
+    glas_info = oppervlaktes.get("glas", {})
+    glas_opp  = glas_info.get("opp_m2", 0.0) if isinstance(glas_info, dict) else 0.0
+    if glas_opp > 0:
+        u_info = _u_oud_glas(bouwjaar)
+        elems.append(_p(
+            'Glas',
+            bold=True, kleur='5AAA00', pt='22', space_after=20,
+        ))
+        elems.append(_p(
+            f'Aanname huidige situatie: {u_info.get("toelichting", "")}',
+            kleur='888888', pt='20', space_after=40,
+        ))
+        glas_toel = glas_info.get("toelichting", "") if isinstance(glas_info, dict) else ""
+        if glas_toel:
+            elems.append(_p(glas_toel, italic=True, kleur='888888', pt='20', space_after=200))
+
+    # ── Totaalsamenvatting alle maatregelen ───────────────────────────────────
+    tot_kosten_min = 0.0
+    tot_kosten_max = 0.0
+    tot_sub_basis  = 0.0
+    tot_besparing  = 0.0
+    n_maatregelen  = 0
+
+    for el in ("dak", "vloer", "spouw", "gevel"):
+        opp_info  = oppervlaktes.get(el, {})
+        opp_m2_t  = opp_info.get("opp_m2", 0.0) if isinstance(opp_info, dict) else 0.0
+        rc_info   = _rc_oud(el, bouwjaar)
+        rc_huidig = rc_info["rc"]
+        rc_doel   = RC_NIEUW[el]
+        maatr_key = MAATREGEL_KEY[el]
+
+        if opp_m2_t == 0.0 or rc_huidig >= rc_doel:
+            continue
+
+        verlies      = warmteverlies_reductie(opp_m2_t, rc_huidig, rc_doel)
+        k_min, k_max = bereken_kosten(maatr_key, opp_m2_t)
+        sub          = bereken_subsidie_indicatie(maatr_key, opp_m2_t)
+
+        tot_kosten_min += k_min
+        tot_kosten_max += k_max
+        tot_sub_basis  += sub
+        tot_besparing  += verlies["euro_jr"]
+        n_maatregelen  += 1
+
+    if n_maatregelen >= 2 and tot_besparing > 0:
+        gemiddeld       = (tot_kosten_min + tot_kosten_max) / 2
+        tot_sub_dubbel  = min(tot_sub_basis * 2, gemiddeld)
+        netto_basis     = max(0.0, gemiddeld - tot_sub_basis)
+        netto_dubbel    = max(0.0, gemiddeld - tot_sub_dubbel)
+        tvt_b           = terugverdientijd_uitgebreid(netto_basis,  tot_besparing)
+        tvt_d           = terugverdientijd_uitgebreid(netto_dubbel, tot_besparing)
+        tvt_b_str       = f"{tvt_b['tvt_jaar']} jaar" if tvt_b["tvt_jaar"] else "—"
+        tvt_d_str       = f"{tvt_d['tvt_jaar']} jaar" if tvt_d["tvt_jaar"] else "—"
+
+        elems.append(_p('', space_after=120))
+        elems.append(_p(
+            'Totaaloverzicht bij uitvoering van alle maatregelen',
+            bold=True, kleur='1D1D1B', pt='24', space_after=100,
+        ))
+        elems.append(_p(
+            'Wanneer u meerdere isolatiemaatregelen combineert — of een isolatiemaatregel '
+            'koppelt aan een warmtepomp — verdubbelt de ISDE-subsidie automatisch. '
+            f'Uw subsidie komt dan niet uit op \u20ac{tot_sub_basis:,.0f} '
+            f'maar op \u20ac{tot_sub_dubbel:,.0f}.',
+            kleur='1D1D1B', pt='20', space_after=120,
+        ))
+
+        RIJEN = [
+            ('Totale investering',               f'\u20ac{tot_kosten_min:,.0f} \u2013 \u20ac{tot_kosten_max:,.0f}', False),
+            ('Subsidie (enkelvoudig tarief)',     f'\u20ac{tot_sub_basis:,.0f}',    False),
+            ('Subsidie (meervoudig, combinatie)', f'\u20ac{tot_sub_dubbel:,.0f}',   True),
+            ('Netto investering (enkelvoudig)',   f'\u20ac{netto_basis:,.0f}',      False),
+            ('Netto investering (meervoudig)',    f'\u20ac{netto_dubbel:,.0f}',     True),
+            ('Jaarlijkse energiebesparing',       f'\u20ac{tot_besparing:,.0f}/jr', False),
+            ('Terugverdientijd (enkelvoudig)',     tvt_b_str,                       False),
+            ('Terugverdientijd (meervoudig)',      tvt_d_str,                       True),
+        ]
+        for label, waarde, highlight in RIJEN:
+            kleur = '1D1D1B' if not highlight else '2E5C00'
+            elems.append(_p(
+                f'{label}:  {waarde}',
+                bold=highlight, kleur=kleur, pt='20', space_after=40,
+            ))
+        elems.append(_p('', space_after=160))
+
+    # ── Aandachtspunten / waarschuwingen ──────────────────────────────────────
+    waarschuwingen = advies.waarschuwingen or []
+    if waarschuwingen:
+        elems.append(_p('', space_after=160))
+
+        NIVEAU_KLEUR = {"info": "2E7D32", "let_op": "E65100", "risico": "B71C1C"}
+        NIVEAU_LABEL = {"info": "Info", "let_op": "Let op", "risico": "Aandachtspunt"}
+
+        for w in waarschuwingen:
+            kleur = NIVEAU_KLEUR.get(w["niveau"], "555555")
+            label = NIVEAU_LABEL.get(w["niveau"], w["niveau"].capitalize())
+            elems.append(_p(
+                f'{label} ({w["element"]}): {w["bericht"]}',
+                bold=(w["niveau"] == "risico"),
+                kleur=kleur, pt='20', space_after=60,
+            ))
+            elems.append(_p(
+                f'  \u2192 {w["aanbeveling"]}',
+                italic=True, kleur='555555', pt='20', space_after=120,
+            ))
+
+    # ── Invoegen op berekende positie ─────────────────────────────────────────
+    for i, elem in enumerate(elems):
+        body.insert(invoeg_idx + i, elem)
+
+    doc.save(docx_pad)
+
+
+def _verwijder_score_tabel(docx_pad: str) -> None:
+    """
+    Verwijdert de scores-tabel (Dak/Gevel/Vloer/Glas) en omliggende
+    lege alinea's uit het document zodat er geen grote witruimte overblijft.
+    """
+    from docx import Document
+    from docx.oxml.ns import qn as _qn
+    doc = Document(docx_pad)
+    HERKENNING = {"dak", "gevel", "vloer", "glas"}
+    tabel_gevonden = None
+    for tabel in doc.tables:
+        cel_teksten = {rij.cells[0].text.strip().lower() for rij in tabel.rows}
+        if len(cel_teksten & HERKENNING) >= 2:
+            tabel_gevonden = tabel
+            break
+    if tabel_gevonden is None:
+        doc.save(docx_pad)
+        return
+
+    tbl_elem = tabel_gevonden._tbl
+    parent   = tbl_elem.getparent()
+    kinderen = list(parent)
+    idx      = kinderen.index(tbl_elem)
+
+    # Verwijder lege alinea's direct vóór de tabel (max 5)
+    voor = idx - 1
+    verwijderd = 0
+    while voor >= 0 and verwijderd < 5:
+        elem = kinderen[voor]
+        if elem.tag == _qn('w:p') and not elem.text_content().strip() if hasattr(elem, 'text_content') else elem.tag == _qn('w:p') and not ''.join(r.text or '' for r in elem.iter(_qn('w:t'))).strip():
+            parent.remove(elem)
+            kinderen = list(parent)
+            idx = kinderen.index(tbl_elem)
+            voor = idx - 1
+            verwijderd += 1
+        else:
+            break
+
+    # Verwijder de tabel zelf
+    parent.remove(tbl_elem)
+    kinderen = list(parent)
+
+    # Verwijder lege alinea's direct ná de (verwijderde) tabelpositie (max 5)
+    na = idx
+    verwijderd = 0
+    while na < len(kinderen) and verwijderd < 5:
+        elem = kinderen[na]
+        if elem.tag == _qn('w:p') and not ''.join(r.text or '' for r in elem.iter(_qn('w:t'))).strip():
+            parent.remove(elem)
+            kinderen = list(parent)
+            verwijderd += 1
+        else:
+            break
+
+    doc.save(docx_pad)
+
+
 def fill_docx(template_path: str, output_path: str, data: dict, sv_foto_pad: str | None = None, bouwjaar: int | None = None, scores: dict | None = None, advies=None):
     """
     Vult alle {{plaatshouders}} in en voegt optioneel een Street View foto in.
@@ -1377,7 +1911,12 @@ def fill_docx(template_path: str, output_path: str, data: dict, sv_foto_pad: str
                 )
             _voeg_subsidietabel_bouwperiode_in(output_path, bouwjaar, subsidie_indicatie=sub_indicatie)
         _stijl_woninggegevens_tabel(output_path)
-        _voeg_element_teksten_in(output_path, expanded, scores=scores)
+        _verwijder_score_tabel(output_path)
+        if advies:
+            _vervang_aanpak_sectie(output_path, advies)
+            _voeg_fysische_analyse_in(output_path, advies)
+        else:
+            _voeg_element_teksten_in(output_path, expanded, scores=scores)
         adres_str = expanded.get("{{adres}}", "")
         datum_str = expanded.get("{{datum}}", "")
         _stijl_voorblad(output_path, adres_str, datum_str)
