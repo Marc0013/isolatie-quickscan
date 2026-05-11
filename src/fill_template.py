@@ -8,10 +8,10 @@ W  = f'{{{NS}}}'
 
 # ── Subsidietabel configuratie ────────────────────────────────────────────────
 _SUBSIDIE_SENTINEL = "##PANDIQ_SUBSIDIETABEL##"
-_NAVY_HEX   = "5AAA00"   # titelbalk groen (PandIQ huisstijl)
-_YELLOW_HEX = "FFFFFF"   # aanbevolen rij - wit (geen gele achtergrond)
+_NAVY_HEX   = "D4E84A"   # titelbalk lime (nieuwe huisstijl)
+_YELLOW_HEX = "FFFFFF"   # aanbevolen rij - wit
 _GREEN_BG   = "FFFFFF"   # warmtepomp blok - wit
-_GREEN_HEAD = "5AAA00"   # warmtepomp header - PandIQ groen
+_GREEN_HEAD = "D4E84A"   # warmtepomp header - lime
 _BLUE_BG    = "FFFFFF"   # noten - geen achtergrondkleur
 _WARN_BG    = "FFFFFF"   # waarschuwingsnoot - geen achtergrondkleur
 
@@ -75,6 +75,29 @@ def _voeg_subsidietabel_bouwperiode_in(docx_pad: str, bouwjaar: int, subsidie_in
 
     doc = Document(docx_pad)
 
+    # ── Seed-rij aanpak (als template markers aanwezig zijn) ──────────────────
+    _ISO_VOLGORDE  = ["gevel", "dakisolatie", "zoldervloer", "spouwmuur", "vloer", "bodem"]
+    _GLAS_VOLGORDE = ["hrpp", "vacuum", "triple", "deuren"]
+    _iso_data = [
+        [ISOLATIE_BEDRAGEN[s]["naam"],
+         f"€ {ISOLATIE_BEDRAGEN[s]['bedrag']:.2f}/m²",
+         f"+ € {ISOLATIE_BEDRAGEN[s]['bio']:.2f}/m²" if ISOLATIE_BEDRAGEN[s].get("bio") else "-",
+         ISOLATIE_BEDRAGEN[s]["rd"]]
+        for s in _ISO_VOLGORDE
+    ]
+    _glas_data = [
+        [GLAS_BEDRAGEN[s]["naam"],
+         f"€ {GLAS_BEDRAGEN[s]['bedrag']:.2f}/m²",
+         GLAS_BEDRAGEN[s]["ug"]]
+        for s in _GLAS_VOLGORDE
+    ]
+    _iso_ok  = _vul_seed_tabel(doc, "##ISOLATIE_SEED##",  _iso_data)
+    _glas_ok = _vul_seed_tabel(doc, "##GLAS_SEED##",      _glas_data)
+    if _iso_ok or _glas_ok:
+        doc.save(docx_pad)
+        return  # Template bepaalt verdere opmaak; sentinel-aanpak overslaan
+
+    # ── Sentinel aanpak (fallback als template geen seed-markers heeft) ────────
     # Zoek sentinel
     target = None
     for para in doc.paragraphs:
@@ -138,7 +161,7 @@ def _voeg_subsidietabel_bouwperiode_in(docx_pad: str, bouwjaar: int, subsidie_in
         rij = tabel.rows[0]
         for j, kop in enumerate(kolommen):
             cel = rij.cells[j]
-            _cel_tekst(cel, kop, bold=True, kleur=WIT)
+            _cel_tekst(cel, kop, bold=True, kleur=ZWART)
             _set_cel_achtergrond(cel, achtergrond)
         _set_rij_hoogte(rij)
 
@@ -296,6 +319,73 @@ def _maak_run(tekst: str, bron_run) -> etree._Element:
     t.text = tekst
     t.set('{http://www.w3.org/XML/1998/namespace}space', 'preserve')
     return r
+
+
+# ── Seed-rij engine ──────────────────────────────────────────────────────────
+def _maak_seed_rij_gevuld(seed_rij_xml, cel_teksten: list):
+    """
+    Kloont een XML-tabelrij en vervangt de tekst per cel.
+    Behoudt alle opmaak van de seed-rij (achtergrondkleur, randen, lettertype).
+    """
+    from copy import deepcopy
+    nieuwe_rij = deepcopy(seed_rij_xml)
+    cellen = nieuwe_rij.findall(f'{W}tc')
+    for i, tekst in enumerate(cel_teksten):
+        if i >= len(cellen):
+            break
+        cel = cellen[i]
+        paras = cel.findall(f'.//{W}p')
+        if not paras:
+            continue
+        para = paras[0]
+        # Bewaar run-opmaak van eerste bestaande run
+        eerste_run = para.find(f'{W}r')
+        rPr = None
+        if eerste_run is not None:
+            rPr_elem = eerste_run.find(f'{W}rPr')
+            if rPr_elem is not None:
+                rPr = deepcopy(rPr_elem)
+        # Verwijder alle bestaande runs
+        for r in para.findall(f'{W}r'):
+            para.remove(r)
+        # Voeg één nieuwe run toe
+        r = etree.SubElement(para, f'{W}r')
+        if rPr is not None:
+            r.insert(0, rPr)
+        t = etree.SubElement(r, f'{W}t')
+        t.text = str(tekst)
+        if str(tekst).startswith(' ') or str(tekst).endswith(' '):
+            t.set('{http://www.w3.org/XML/1998/namespace}space', 'preserve')
+    return nieuwe_rij
+
+
+def _vul_seed_tabel(doc, marker: str, data_rijen: list) -> bool:
+    """
+    Vindt een tabel met 'marker' in een cel, kloont die rij voor elke data_rij
+    (stijl overgenomen van de seed-rij), en verwijdert de seed-rij daarna.
+    Retourneert True als de tabel gevonden werd.
+    """
+    for tabel in doc.tables:
+        seed_rij_xml = None
+        for rij in tabel.rows:
+            for cel in rij.cells:
+                if marker in cel.text:
+                    seed_rij_xml = rij._tr
+                    break
+            if seed_rij_xml is not None:
+                break
+        if seed_rij_xml is None:
+            continue
+        # Voeg nieuwe rijen in na de seed-rij, bewaar volgorde
+        ref = seed_rij_xml
+        for data_rij in data_rijen:
+            nieuwe_rij = _maak_seed_rij_gevuld(seed_rij_xml, data_rij)
+            ref.addnext(nieuwe_rij)
+            ref = nieuwe_rij
+        # Verwijder de seed-rij (met marker)
+        seed_rij_xml.getparent().remove(seed_rij_xml)
+        return True
+    return False
 
 
 def fill_xml(xml_bytes: bytes, mapping: dict) -> bytes:
@@ -2003,6 +2093,49 @@ def _verwijder_score_tabel(docx_pad: str) -> None:
     doc.save(docx_pad)
 
 
+def _voeg_totaalplaatje_via_seed(docx_pad: str, advies) -> None:
+    """
+    Vult een tabel met ##TOTAALPLAATJE_SEED## in de template met gecombineerde
+    investering/subsidie/besparing/TVT data. Doet niets als marker niet gevonden.
+    De tabel en stijl worden volledig bepaald door de template.
+    """
+    if not advies or len(advies.prioriteiten) < 2:
+        return
+    try:
+        from docx import Document
+    except ImportError:
+        return
+
+    prio = advies.prioriteiten
+    tot_min   = sum(p.kosten_min    for p in prio)
+    tot_max   = sum(p.kosten_max    for p in prio)
+    bes_min   = sum(p.besparing_min for p in prio)
+    bes_max   = sum(p.besparing_max for p in prio)
+    subsidie  = advies.subsidie_totaal_indicatie
+    netto_min = max(0.0, tot_min - subsidie)
+    netto_max = max(0.0, tot_max - subsidie)
+
+    def _eur(v):
+        return f"\u20ac\u202f{round(v):,}".replace(",", ".")
+
+    def _tvt(netto, besparing):
+        if besparing > 0:
+            return f"{round(netto / besparing)} jaar"
+        return "-"
+
+    data_rijen = [
+        ["Totale investering",   _eur(tot_min),    _eur(tot_max)],
+        ["ISDE-subsidie",        f"tot {_eur(subsidie)}", ""],
+        ["Netto investering",    _eur(netto_min),  _eur(netto_max)],
+        ["Jaarlijkse besparing", _eur(bes_min),    _eur(bes_max)],
+        ["Terugverdientijd",     _tvt(netto_min, bes_max), _tvt(netto_max, bes_min)],
+    ]
+
+    doc = Document(docx_pad)
+    if _vul_seed_tabel(doc, "##TOTAALPLAATJE_SEED##", data_rijen):
+        doc.save(docx_pad)
+
+
 def fill_docx(template_path: str, output_path: str, data: dict, sv_foto_pad: str | None = None, bouwjaar: int | None = None, scores: dict | None = None, advies=None):
     """
     Vult alle {{plaatshouders}} in en voegt optioneel een Street View foto in.
@@ -2075,22 +2208,9 @@ def fill_docx(template_path: str, output_path: str, data: dict, sv_foto_pad: str
                     f"op basis van geschatte oppervlaktes)"
                 )
             _voeg_subsidietabel_bouwperiode_in(output_path, bouwjaar, subsidie_indicatie=sub_indicatie)
-        _stijl_woninggegevens_tabel(output_path)
-        _verwijder_score_tabel(output_path)
+        # Totaalplaatje via seed-rij (vereist ##TOTAALPLAATJE_SEED## marker in template)
         if advies:
-            _voeg_totaalplaatje_in(output_path, advies)
-            _vervang_aanpak_sectie(output_path, advies)
-        else:
-            _voeg_element_teksten_in(output_path, expanded, scores=scores)
-        _zet_page_break_voor_headings(output_path)
-        adres_str = expanded.get("{{adres}}", "")
-        datum_str = expanded.get("{{datum}}", "")
-        _stijl_voorblad(output_path, adres_str, datum_str)
-        _voeg_eindpagina_in(
-            output_path,
-            cta_primair=advies.cta_primair if advies else None,
-            cta_url=advies.cta_url if advies else None,
-        )
+            _voeg_totaalplaatje_via_seed(output_path, advies)
         print(f"OK: Opgeslagen: {output_path}")
 
     finally:
