@@ -388,10 +388,47 @@ def _vul_seed_tabel(doc, marker: str, data_rijen: list) -> bool:
     return False
 
 
+def _maak_runs_markdown(tekst: str, bron_run) -> list:
+    """
+    Zet een tekststring met **bold** markdown om naar een lijst Word-runs.
+    Behoudt de basisopmaak (lettertype, grootte, kleur) van bron_run.
+    Niet-bold tekst → normale run; **tekst** → bold run.
+    """
+    import re
+    from copy import deepcopy
+
+    if '**' not in tekst:
+        return [_maak_run(tekst, bron_run)]
+
+    runs = []
+    for i, deel in enumerate(re.split(r'\*\*', tekst)):
+        if not deel:
+            continue
+        is_bold = (i % 2 == 1)
+        r = deepcopy(bron_run)
+        for t in r.findall(f'{W}t'):
+            r.remove(t)
+        rPr = r.find(f'{W}rPr')
+        if rPr is None:
+            rPr = etree.SubElement(r, f'{W}rPr')
+            r.insert(0, rPr)
+        for b in rPr.findall(f'{W}b'):
+            rPr.remove(b)
+        if is_bold:
+            etree.SubElement(rPr, f'{W}b')
+        t_el = etree.SubElement(r, f'{W}t')
+        t_el.text = deel
+        if deel.startswith(' ') or deel.endswith(' '):
+            t_el.set('{http://www.w3.org/XML/1998/namespace}space', 'preserve')
+        runs.append(r)
+    return runs
+
+
 def fill_xml(xml_bytes: bytes, mapping: dict) -> bytes:
     """
     Vervangt placeholders in Word XML.
     Teksten met \n worden automatisch opgesplitst in aparte Word-alinea's.
+    Markdown **bold** wordt omgezet naar echte Word bold-opmaak.
     """
     try:
         root = etree.fromstring(xml_bytes)
@@ -423,66 +460,48 @@ def fill_xml(xml_bytes: bytes, mapping: dict) -> bytes:
         if new_text == full_text:
             continue
 
-        # Geen newlines → gewoon vervangen
+        bron_run = runs[0]
+
+        # Geen newlines → gewoon vervangen (met markdown bold support)
         if '\n' not in new_text:
-            first_run = runs[0]
-            t_els = first_run.findall(f'{W}t')
-            if t_els:
-                t_els[0].text = new_text
-                t_els[0].set('{http://www.w3.org/XML/1998/namespace}space', 'preserve')
-                for t in t_els[1:]:
-                    first_run.remove(t)
-            else:
-                t_new = etree.SubElement(first_run, f'{W}t')
-                t_new.text = new_text
-                t_new.set('{http://www.w3.org/XML/1998/namespace}space', 'preserve')
-            for run in runs[1:]:
-                for t in run.findall(f'{W}t'):
-                    t.text = ''
+            for run in list(para):
+                if run.tag == f'{W}r':
+                    para.remove(run)
+            for r in _maak_runs_markdown(new_text, bron_run):
+                para.append(r)
             continue
 
         # Tekst bevat newlines → splits op in aparte alinea's
         regels = new_text.split('\n')
-        bron_run = runs[0]
         parent = para.getparent()
 
         if parent is None:
             # Alinea zit niet direct in body (bijv. tabelcel) → gewoon spaties
-            first_run = runs[0]
-            t_els = first_run.findall(f'{W}t')
-            vervang = new_text.replace('\n', ' ')
-            if t_els:
-                t_els[0].text = vervang
-                t_els[0].set('{http://www.w3.org/XML/1998/namespace}space', 'preserve')
-            for run in runs[1:]:
-                for t in run.findall(f'{W}t'):
-                    t.text = ''
+            for run in list(para):
+                if run.tag == f'{W}r':
+                    para.remove(run)
+            vervang = new_text.replace('\n', ' ').replace('**', '')
+            para.append(_maak_run(vervang, bron_run))
             continue
 
         # Vind de positie van de huidige alinea in de parent
         positie = list(parent).index(para)
 
-        # Eerste regel: zet in de bestaande alinea
-        eerste_tekst = regels[0]
-        for run in runs:
-            for t in run.findall(f'{W}t'):
-                t.text = ''
-        if eerste_tekst.strip():
-            t_els = bron_run.findall(f'{W}t')
-            if t_els:
-                t_els[0].text = eerste_tekst
-                t_els[0].set('{http://www.w3.org/XML/1998/namespace}space', 'preserve')
-            else:
-                t_new = etree.SubElement(bron_run, f'{W}t')
-                t_new.text = eerste_tekst
-                t_new.set('{http://www.w3.org/XML/1998/namespace}space', 'preserve')
+        # Eerste regel: verwijder bestaande runs, voeg markdown runs in
+        for run in list(para):
+            if run.tag == f'{W}r':
+                para.remove(run)
+        if regels[0].strip():
+            for r in _maak_runs_markdown(regels[0], bron_run):
+                para.append(r)
 
         # Volgende regels: voeg nieuwe alinea's in na de huidige
         # Lege regels (van \n\n) worden echte lege alinea's met spacing
         for i, regel in enumerate(regels[1:], 1):
             nieuwe_para = _kopieer_alinea_opmaak(para)
             if regel.strip():
-                nieuwe_para.append(_maak_run(regel, bron_run))
+                for r in _maak_runs_markdown(regel, bron_run):
+                    nieuwe_para.append(r)
             else:
                 # Lege alinea: voeg minimale spacing toe zodat hij zichtbaar is
                 ppr = nieuwe_para.find(f'{W}pPr')
