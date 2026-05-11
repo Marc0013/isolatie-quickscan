@@ -1,4 +1,4 @@
-# WBSO-logboek — PandIQ Isolatie Quickscan
+# WBSO-logboek PandIQ Isolatie Quickscan
 
 **Project:** Geautomatiseerde verduurzamingsanalyse voor woningen op basis van openbare registraties
 **Doel:** Ontwikkeling van een systeem dat per woning automatisch isolatiescores, financiële indicaties, subsidiebedragen en gepersonaliseerde adviesteksten berekent en als rapport genereert.
@@ -13,7 +13,7 @@ Het technisch knelpunt zit in het combineren van meerdere heterogene databronnen
 
 ## Ontwikkelde modules en technische activiteiten
 
-### FASE 1 — Databronnen en adresresolutie
+### FASE 1 - Databronnen en adresresolutie
 **Bestanden:** `clients_pdok.py`, `clients_bag.py`, `energielabels.py`, `streetview.py`
 
 | Activiteit | Technische uitdaging |
@@ -25,7 +25,7 @@ Het technisch knelpunt zit in het combineren van meerdere heterogene databronnen
 
 ---
 
-### FASE 2 — Scoringsmodel en beslislaag
+### FASE 2 - Scoringsmodel en beslislaag
 **Bestanden:** `report.py`, `advisor.py`, `financials.py`
 
 | Activiteit | Technische uitdaging |
@@ -38,7 +38,7 @@ Het technisch knelpunt zit in het combineren van meerdere heterogene databronnen
 
 ---
 
-### FASE 3 — Persoonlijke output (Markdown, Word, PDF)
+### FASE 3 - Persoonlijke output (Markdown, Word, PDF)
 **Bestanden:** `narratives.py`, `teksten_bouwperiodes.py`, `teksten_elementen.py`, `fill_template.py`, `main.py`
 
 | Activiteit | Technische uitdaging |
@@ -50,7 +50,7 @@ Het technisch knelpunt zit in het combineren van meerdere heterogene databronnen
 
 ---
 
-### FASE 4 — Woningtype-parameter
+### FASE 4 - Woningtype-parameter
 **Bestanden:** `main.py`, `report.py`
 
 | Activiteit | Technische uitdaging |
@@ -59,7 +59,7 @@ Het technisch knelpunt zit in het combineren van meerdere heterogene databronnen
 
 ---
 
-### FASE 5 — Bouwfysisch rekenmodel
+### FASE 5 - Bouwfysisch rekenmodel
 **Bestanden:** `aannames.py`, `oppervlaktes.py`, `financials.py` (uitbreiding), `waarschuwingen.py`
 
 | Activiteit | Technische uitdaging |
@@ -77,7 +77,7 @@ Het technisch knelpunt zit in het combineren van meerdere heterogene databronnen
 
 | Norm / Bron | Toepassing in code |
 |---|---|
-| ISSO 82.1 tabel 3 | RC_TABEL — indicatieve Rc-waarden bestaande bouw per bouwperiode |
+| ISSO 82.1 tabel 3 | RC_TABEL, indicatieve Rc-waarden bestaande bouw per bouwperiode |
 | NEN 1068 (vereenvoudigd) | Warmteverliesreductie-formule in `financials.warmteverlies_reductie()` |
 | NEN 5060 referentieklimaatjaar | ΔT=10 K, verwarmingsuren=5500 h/jr in `aannames.py` |
 | SBR referentiewoningen 2022 | U_TABEL glas, glasandelen per gevelzijde, woningafmetingen |
@@ -87,12 +87,12 @@ Het technisch knelpunt zit in het combineren van meerdere heterogene databronnen
 
 ---
 
-### FASE 6 — Integratie bouwfysische berekeningen in rapport output
+### FASE 6 - Integratie bouwfysische berekeningen in rapport output
 **Bestanden:** `advisor.py` (uitbreiding), `report.py` (uitbreiding), `main.py` (uitbreiding)
 
 | Activiteit | Technische uitdaging |
 |---|---|
-| Tekst-builder fysische analyse (`_bouw_fysische_analyse`) | Per bouwdeel: oppervlak uit `oppervlaktes.py`, Rc huidig uit `aannames.rc_oud()`, besparing via `warmteverlies_reductie()`, investering + subsidie via bestaande financials, dynamische TVT via `terugverdientijd_uitgebreid()` — alles samengebracht in één Markdown-blok per element |
+| Tekst-builder fysische analyse (`_bouw_fysische_analyse`) | Per bouwdeel: oppervlak uit `oppervlaktes.py`, Rc huidig uit `aannames.rc_oud()`, besparing via `warmteverlies_reductie()`, investering + subsidie via bestaande financials, dynamische TVT via `terugverdientijd_uitgebreid()`. Alles samengebracht in een Markdown-blok per element |
 | Tekst-builder waarschuwingen (`_bouw_waarschuwingen_tekst`) | Omzetten van gestructureerde waarschuwingen-lijst naar leesbare Markdown met niveaucodering (info/let_op/risico) |
 | Koppeling aan rapport (sectie 5 en 7) | Nieuwe secties in `render_markdown()`: bouwfysische analyse na maatregelen (§5), waarschuwingen gecombineerd met narratieve risico's (§7); sectienummers dynamisch |
 | Docx-placeholders | `{{fysische_analyse}}` en `{{waarschuwingen}}` toegevoegd aan `docx_data` in `main.py` |

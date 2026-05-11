@@ -27,7 +27,7 @@ De bovenstaande aanbevelingen zijn indicatief op basis van registratiedata. Maat
 
 **Adres:** Hoogeweg 13, 9746TN Groningen  
 **Datum rapport:** 6 april 2026  
-**Bouwjaar (BAG):** 1632 — bouwperiode: voor 1975  
+**Bouwjaar (BAG):** 1632, bouwperiode: voor 1975  
 **Gebruiksoppervlakte (BAG):** 676 m²  
 **Energielabel:** niet gevonden of niet gekoppeld
 
@@ -37,25 +37,25 @@ _Bron: Basisregistratie Adressen en Gebouwen (BAG/PDOK) en landelijke energielab
 
 De onderstaande scores geven een indicatie van het verwachte verbeterpotentieel per onderdeel. Een lage score betekent niet dat geen actie mogelijk is, maar dat het rendement ten opzichte van de investering doorgaans beperkter is.
 
-### Dak — score 4/5 (Slecht)
+### Dak, score 4/5 (Slecht)
 
 Dakisolatie houdt opstijgende warme lucht binnen de woning vast en is daarmee een van de meest effectieve energiemaatregelen. Een slecht geïsoleerd dak is verantwoordelijk voor een groot deel van het totale warmteverlies. Uw woning lijkt te voldoen aan de standaard waardoor u op dit onderdeel weinig winst kan behalen.
 
 Uw dak is niet of gering geïsoleerd, maar onvoldoende dik voor de huidige normen. Er is nog aanzienlijk warmteverlies via de kap. Opschalen naar een hogere Rc-waarde verbetert het binnenklimaat op de bovenverdieping en verlaagt de stookkosten.
 
-### Gevel — score 4/5 (Slecht)
+### Gevel, score 4/5 (Slecht)
 
 Gevelisolatie brengt een thermische laag aan in de spouw of tegen de muren om warmteverlies te beperken. Zonder isolatie ontsnapt warmte via het metselwerk en koelen binnenmuren af.
 
 De huidige gevelisolatie is er niet of onvoldoende waardoor de verwarmingsinstallatie harder werkt dan nodig is. Bijzetten naar een hogere Rc-waardezorgt voor minder energieverlies, een lagere warmtevraag en verbetert binnenklimaat.
 
-### Vloer — score 4/5 (Slecht)
+### Vloer, score 4/5 (Slecht)
 
 Vloerisolatie vormt een barrière tussen de warme leefruimte en de koude grond of kruipruimte. Het stopt warmteverlies via de onderzijde en gaat optrekkend vocht uit de kruipruimte tegen.Uw woning lijkt goed geïsoleerd waardoor u op dit onderdeel weinig winst kan behalen. 
 
 De huidige vloerisolatie is onvoldoende, waardoor er nog warmteverlies via de onderkant optreedt en de kruipruimte invloed heeft op het binnenklimaat. Vervangen van de isolatie naar een hogere Rc verlaagd het verlies en verhoogt het wooncomfort.
 
-### Glas — score 4/5 (Slecht)
+### Glas, score 4/5 (Slecht)
 
 Isolerend glas vervangt enkel of verouderd dubbel glas door ruiten met een warmtereflecterende coating die warmte binnenhoudt en koudeval bij de ramen voorkomt. Ramen zijn de zwakste plekken in de isolatieschil van een woning.
 

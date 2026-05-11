@@ -36,7 +36,7 @@ def genereer_waarschuwingen(
     woningtype = (facts.get("woningtype") or "").lower().replace("-", "_").replace(" ", "_")
     label_datum = facts.get("geldig_tot") or facts.get("registratiedatum") or ""
 
-    # ── Check 2: Bouwjaar < 1930 — massief metselwerk, geen spouw ────────────
+    # ── Check 2: Bouwjaar < 1930, massief metselwerk, geen spouw ────────────
     if bouwjaar < 1930:
         waarschuwingen.append({
             "niveau":      "risico",
@@ -62,7 +62,7 @@ def genereer_waarschuwingen(
             ),
             "aanbeveling": (
                 "Controleer de VvE-statuten en vraag schriftelijke toestemming aan "
-                "vóór het indienen van de subsidieaanvraag."
+                "voor het indienen van de subsidieaanvraag."
             ),
         })
 
@@ -76,7 +76,7 @@ def genereer_waarschuwingen(
                 f"risico op condensatie en schimmelvorming ter plaatse van balkkoppen."
             ),
             "aanbeveling": (
-                "Laat een bouwfysisch advies uitvoeren vóór toepassing van binnenisolatie. "
+                "Laat een bouwfysisch advies uitvoeren voor toepassing van binnenisolatie. "
                 "Let op dampopen uitvoering en detaillering van balkkoppen en aansluitingen."
             ),
         })

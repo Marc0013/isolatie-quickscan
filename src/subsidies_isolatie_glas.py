@@ -14,7 +14,7 @@ HOE AANPASSEN?
 from __future__ import annotations
 
 # ── Bedragen (ISDE 2026) ──────────────────────────────────────────────────────
-# Aanpassen? Wijzig hier — alle periodes worden automatisch bijgewerkt.
+# Aanpassen? Wijzig hier, alle periodes worden automatisch bijgewerkt.
 
 ISOLATIE_BEDRAGEN: dict[str, dict] = {
     "dakisolatie": {
@@ -106,8 +106,8 @@ MEERVOUDIG_DISCLAIMER = (
 )
 
 ALGEMENE_NOTEN = [
-    "U ontvangt slechts subsidie voor één type dakisolatie (dak óf zoldervloer) "
-    "en één type vloerisolatie (vloer óf bodem).",
+    "U ontvangt slechts subsidie voor één type dakisolatie (dak of zoldervloer) "
+    "en één type vloerisolatie (vloer of bodem).",
     "Minimale oppervlakten: gevel 10 m², overige maatregelen 20 m².",
     "Alleen vervanging van bestaand enkel glas of oud dubbel glas komt in aanmerking.",
 ]
@@ -119,11 +119,11 @@ ALGEMENE_NOTEN = [
 
 PERIODES: list[dict] = [
 
-    # ── PERIODE 1 — vóór 1945 ─────────────────────────────────────────────────
+    # ── PERIODE 1 - voor 1945 ─────────────────────────────────────────────────
     {
         "tot_en_met": 1945,
         "isolatie": [
-            "gevel",        # massieve muur of vroege spouw — grootste winst
+            "gevel",        # massieve muur of vroege spouw, grootste winst
             "dakisolatie",
             "vloer",
             "bodem",
@@ -137,7 +137,7 @@ PERIODES: list[dict] = [
             # triple glas niet opgenomen: kozijnen te smal voor nieuw kozijn
         ],
         "notitie": (
-            "Massieve muren (vóór ~1930) komen niet in aanmerking voor spouwmuursubsidie. "
+            "Massieve muren (voor ~1930) komen niet in aanmerking voor spouwmuursubsidie. "
             "Gevelisolatie (binnen of buiten) is dan de aangewezen route."
         ),
         "warmtepomp_toelichting": (
@@ -146,7 +146,7 @@ PERIODES: list[dict] = [
         ),
     },
 
-    # ── PERIODE 2 — 1946–1974 ─────────────────────────────────────────────────
+    # ── PERIODE 2 - 1946-1974 ─────────────────────────────────────────────────
     {
         "tot_en_met": 1974,
         "isolatie": [
@@ -170,7 +170,7 @@ PERIODES: list[dict] = [
         ),
     },
 
-    # ── PERIODE 3 — 1975–1991 ─────────────────────────────────────────────────
+    # ── PERIODE 3 - 1975-1991 ─────────────────────────────────────────────────
     {
         "tot_en_met": 1991,
         "isolatie": [
@@ -185,7 +185,7 @@ PERIODES: list[dict] = [
             "deuren",
         ],
         "notitie": (
-            "Bestaande isolatielagen niet verwijderen — bij-isoleren aan de binnenzijde "
+            "Bestaande isolatielagen niet verwijderen. Bij-isoleren aan de binnenzijde "
             "vereist dampremmende folie aan de warme kant."
         ),
         "warmtepomp_toelichting": (
@@ -193,7 +193,7 @@ PERIODES: list[dict] = [
         ),
     },
 
-    # ── PERIODE 4 — 1992–2014 ─────────────────────────────────────────────────
+    # ── PERIODE 4 - 1992-2014 ─────────────────────────────────────────────────
     {
         "tot_en_met": 2014,
         "isolatie": [
@@ -218,11 +218,11 @@ PERIODES: list[dict] = [
         ),
     },
 
-    # ── PERIODE 5 — vanaf 2015 ────────────────────────────────────────────────
+    # ── PERIODE 5 - vanaf 2015 ────────────────────────────────────────────────
     {
         "tot_en_met": 9999,
         "isolatie": [
-            # Geen isolatiemaatregelen — woning voldoet al aan huidige normen
+            # Geen isolatiemaatregelen, woning voldoet al aan huidige normen
         ],
         "glas": [
             "triple",       # enige relevante optimalisatie

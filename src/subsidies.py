@@ -21,7 +21,7 @@ def likely_isde_subsidies(facts: dict[str, Any]) -> list[dict[str, Any]]:
     else:
         subs.append({
             "regeling": "ISDE",
-            "maatregel": "Isolatie/glas – afhankelijk van situatie",
+            "maatregel": "Isolatie/glas, afhankelijk van situatie",
             "van_toepassing": False,
             "toelichting": "Bij nieuwere of al zeer energiezuinige woningen is subsidie vooral relevant bij aantoonbare extra isolatie of glasmaatregelen.",
             "indicatie": "Bedragen zijn afhankelijk van m² en type maatregel."

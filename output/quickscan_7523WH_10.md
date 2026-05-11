@@ -10,7 +10,7 @@ Dit rapport geeft u een eerste, onafhankelijk inzicht in de energetische kwalite
 
 **Adres:** IJsvogelstraat 10, 7523WH Enschede  
 **Datum rapport:** 19 maart 2026  
-**Bouwjaar (BAG):** 1961 — bouwperiode: voor 1975  
+**Bouwjaar (BAG):** 1961, bouwperiode: voor 1975  
 **Gebruiksoppervlakte (BAG):** 119 m²  
 **Energielabel:** D  
 **Registratiedatum:** 20 februari 2022  
@@ -27,7 +27,7 @@ Dit rapport is opgesteld op basis van openbare registraties (BAG en EP-Online) v
 
 De geregistreerde energiebehoefte bedraagt 187 kWh per m² per jaar. De warmtebehoefte is 182 kWh per m² per jaar. De warmtevraag is hoog. Dit wijst op een slecht geïsoleerde schil. Aanpak van de isolatie is urgent voor zowel comfort als kostenbesparing.
 
-Een logische aanpak volgt de isolatietrias: (1) beperk warmteverlies via de schil, (2) optimaliseer het afgiftesysteem, (3) verduurzaam de opwek (warmtepomp of zonnepanelen). Op basis van de scores heeft het dak en de gevel en de vloer en het glas de hoogste prioriteit — hier is de besparingspotentie het grootst. Prioriteer spouwisolatie en vloerisolatie — dit levert bij deze bouwperiode doorgaans de hoogste besparing per geïnvesteerde euro, met een korte terugverdientijd. De bovenstaande aanbevelingen zijn indicatief op basis van registratiedata. Bevestiging via foto-inspectie of een maatwerkadvies is altijd aan te raden.
+Een logische aanpak volgt de isolatietrias: (1) beperk warmteverlies via de schil, (2) optimaliseer het afgiftesysteem, (3) verduurzaam de opwek (warmtepomp of zonnepanelen). Op basis van de scores heeft het dak en de gevel en de vloer en het glas de hoogste prioriteit, hier is de besparingspotentie het grootst. Prioriteer spouwisolatie en vloerisolatie, dit levert bij deze bouwperiode doorgaans de hoogste besparing per geïnvesteerde euro, met een korte terugverdientijd. De bovenstaande aanbevelingen zijn indicatief op basis van registratiedata. Bevestiging via foto-inspectie of een maatwerkadvies is altijd aan te raden.
 
 ## 3. Kansen en verbeterpotentieel
 

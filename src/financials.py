@@ -4,7 +4,7 @@ financials.py
 Indicatieve financiële berekeningen per isolatiemaatregel:
 investeringskosten, jaarlijkse besparing en terugverdientijd.
 
-Retourneert altijd bandbreedtes — geen precieze getallen.
+Retourneert altijd bandbreedtes, geen precieze getallen.
 Gebruik uitvoer altijd met een indicatie-disclaimer.
 
 Bronnen:
@@ -92,7 +92,7 @@ WARMTE_DEFAULT_KWH_M2: dict[str, float] = {
 _OPP_FACTOREN: dict[str, dict[str, float]] = {
     "vrijstaand":   {"dak": 0.60, "gevel": 0.90, "vloer": 0.50, "glas": 0.14},
     "hoekwoning":   {"dak": 0.58, "gevel": 0.70, "vloer": 0.50, "glas": 0.11},
-    "tussenwoning": {"dak": 0.55, "gevel": 0.50, "vloer": 0.50, "glas": 0.08},
+    "tussenwoning": {"dak": 0.55, "gevel": 0.50, "vloer": 0.50, "glas": 0.12},
     "appartement":  {"dak": 0.00, "gevel": 0.28, "vloer": 0.42, "glas": 0.06},
 }
 _OPP_FACTOREN_DEFAULT = _OPP_FACTOREN["tussenwoning"]
@@ -182,7 +182,7 @@ def bereken_besparing(
              → kWh bespaard per jaar → EUR bespaard per jaar (bandbreedte gasprijs ±15%).
 
     Returns:
-        (eur_min, eur_max) — beide afgerond op hele euro's
+        (eur_min, eur_max), beide afgerond op hele euro's
     """
     periode = periode_sleutel(bouwjaar)
     verlies_f    = VERLIES_AANDEEL.get(periode, {}).get(element, 0.0)
@@ -267,7 +267,7 @@ def bereken_terugverdientijd(
 
 
 # ── Glasbesparing: vaste norm per m² ──────────────────────────────────────────
-GAS_BESPARING_GLAS_M3_M2: float = 12.0  # m³ gas/m²/jr — enkel → HR++ glas
+GAS_BESPARING_GLAS_M3_M2: float = 12.0  # m³ gas/m²/jr, enkel naar HR++ glas
 # Bron: Milieu Centraal / EnergieNederland referentiewaarden 2024
 
 

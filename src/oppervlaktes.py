@@ -9,7 +9,7 @@ Methode:
   "_stappen". Alle maataannames komen uitsluitend uit aannames.py.
 
 Nauwkeurigheid:
-  ±20–30%. Gebruik uitsluitend voor subsidie-/kostenscenario's, niet voor offertes.
+  ±20-30%. Gebruik uitsluitend voor subsidie-/kostenscenario's, niet voor offertes.
 """
 from __future__ import annotations
 
@@ -85,7 +85,7 @@ def bereken_oppervlaktes(
     elif bouwjaar < 1992:
         vh       = aanname("verdiepingshoogte_midden")
         bron_vh  = AANNAMES["verdiepingshoogte_midden"]["bron"]
-        periode_vh = "1945–1992"
+        periode_vh = "1945-1992"
     else:
         vh       = aanname("verdiepingshoogte_nieuw")
         bron_vh  = AANNAMES["verdiepingshoogte_nieuw"]["bron"]
@@ -244,13 +244,13 @@ def bereken_oppervlaktes(
         spouw_opp = 0.0
         stappen.append(
             f"Stap 9: spouw = 0 m² "
-            f"(bouwjaar {bouwjaar} ≤ 1920 — massief metselwerk aannemelijk, geen spouw)"
+            f"(bouwjaar {bouwjaar} <= 1920, massief metselwerk aannemelijk, geen spouw)"
         )
     elif wtype == "appartement":
         spouw_opp = 0.0
         stappen.append(
             "Stap 9: spouw = 0 m² "
-            "(appartement — buitengevel volgt gevel-maatregel, spouw niet separaat)"
+            "(appartement, buitengevel volgt gevel-maatregel, spouw niet separaat)"
         )
     else:
         spouw_opp = round(netto_gevel, 1)

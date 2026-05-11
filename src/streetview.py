@@ -254,6 +254,6 @@ if __name__ == "__main__":
     if data:
         pad = Path("test_streetview.jpg")
         pad.write_bytes(data)
-        print(f"Opgeslagen als: {pad} ({len(data)} bytes) — status: {status_code}")
+        print(f"Opgeslagen als: {pad} ({len(data)} bytes), status: {status_code}")
     else:
-        print(f"Geen afbeelding beschikbaar — status: {status_code}")
+        print(f"Geen afbeelding beschikbaar, status: {status_code}")

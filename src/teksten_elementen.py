@@ -6,16 +6,16 @@ opgesplitst in een basis-uitleg en score-specifieke toelichting.
 
 HOE AANPASSEN?
   Zoek het gewenste element op (zoek op 'gevel', 'dak', 'vloer' of 'glas').
-  - basis     : altijd getoond — algemene uitleg van het element
+  - basis     : altijd getoond, algemene uitleg van het element
   - score_5   : Zeer slecht (score 5)
   - score_4   : Slecht (score 4)
   - score_3   : Matig (score 3)
-  - score_2   : Redelijk (score 2)  — optioneel, valt anders terug op basis
-  - score_1   : Goed (score 1)      — optioneel, valt anders terug op basis
+  - score_2   : Redelijk (score 2)  - optioneel, valt anders terug op basis
+  - score_1   : Goed (score 1)      - optioneel, valt anders terug op basis
 """
 from __future__ import annotations
 
-# Tekst die getoond wordt bij score 1 of 2 (goed/redelijk) — geldt voor alle elementen.
+# Tekst die getoond wordt bij score 1 of 2 (goed/redelijk), geldt voor alle elementen.
 SCORE_VERBETER_TEKST = (
     "Heeft u al verbeteringen uitgevoerd of wilt u dit aanpakken en nog een stap verder "
     "gaan, dan kunt u zich richten op het optimaliseren van installaties en het verder "
@@ -56,8 +56,8 @@ ELEMENTEN: dict[str, dict] = {
         ),
         "score_4": (
             "De huidige gevelisolatie is er niet of onvoldoende waardoor de verwarmingsinstallatie "
-            "harder werkt dan nodig is. Bijzetten naar een hogere Rc-waardezorgt voor minder "
-            "energieverlies, een lagere warmtevraag en verbetert binnenklimaat."
+            "harder werkt dan nodig is. Bijzetten naar een hogere Rc-waarde zorgt voor minder "
+            "energieverlies, een lagere warmtevraag en verbetert het binnenklimaat."
         ),
         "score_3": (
             "De gevel is redelijk geïsoleerd maar optimalisatie naar Rc 3,5 of hoger reduceert "
@@ -71,8 +71,6 @@ ELEMENTEN: dict[str, dict] = {
             "Dakisolatie houdt opstijgende warme lucht binnen de woning vast en is daarmee een "
             "van de meest effectieve energiemaatregelen. Een slecht geïsoleerd dak is "
             "verantwoordelijk voor een groot deel van het totale warmteverlies."
-	    " Uw woning lijkt te voldoen aan de standaard waardoor u op dit onderdeel weinig "
-	    "winst kan behalen."
         ),
         "score_5": (
             "Via het ongeïsoleerde dak lekt de meeste warmte weg, waardoor de bovenverdieping "
@@ -96,7 +94,6 @@ ELEMENTEN: dict[str, dict] = {
             "Vloerisolatie vormt een barrière tussen de warme leefruimte en de koude grond of "
             "kruipruimte. Het stopt warmteverlies via de onderzijde en gaat optrekkend vocht "
             "uit de kruipruimte tegen."
-            "Uw woning lijkt goed geïsoleerd waardoor u op dit onderdeel weinig winst kan behalen. "
         ),
         "score_5": (
             "De ongeïsoleerde vloer onttrekt voortdurend warmte aan de ruimte waardoor bewoners "
@@ -108,7 +105,7 @@ ELEMENTEN: dict[str, dict] = {
         "score_4": (
             "De huidige vloerisolatie is onvoldoende, waardoor er nog warmteverlies via de "
             "onderkant optreedt en de kruipruimte invloed heeft op het binnenklimaat. "
-            "Vervangen van de isolatie naar een hogere Rc verlaagd het verlies en verhoogt het "
+            "Vervangen van de isolatie naar een hogere Rc verlaagt het verlies en verhoogt het "
             "wooncomfort."
         ),
         "score_3": (
@@ -132,7 +129,7 @@ ELEMENTEN: dict[str, dict] = {
 	    "van de huidige kozijnen kan nodig zijn. "
         ),
         "score_4": (
-            "Het aanwezige enkel of oud dubbel glas is verouderd of lek en presteert  "
+            "Het aanwezige enkel of oud dubbel glas is verouderd of lek en presteert "
             "niet meer als bij aanleg. Vervangen door nieuwe HR++ ruiten verbetert het "
             "binnenklimaat direct en elimineert koude luchtstromen langs de ramen."
         ),
@@ -160,7 +157,7 @@ def get_element_tekst(element: str, score: int | None) -> str:
     """
     Geeft de volledige tekst voor een element bij een bepaalde score.
     Altijd: basis-uitleg. Gevolgd door score-specifieke toelichting bij score 3, 4 of 5.
-    Bij score 1–2 (goed/redelijk) alleen de basis-uitleg.
+    Bij score 1 of 2 (goed/redelijk) alleen de basis-uitleg.
     """
     data = ELEMENTEN.get(element.lower())
     if not data:

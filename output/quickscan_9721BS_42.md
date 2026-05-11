@@ -1,18 +1,18 @@
 ---
-pagetitle: "Visstraat 25, 8501BR Joure"
-date: "1 mei 2026"
+pagetitle: "Helper Weststraat 42, 9721BS Groningen"
+date: "4 mei 2026"
 lang: nl
 ---
 
 Dit rapport geeft u een eerste, onafhankelijk inzicht in de energetische kwaliteit van uw woning en de meest logische stappen richting verduurzaming. De analyse is gebaseerd op openbare registraties en erkende databronnen, aangevuld met aannames die gebruikelijk zijn voor vergelijkbare woningen.
 
-Let op: voor uw woning is geen actueel energielabel gevonden in EP-Online. De onderstaande scores zijn indicatief op basis van bouwjaar 1876 en vergelijkbare woningen uit dezelfde periode. Uw woning uit 1876 heeft op alle vier onderdelen een significant verbeterpotentieel. Uw indicatieve ISDE-subsidie voor de relevante maatregelen samen: tot €1,912. Bereken uw persoonlijke subsidie en vraag een vrijblijvend adviesgesprek aan via www.pandiq.nl/subsidie.
+Uw woning uit 1933 (appartement) heeft op 3 van de vier onderdelen een significant verbeterpotentieel. Uw indicatieve ISDE-subsidie voor de relevante maatregelen samen: tot €577. Bereken uw persoonlijke subsidie en vraag een vrijblijvend adviesgesprek aan via www.pandiq.nl/subsidie.
 
 ## 1. Interpretatie en context
 
-Dit rapport is opgesteld op basis van openbare registraties (BAG en EP-Online) voor Visstraat 25, 8501BR Joure. De woning is gebouwd in 1876.
+Dit rapport is opgesteld op basis van openbare registraties (BAG en EP-Online) voor Helper Weststraat 42, 9721BS Groningen. Het betreft een appartement. De woning is gebouwd in 1933. Het geregistreerde energielabel is D, geldig tot 15 december 2035.
 
-Er zijn geen EP-Online kengetallen beschikbaar voor deze woning. De energieprestatie kan daardoor niet automatisch worden geduid. Een maatwerkadvies geeft hier meer inzicht.
+De geregistreerde energiebehoefte bedraagt 177 kWh per m² per jaar. De warmtebehoefte is 177 kWh per m² per jaar. De warmtevraag is hoog. Dit wijst op een slecht geïsoleerde schil. Aanpak van de isolatie is urgent voor zowel comfort als kostenbesparing.
 
 Voor deze woning liggen de meeste verbeterkansen in de gebouwschil: dak, gevel, vloer en ramen. De geprioriteerde maatregelen met financiële indicaties vindt u in het overzicht van aanbevolen maatregelen.
 
@@ -22,11 +22,17 @@ De bovenstaande aanbevelingen zijn indicatief op basis van registratiedata. Maat
 
 ## 2. Woninggegevens
 
-**Adres:** Visstraat 25, 8501BR Joure  
-**Datum rapport:** 1 mei 2026  
-**Bouwjaar (BAG):** 1876, bouwperiode: voor 1975  
-**Gebruiksoppervlakte (BAG):** 82 m²  
-**Energielabel:** niet gevonden of niet gekoppeld
+**Adres:** Helper Weststraat 42, 9721BS Groningen  
+**Datum rapport:** 4 mei 2026  
+**Woningtype:** appartement  
+**Bouwjaar (BAG):** 1933, bouwperiode: voor 1975  
+**Gebruiksoppervlakte (BAG):** 66 m²  
+**Energielabel:** D  
+**Registratiedatum:** 18 december 2025  
+**Geldig tot:** 15 december 2035  
+**Energiebehoefte:** 176.9 kWh/m².jr  
+**Warmtebehoefte:** 177.3 kWh/m².jr  
+**Gebruiksoppervlakte thermische zone:** 66 m²
 
 _Bron: Basisregistratie Adressen en Gebouwen (BAG/PDOK) en landelijke energielabelregistratie EP-Online._
 
@@ -74,11 +80,11 @@ Als u alle aanbevolen maatregelen uitvoert, ontstaat het volgende totaalplaatje:
 
 | | Min | Max |
 |---|---|---|
-| **Totale investering** | €13,371 | €18,895 |
-| **ISDE-subsidie (indicatief)** | - | €1,912 |
-| **Netto investering na subsidie** | €11,459 | €16,983 |
-| **Jaarlijkse besparing** | €996 | €1,349 |
-| **Terugverdientijd** | 8 jaar | 17 jaar |
+| **Totale investering** | €4,167 | €5,686 |
+| **ISDE-subsidie (indicatief)** | - | €577 |
+| **Netto investering na subsidie** | €3,590 | €5,109 |
+| **Jaarlijkse besparing** | €568 | €768 |
+| **Terugverdientijd** | 5 jaar | 9 jaar |
 
 _Combineer de ISDE-subsidie door de maatregelen te koppelen aan de installatie van een warmtepomp of zonneboiler, het subsidiebedrag wordt dan verdubbeld._
 
@@ -90,63 +96,49 @@ Op basis van bouwjaar, woningtype en geregistreerde prestaties zijn de volgende 
 **1. Gevel, score 4/5 (Slecht). Hoge urgentie**
 
 Aanbevolen maatregel: Gevelisolatie
-Geschatte oppervlakte: ca. 41 m²
+Geschatte oppervlakte: ca. 18 m²
 
-Indicatieve besparing: €367-€497 per jaar
-Indicatieve investering: €7,175-€9,430
-ISDE-subsidie indicatie: tot €830
+Indicatieve besparing: €284-€384 per jaar
+Indicatieve investering: €3,238-€4,255
+ISDE-subsidie indicatie: tot €375
 
-Terugverdientijd na subsidie: circa 13-23 jaar
-
-
-**2. Dak, score 4/5 (Slecht). Hoge urgentie**
-
-Aanbevolen maatregel: Dakisolatie
-Geschatte oppervlakte: ca. 45 m²
-
-Indicatieve besparing: €262-€355 per jaar
-Indicatieve investering: €4,510-€6,765
-ISDE-subsidie indicatie: tot €733
-
-Terugverdientijd na subsidie: circa 11-23 jaar
+Terugverdientijd na subsidie: circa 8-14 jaar
 
 
-**3. Glas, score 4/5 (Slecht). Hoge urgentie**
+**2. Glas, score 4/5 (Slecht). Hoge urgentie**
 
 Aanbevolen maatregel: HR++ dubbelglas
-Geschatte oppervlakte: ca. 10 m²
+Geschatte oppervlakte: ca. 4 m²
 
-Indicatieve besparing: €210-€284 per jaar
-Indicatieve investering: €784-€1,470
-ISDE-subsidie indicatie: tot €123
+Indicatieve besparing: €162-€219 per jaar
+Indicatieve investering: €320-€600
+ISDE-subsidie indicatie: tot €50
 
-Terugverdientijd na subsidie: circa 2-6 jaar
+Terugverdientijd na subsidie: circa 1-3 jaar
 
 
-**4. Vloer, score 4/5 (Slecht). Hoge urgentie**
+**3. Vloer, score 4/5 (Slecht). Hoge urgentie**
 
 Aanbevolen maatregel: Vloerisolatie
-Geschatte oppervlakte: ca. 41 m²
+Geschatte oppervlakte: ca. 28 m²
 
-Indicatieve besparing: €157-€213 per jaar
-Indicatieve investering: €902-€1,230
-ISDE-subsidie indicatie: tot €226
+Indicatieve besparing: €122-€165 per jaar
+Indicatieve investering: €609-€831
+ISDE-subsidie indicatie: tot €152
 
 Terugverdientijd na subsidie: circa 3-6 jaar
 
 
-_Financiële indicaties zijn schattingen op basis van bouwjaar en gemiddelde woningkenmerken. Definitieve bedragen hangen af van de werkelijke situatie ter plaatse._
 
 ## 5. Mogelijk relevante subsidies
 
-Op basis van uw woning (82 m²) met bouwjaar 1876 zijn de volgende ISDE-subsidies indicatief van toepassing (tarieven 2026):
+Op basis van uw woning (66 m²) met bouwjaar 1933 zijn de volgende ISDE-subsidies indicatief van toepassing (tarieven 2026):
 
-- **Gevelisolatie** (~41 m²): tot **€830**  _Rc-eis: Rc ≥ 3,5 / Rd ≥ 2,5 m²K/W_
-- **Dakisolatie** (~45 m²): tot **€733**  _Rc-eis: Rc ≥ 3,5 m²K/W_
-- **HR++ dubbelglas** (~10 m²): tot **€123**  _U-eis: U ≤ 1,2 W/m²K_
-- **Vloerisolatie** (~41 m²): tot **€226**  _Rc-eis: Rc ≥ 3,5 m²K/W_
+- **Gevelisolatie** (~18 m²): tot **€375**  _Rc-eis: Rc ≥ 3,5 / Rd ≥ 2,5 m²K/W_
+- **HR++ dubbelglas** (~4 m²): tot **€50**  _U-eis: U ≤ 1,2 W/m²K_
+- **Vloerisolatie** (~28 m²): tot **€152**  _Rc-eis: Rc ≥ 3,5 m²K/W_
 
-**Indicatief subsidietotaal: tot €1,912**
+**Indicatief subsidietotaal: tot €577**
 
 **Wanneer wordt het subsidiebedrag verdubbeld?**  
 Het meervoudig tarief geldt als u een isolatiemaatregel combineert met de installatie van een warmtepomp, zonneboiler of aansluiting op een warmtenet. Vraag de subsidie aan binnen 24 maanden na het uitvoeren van de eerste maatregel.  
@@ -161,15 +153,19 @@ _Subsidie-indicaties zijn berekend op basis van geschatte oppervlaktes. Definiti
 
 Exacte bedragen en voorwaarden wijzigen regelmatig. Controleer de actuele regelingen via www.pandiq.nl/subsidie.
 
-- **Aandachtspunt** (spouw): Bouwjaar 1876 < 1930: massief metselwerk is aannemelijk, er is waarschijnlijk geen spouwmuur aanwezig.  
-  _Spouwmuurisolatie is technisch niet mogelijk bij massief metselwerk. Overweeg binnenisolatie of buitengevelisolatie; laat dit bouwkundig controleren._
-- **Aandachtspunt** (gevel): Bouwjaar 1876 < 1975: bij binnenisolatie van gevels bestaat risico op condensatie en schimmelvorming ter plaatse van balkkoppen.  
+- **Let op** (installatie): Appartement: voor plaatsing van een warmtepomp of buitenunit is doorgaans toestemming van de VvE (Vereniging van Eigenaren) vereist.  
+  _Controleer de VvE-statuten en vraag schriftelijke toestemming aan voor het indienen van de subsidieaanvraag._
+- **Aandachtspunt** (gevel): Bouwjaar 1933 < 1975: bij binnenisolatie van gevels bestaat risico op condensatie en schimmelvorming ter plaatse van balkkoppen.  
   _Laat een bouwfysisch advies uitvoeren voor toepassing van binnenisolatie. Let op dampopen uitvoering en detaillering van balkkoppen en aansluitingen._
+- **Let op** (dak, vloer, gevel): Energielabel is recent (geregistreerd 2035) maar de indicatieve Rc-waarde voor dak, vloer, gevel is laag op basis van het bouwjaar.  
+  _Controleer of er al isolatie is aangebracht die niet in het bouwjaar is verwerkt. Vraag de EPA-maatwerkrapportage op via RVO._
 
 - Vocht en houtrot: deze woningen zijn vaak 'dampopen' gebouwd zonder spouw of met een zeer smalle spouw. Bij binnenisolatie daalt de temperatuur van de oorspronkelijke muur sterk, met condensatierisico als gevolg. Gebruik vochtregulerende folies (zoals Intello) en dampopen materialen zoals houtvezel of vlas, vermijd volledig dampdichte plastics.
 - Balkkoppen: houten vloerbalken in de buitenmuur worden door binnenisolatie kouder en vochtiger. Dit leidt tot houtrot. Laat dit altijd vooraf beoordelen door een specialist.
 - Dampdichte buitengevel: controleer of de gevel aan de buitenzijde niet dampdicht is (geglazuurde steen of latexverf), want dan kan vocht niet naar buiten uitdampen.
 - Binnenklimaat: kieren dichten zonder nieuw ventilatiesysteem maakt de lucht snel vochtig en ongezond. Luchtdichting en gecontroleerde ventilatie moeten samen worden aangepakt.
+
+Hoge warmtevraag: overweeg een warmtescan om de grootste warmtelekken visueel in beeld te brengen voor u start met investeren.
 
 Laat de bevindingen bevestigen via een foto-inspectie of maatwerkadvies. Neem contact op met PandIQ voor een concrete vervolgstap: www.pandiq.nl
 

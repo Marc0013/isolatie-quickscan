@@ -22,7 +22,7 @@ Aanbevolen maatregelen voor deze bouwperiode:
 - Zonne-energie: benut het dakvlak maximaal voor PV-panelen of een zonneboiler.
 - Warmte-afgifte: regel de installatie waterzijdig in om de woning klaar te maken voor een volledige warmtepomp.
 
-Laat de ventilatie controleren en overweeg een warmtepomp of hybride systeem — de schil is al op orde, de installatie is de volgende logische stap.
+Laat de ventilatie controleren en overweeg een warmtepomp of hybride systeem, de schil is al op orde, de installatie is de volgende logische stap.
 
 De bovenstaande aanbevelingen zijn indicatief op basis van registratiedata. Maatwerkadvies door erkende bedrijven is altijd aan te raden.
 
@@ -31,7 +31,7 @@ De bovenstaande aanbevelingen zijn indicatief op basis van registratiedata. Maat
 **Adres:** Joeswerd 109, 9746CR Groningen  
 **Datum rapport:** 30 april 2026  
 **Woningtype:** tussenwoning  
-**Bouwjaar (BAG):** 2006 — bouwperiode: 2006–2014  
+**Bouwjaar (BAG):** 2006, bouwperiode: 2006-2014  
 **Gebruiksoppervlakte (BAG):** 79 m²  
 **Energielabel:** niet gevonden of niet gekoppeld
 
@@ -43,22 +43,22 @@ De onderstaande scores geven een indicatie van het verwachte verbeterpotentieel 
 
 ### Dak
 
-**Score 2/5 — Redelijk**  
+**Score 2/5. Redelijk**  
 Dakisolatie houdt opstijgende warme lucht binnen de woning vast en is daarmee een van de meest effectieve energiemaatregelen. Een slecht geïsoleerd dak is verantwoordelijk voor een groot deel van het totale warmteverlies. Uw woning lijkt te voldoen aan de standaard waardoor u op dit onderdeel weinig winst kan behalen.
 
 ### Gevel
 
-**Score 2/5 — Redelijk**  
+**Score 2/5. Redelijk**  
 Gevelisolatie brengt een thermische laag aan in de spouw of tegen de muren om warmteverlies te beperken. Zonder isolatie ontsnapt warmte via het metselwerk en koelen binnenmuren af.
 
 ### Vloer
 
-**Score 2/5 — Redelijk**  
+**Score 2/5. Redelijk**  
 Vloerisolatie vormt een barrière tussen de warme leefruimte en de koude grond of kruipruimte. Het stopt warmteverlies via de onderzijde en gaat optrekkend vocht uit de kruipruimte tegen.Uw woning lijkt goed geïsoleerd waardoor u op dit onderdeel weinig winst kan behalen. 
 
 ### Glas
 
-**Score 2/5 — Redelijk**  
+**Score 2/5. Redelijk**  
 Isolerend glas vervangt enkel of verouderd dubbel glas door ruiten met een warmtereflecterende coating die warmte binnenhoudt en koudeval bij de ramen voorkomt. Ramen zijn de zwakste plekken in de isolatieschil van een woning.
 
 Uw woning staat er goed bij. De basis van de gebouwschil is op orde en grote isolatiemaatregelen zijn waarschijnlijk niet de eerste prioriteit. De meeste winst is in uw situatie te behalen met het optimaliseren van installaties.
@@ -70,13 +70,13 @@ Met deze stappen zet u de volgende stap richting een energiezuinige en toekomstb
 
 Op basis van bouwjaar, woningtype en geregistreerde prestaties zijn de volgende maatregelen het meest logisch om nader te onderzoeken:
 
-**Gevel — score 2/5 (Redelijk)**  Dit onderdeel is op orde. Grote ingrepen zijn hier niet de eerste prioriteit.
+**Gevel, score 2/5 (Redelijk)**  Dit onderdeel is op orde. Grote ingrepen zijn hier niet de eerste prioriteit.
 
-**Dak — score 2/5 (Redelijk)**  Dit onderdeel is op orde. Grote ingrepen zijn hier niet de eerste prioriteit.
+**Dak, score 2/5 (Redelijk)**  Dit onderdeel is op orde. Grote ingrepen zijn hier niet de eerste prioriteit.
 
-**Glas — score 2/5 (Redelijk)**  Dit onderdeel is op orde. Grote ingrepen zijn hier niet de eerste prioriteit.
+**Glas, score 2/5 (Redelijk)**  Dit onderdeel is op orde. Grote ingrepen zijn hier niet de eerste prioriteit.
 
-**Vloer — score 2/5 (Redelijk)**  Dit onderdeel is op orde. Grote ingrepen zijn hier niet de eerste prioriteit.
+**Vloer, score 2/5 (Redelijk)**  Dit onderdeel is op orde. Grote ingrepen zijn hier niet de eerste prioriteit.
 
 _Financiële indicaties zijn schattingen op basis van bouwjaar en gemiddelde woningkenmerken. Definitieve bedragen hangen af van de werkelijke situatie ter plaatse._
 
@@ -89,7 +89,7 @@ _Hellend dak, footprint 50 m² × factor 1.25_
 Huidige Rc: 2.5 m²K/W (Bouwbesluit 1992+, Rc ≥ 2.5 m²K/W)
 Streefwaarde Rc: 3.5 m²K/W (ISDE-minimumeis)
 Besparing na isolatie naar Rc 3.5: **393 kWh/jr** | 52 m³ gas/jr | **€ 75/jr**
-Investering: €6,250–€9,375 | ISDE-subsidie: tot €1,016 | Netto: ~€6,796
+Investering: €6,250-€9,375 | ISDE-subsidie: tot €1,016 | Netto: ~€6,796
 Terugverdientijd: **44.5 jaar** (bij 3% energieprijsstijging/jr)
 
 _Enkel interessant in combinatie met groot onderhoud of verbouw._
@@ -101,7 +101,7 @@ _Vloer = footprint 50 m²_
 Huidige Rc: 2.5 m²K/W (Bouwbesluit 1992+, Rc ≥ 2.5 m²K/W)
 Streefwaarde Rc: 3.5 m²K/W (ISDE-minimumeis)
 Besparing na isolatie naar Rc 3.5: **314 kWh/jr** | 41 m³ gas/jr | **€ 60/jr**
-Investering: €1,100–€1,500 | ISDE-subsidie: tot €275 | Netto: ~€1,025
+Investering: €1,100-€1,500 | ISDE-subsidie: tot €275 | Netto: ~€1,025
 Terugverdientijd: **14.0 jaar** (bij 3% energieprijsstijging/jr)
 Doorkijk: 5 jr → €317 | 10 jr → €685 | 20 jr → €1,605 cumulatief
 
@@ -115,7 +115,7 @@ _Netto gevel (excl. glas), tussenwoning; bruto 65 m² − glas 15 m²_
 Huidige Rc: 2.5 m²K/W (Bouwbesluit 1992+, spouw gevuld, Rc ≥ 2.5 m²K/W)
 Streefwaarde Rc: 3.5 m²K/W (ISDE-minimumeis)
 Besparing na isolatie naar Rc 3.5: **316 kWh/jr** | 41 m³ gas/jr | **€ 60/jr**
-Investering: €8,785–€11,546 | ISDE-subsidie: tot €1,017 | Netto: ~€9,148
+Investering: €8,785-€11,546 | ISDE-subsidie: tot €1,017 | Netto: ~€9,148
 Terugverdientijd: niet berekend (controleer besparing en investering)
 
 
@@ -127,11 +127,11 @@ _Glasoppervlak o.b.v. hoeveelheden glas per gevelzijde, tussenwoning_
 
 **Totaaloverzicht bij uitvoering van alle maatregelen**
 
-Wanneer u meerdere isolatiemaatregelen combineert — of een isolatiemaatregel koppelt aan een warmtepomp — verdubbelt de ISDE-subsidie automatisch. Uw subsidie komt dan niet uit op **€2,308** maar op **€4,616**.
+Wanneer u meerdere isolatiemaatregelen combineert, of een isolatiemaatregel koppelt aan een warmtepomp, verdubbelt de ISDE-subsidie automatisch. Uw subsidie komt dan niet uit op **€2,308** maar op **€4,616**.
 
 | | Bedrag |
 |---|---|
-| Totale investering | €16,135 – €22,421 |
+| Totale investering | €16,135 - €22,421 |
 | Subsidie (enkelvoudig) | €2,308 |
 | Subsidie (meervoudig, bij combinatie) | **€4,616** |
 | Netto investering (enkelvoudig) | €16,970 |
@@ -156,21 +156,21 @@ Op basis van uw woning (79 m²) met bouwjaar 2006 zijn de volgende ISDE-subsidie
 Het meervoudig tarief geldt als u een isolatiemaatregel combineert met de installatie van een warmtepomp, zonneboiler of aansluiting op een warmtenet. Vraag de subsidie aan binnen 24 maanden na het uitvoeren van de eerste maatregel.  
 Het subsidiebedrag wordt _niet_ verdubbeld als u de isolatiemaatregel alleen combineert met ventilatie, of als u isoleert met biobased milieuvriendelijke isolatiematerialen.
 
-Daarnaast: ISDE warmtepomp — startbedrag €1,025 + €225 per kW + €200 bonus bij A+++ label.
+Daarnaast: ISDE warmtepomp, startbedrag €1,025 + €225 per kW + €200 bonus bij A+++ label.
 
 _Subsidie-indicaties zijn berekend op basis van geschatte oppervlaktes. Definitieve bedragen worden vastgesteld na technische inspectie. Bereken uw exacte bedrag op www.pandiq.nl/subsidie._
 
-- **Nationaal Warmtefonds** — lening tegen lage rente voor woningeigenaren die de investering willen spreiden
-- **Gemeentelijke subsidie** — verschilt per gemeente; raadpleeg uw gemeente of www.pandiq.nl/subsidie
+- **Nationaal Warmtefonds**, lening tegen lage rente voor woningeigenaren die de investering willen spreiden
+- **Gemeentelijke subsidie**, verschilt per gemeente; raadpleeg uw gemeente of www.pandiq.nl/subsidie
 
 Exacte bedragen en voorwaarden wijzigen regelmatig. Controleer de actuele regelingen via www.pandiq.nl/subsidie.
 
 - Slechte luchtkwaliteit: deze woningen zijn bij oplevering al redelijk luchtdicht. Het verder dichten van kieren zonder het ventilatiesysteem te upgraden leidt direct tot een ongezond binnenklimaat en verhoogde kans op schimmelgroei.
 - Vervuilde ventilatie: de mechanische afzuiging is vaak niet onderhouden. Dit kost energie en verslechtert de luchtkwaliteit merkbaar.
 - Oververhitting in de zomer: de goede isolatieschil houdt warmte ook binnen. Bij het vervangen van glas voor zonwerende beglazing houdt dit in de winter ook 'gratis' zonnewarmte tegen. Overweeg een CO2-indicator om de luchtkwaliteit na verduurzaming te monitoren.
-- Sluipverbruik: inefficiënte instellingen van ventilatiesystemen zijn de grootste verliesposten — onzichtbaar maar structureel aanwezig op de energierekening.
+- Sluipverbruik: inefficiënte instellingen van ventilatiesystemen zijn de grootste verliesposten, onzichtbaar maar structureel aanwezig op de energierekening.
 
-Bouwfysisch risico bij na-isoleren: als uw woning al (gedeeltelijk) geïsoleerd is, brengt aanvullende isolatie bouwfysische risico's met zich mee. Een verstoorde dampdiffusie of onvoldoende ventilatie kan leiden tot vocht, condensatie en schimmelvorming in de constructie — schade die niet altijd direct zichtbaar is maar de constructie ernstig kan aantasten. Laat een erkend bedrijf of bouwfysisch adviseur daarom altijd eerst een technisch onderzoek uitvoeren voordat u overgaat tot na-isoleren.
+Bouwfysisch risico bij na-isoleren: als uw woning al (gedeeltelijk) geïsoleerd is, brengt aanvullende isolatie bouwfysische risico's met zich mee. Een verstoorde dampdiffusie of onvoldoende ventilatie kan leiden tot vocht, condensatie en schimmelvorming in de constructie, schade die niet altijd direct zichtbaar is maar de constructie ernstig kan aantasten. Laat een erkend bedrijf of bouwfysisch adviseur daarom altijd eerst een technisch onderzoek uitvoeren voordat u overgaat tot na-isoleren.
 
 Laat de bevindingen bevestigen via een foto-inspectie of maatwerkadvies. Neem contact op met PandIQ voor een concrete vervolgstap: www.pandiq.nl
 

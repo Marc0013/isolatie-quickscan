@@ -86,7 +86,7 @@ AANNAMES: dict[str, dict[str, Any]] = {
     "breedte_twee_onder_een_kap": {
         "waarde":     8.0,
         "eenheid":    "m",
-        "bron":       "SBR referentiewoningen 2022, type twee-onder-één-kap",
+        "bron":       "SBR referentiewoningen 2022, type twee-onder-een-kap",
         "aanpasbaar": True,
     },
     "verhouding_vrijstaand": {
@@ -104,7 +104,7 @@ AANNAMES: dict[str, dict[str, Any]] = {
     "verdiepingshoogte_midden": {
         "waarde":     2.60,
         "eenheid":    "m",
-        "bron":       "SBR referentiewoningen 2022, 1945–1992",
+        "bron":       "SBR referentiewoningen 2022, 1945-1992",
         "aanpasbaar": True,
     },
     "verdiepingshoogte_nieuw": {
@@ -196,8 +196,8 @@ def get(sleutel: str) -> Any:
 
 
 # ── Rc-tabel per element en bouwperiode ──────────────────────────────────────
-# Bron: ISSO 82.1, tabel 3 — indicatieve Rc-waarden voor bestaande bouw.
-# Structuur: per element → lijst van perioden met van/tot/rc/toelichting/bron.
+# Bron: ISSO 82.1, tabel 3, indicatieve Rc-waarden voor bestaande bouw.
+# Structuur: per element, lijst van perioden met van/tot/rc/toelichting/bron.
 
 RC_TABEL: dict[str, list[dict]] = {
     "dak": [
@@ -217,9 +217,9 @@ RC_TABEL: dict[str, list[dict]] = {
         {"van": 2012, "tot": 9999, "rc": 3.5,  "toelichting": "Bouwbesluit 2012+, Rc ≥ 3.5 m²K/W",                       "bron": "ISSO 82.1 tabel 3"},
     ],
     "gevel": [
-        {"van": 0,    "tot": 1920, "rc": 0.3,  "toelichting": "Massief metselwerk 30–45 cm, geen spouw",                  "bron": "ISSO 82.1 tabel 3"},
+        {"van": 0,    "tot": 1920, "rc": 0.3,  "toelichting": "Massief metselwerk 30-45 cm, geen spouw",                  "bron": "ISSO 82.1 tabel 3"},
         {"van": 1920, "tot": 1945, "rc": 0.4,  "toelichting": "Spouwmuur met lege spouw (~50 mm)",                        "bron": "ISSO 82.1 tabel 3"},
-        {"van": 1945, "tot": 1975, "rc": 0.5,  "toelichting": "Spouwmuur 60–80 mm, ongeïsoleerd",                         "bron": "ISSO 82.1 tabel 3"},
+        {"van": 1945, "tot": 1975, "rc": 0.5,  "toelichting": "Spouwmuur 60-80 mm, ongeïsoleerd",                         "bron": "ISSO 82.1 tabel 3"},
         {"van": 1975, "tot": 1992, "rc": 0.9,  "toelichting": "Spouwmuur, deels gevuld of dunne isolatiestrook",          "bron": "ISSO 82.1 tabel 3"},
         {"van": 1992, "tot": 2012, "rc": 2.5,  "toelichting": "Bouwbesluit 1992+, spouw gevuld, Rc ≥ 2.5 m²K/W",         "bron": "ISSO 82.1 tabel 3"},
         {"van": 2012, "tot": 9999, "rc": 3.5,  "toelichting": "Bouwbesluit 2012+, Rc ≥ 3.5 m²K/W",                       "bron": "ISSO 82.1 tabel 3"},
@@ -227,7 +227,7 @@ RC_TABEL: dict[str, list[dict]] = {
     "spouw": [
         {"van": 0,    "tot": 1920, "rc": 0.01, "toelichting": "Geen spouw aanwezig (massief metselwerk)",                 "bron": "ISSO 82.1 tabel 3"},
         {"van": 1920, "tot": 1945, "rc": 0.15, "toelichting": "Lege spouw ~50 mm, alleen luchtspouw-Rc",                  "bron": "ISSO 82.1 tabel 3"},
-        {"van": 1945, "tot": 1975, "rc": 0.20, "toelichting": "Lege spouw 60–80 mm",                                      "bron": "ISSO 82.1 tabel 3"},
+        {"van": 1945, "tot": 1975, "rc": 0.20, "toelichting": "Lege spouw 60-80 mm",                                      "bron": "ISSO 82.1 tabel 3"},
         {"van": 1975, "tot": 1992, "rc": 0.60, "toelichting": "Deels gevulde spouw of dunne PUR-injectie",                "bron": "ISSO 82.1 tabel 3"},
         {"van": 1992, "tot": 2012, "rc": 1.3,  "toelichting": "Spouw volledig gevuld met minerale wol of EPS",            "bron": "ISSO 82.1 tabel 3"},
         {"van": 2012, "tot": 9999, "rc": 2.0,  "toelichting": "Ruime spouw met isolatie conform Bouwbesluit 2012",        "bron": "ISSO 82.1 tabel 3"},
@@ -271,7 +271,7 @@ def rc_oud(element: str, bouwjaar: int) -> dict:
                 "rc":            rij["rc"],
                 "bron":          rij["bron"],
                 "toelichting":   rij["toelichting"],
-                "periode_label": f"{van_str}–{tot_str}",
+                "periode_label": f"{van_str}-{tot_str}",
             }
 
     # Fallback: laatste rij (bouwjaar >= 9999 of buiten bereik)
@@ -280,7 +280,7 @@ def rc_oud(element: str, bouwjaar: int) -> dict:
         "rc":            rij["rc"],
         "bron":          rij["bron"],
         "toelichting":   rij["toelichting"],
-        "periode_label": f"{rij['van']}–heden",
+        "periode_label": f"{rij['van']}-heden",
     }
 
 

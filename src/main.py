@@ -47,7 +47,7 @@ def normalize_int(value: Any) -> Optional[int]:
 
 
 def _fmt_geldig(s):
-    if not s: return "—"
+    if not s: return "-"
     try:
         from datetime import datetime
         from narratives import MAANDEN
@@ -59,7 +59,7 @@ def _fmt_geldig(s):
 def _fmt_getal(v, suffix=""):
     if isinstance(v, (int, float)):
         return f"{v:.1f} {suffix}".strip()
-    return "—"
+    return "-"
 
 def _strip_md(text: str) -> str:
     """Verwijdert markdown opmaak zodat het in Word als gewone tekst staat."""
@@ -177,7 +177,7 @@ def main(postcode: str, huisnummer: str, toevoeging: Optional[str] = None, huisl
     if sv_lat and sv_lng:
         sv_foto, sv_status = haal_streetview_op(sv_lat, sv_lng)
         if sv_status not in ("ok", "cache"):
-            print(f"  Street View niet beschikbaar ({sv_status}) — rapport wordt zonder foto aangemaakt.")
+            print(f"  Street View niet beschikbaar ({sv_status}), rapport wordt zonder foto aangemaakt.")
     else:
         print("  Geen coördinaten beschikbaar voor Street View.")
     subs = likely_isde_subsidies(facts) if use_subsidies else None
@@ -223,13 +223,13 @@ def main(postcode: str, huisnummer: str, toevoeging: Optional[str] = None, huisl
             "{{datum}}":                 today_nl,
             "{{bouwjaar}}":              str(bouwjaar),
             "{{bouwperiode}}":           scan["band"],
-            "{{oppervlakte}}":           f"{opp} m²" if opp else "—",
-            "{{energielabel}}":          label.get("labelklasse", "—") if label else "—",
+            "{{oppervlakte}}":           f"{opp} m²" if opp else "-",
+            "{{energielabel}}":          label.get("labelklasse", "-") if label else "-",
             "{{registratiedatum}}":      _fmt_geldig(label.get("registratiedatum") if label else None),
             "{{energiebehoefte}}":       _fmt_getal(label.get("energiebehoefte") if label else None, "kWh/m².jr"),
             "{{warmtebehoefte}}":        _fmt_getal(label.get("warmtebehoefte") if label else None, "kWh/m².jr"),
-            "{{gebouwtype}}":            label.get("gebouwtype", "—") if label else "—",
-            "{{woningtype}}":            woningtype or "—",
+            "{{gebouwtype}}":            label.get("gebouwtype", "-") if label else "-",
+            "{{woningtype}}":            woningtype or "-",
             "{{ geldig_tot }}":          _fmt_geldig(label.get("geldig_tot") if label else None),
             # Narratives
             # Samenvatting wordt geprepend aan narrative_gebouw (geen aparte placeholder in template)
@@ -254,18 +254,18 @@ def main(postcode: str, huisnummer: str, toevoeging: Optional[str] = None, huisl
             ),
             "{{narrative_bouwperiode}}": _strip_md(narrative.get("bouwperiode_inleiding", "") if narrative else ""),
             # Scores
-            "{{score_dak}}":             str(scores.get("dak", "—")),
-            "{{ score_dak }}":           str(scores.get("dak", "—")),
-            "{{score_gevel}}":           str(scores.get("gevel", "—")),
-            "{{ score_gevel }}":         str(scores.get("gevel", "—")),
-            "{{score_vloer}}":           str(scores.get("vloer", "—")),
-            "{{ score_vloer }}":         str(scores.get("vloer", "—")),
-            "{{score_glas}}":            str(scores.get("glas", "—")),
-            "{{ score_glas }}":          str(scores.get("glas", "—")),
-            "{{score_dak_tekst}}":       narrative.get("score_dak_tekst", "—") if narrative else "—",
-            "{{score_gevel_tekst}}":     narrative.get("score_gevel_tekst", "—") if narrative else "—",
-            "{{score_vloer_tekst}}":     narrative.get("score_vloer_tekst", "—") if narrative else "—",
-            "{{score_glas_tekst}}":      narrative.get("score_glas_tekst", "—") if narrative else "—",
+            "{{score_dak}}":             str(scores.get("dak", "-")),
+            "{{ score_dak }}":           str(scores.get("dak", "-")),
+            "{{score_gevel}}":           str(scores.get("gevel", "-")),
+            "{{ score_gevel }}":         str(scores.get("gevel", "-")),
+            "{{score_vloer}}":           str(scores.get("vloer", "-")),
+            "{{ score_vloer }}":         str(scores.get("vloer", "-")),
+            "{{score_glas}}":            str(scores.get("glas", "-")),
+            "{{ score_glas }}":          str(scores.get("glas", "-")),
+            "{{score_dak_tekst}}":       narrative.get("score_dak_tekst", "-") if narrative else "-",
+            "{{score_gevel_tekst}}":     narrative.get("score_gevel_tekst", "-") if narrative else "-",
+            "{{score_vloer_tekst}}":     narrative.get("score_vloer_tekst", "-") if narrative else "-",
+            "{{score_glas_tekst}}":      narrative.get("score_glas_tekst", "-") if narrative else "-",
             # Element-specifieke uitleg
             "{{element_tekst_dak}}":     _strip_md(narrative.get("element_tekst_dak", "") if narrative else ""),
             "{{element_tekst_gevel}}":   _strip_md(narrative.get("element_tekst_gevel", "") if narrative else ""),
@@ -316,7 +316,7 @@ def main(postcode: str, huisnummer: str, toevoeging: Optional[str] = None, huisl
             except Exception:
                 pass
 
-        # Stap 1: LibreOffice — gebruik writer_pdf_Export filter voor volledige font-embedding
+        # Stap 1: LibreOffice, gebruik writer_pdf_Export filter voor volledige font-embedding
         lo_result = subprocess.run(
             [lo_exe, "--headless", "--norestore",
              "--convert-to", "pdf:writer_pdf_Export",
@@ -364,17 +364,17 @@ def main(postcode: str, huisnummer: str, toevoeging: Optional[str] = None, huisl
                 else:
                     if pdf_tmp.exists():
                         pdf_tmp.unlink()
-                    print(f"Let op: Ghostscript post-processing mislukt — basis-PDF gebruikt")
+                    print(f"Let op: Ghostscript post-processing mislukt, basis-PDF gebruikt")
                     print(f"        {gs_result.stderr.strip()[:200]}" if gs_result.stderr else "")
             else:
-                print(f"Info: Ghostscript niet gevonden — basis-PDF gebruikt (printproblemen mogelijk)")
+                print(f"Info: Ghostscript niet gevonden, basis-PDF gebruikt (printproblemen mogelijk)")
                 print(f"      Installeer Ghostscript via https://www.ghostscript.com/releases/")
     else:
-        print(f"Let op: template niet gevonden op {template_path} — alleen .md gegenereerd.")
+        print(f"Let op: template niet gevonden op {template_path}, alleen .md gegenereerd.")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="PandIQ Isolatie Quickscan – genereer een verduurzamingsrapport op basis van postcode en huisnummer.",
+        description="PandIQ Isolatie Quickscan, genereer een verduurzamingsrapport op basis van postcode en huisnummer.",
         usage="python src/main.py <postcode> <huisnummer> [--toevoeging X] [--huisletter Y]",
     )
     parser.add_argument("postcode", help="Postcode, bijv. 9746CR")

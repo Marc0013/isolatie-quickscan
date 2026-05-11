@@ -137,9 +137,9 @@ def score_to_text(score: int | None) -> str:
 def score_label(score: int | None) -> str:
     """Geeft alleen het label terug: Goed / Redelijk / Matig / Slecht / Zeer slecht."""
     if score is None:
-        return "—"
+        return "-"
     s = _SCORE_TEKST.get(int(score))
-    return s["label"] if s else "—"
+    return s["label"] if s else "-"
 
 
 # ── Gebouwprofiel ─────────────────────────────────────────────────────────────
@@ -194,7 +194,7 @@ def _bouw_energieprestatie(
     if warmte is not None:
         if warmte < 50:
             delen.append(
-                "Dit is een zeer lage warmtevraag — de gebouwschil presteert uitstekend. "
+                "Dit is een zeer lage warmtevraag. De gebouwschil presteert uitstekend. "
                 "Verdere winst zit vooral in installaties en gebruiksgedrag."
             )
         elif warmte < 80:
@@ -209,8 +209,8 @@ def _bouw_energieprestatie(
             )
         elif warmte < 160:
             delen.append(
-                "De warmtevraag is relatief hoog. Isolatie van de schil — met name dak, "
-                "gevel en vloer — levert hier de grootste besparing."
+                "De warmtevraag is relatief hoog. Isolatie van de schil, met name dak, "
+                "gevel en vloer, levert hier de grootste besparing."
             )
         else:
             delen.append(
@@ -259,12 +259,11 @@ def _bouw_aanpak(
             "installaties: ventilatie, verwarming en warm tapwater."
         )
     else:
-        pass
-
-    if maatregelen:
-        maatregel_tekst = "Aanbevolen maatregelen voor deze bouwperiode:\n" + \
-                          "\n".join(f"- {m}" for m in maatregelen)
-        delen.append(maatregel_tekst)
+        delen.append(
+            "Voor deze woning liggen de meeste verbeterkansen in de gebouwschil: "
+            "dak, gevel, vloer en ramen. De geprioriteerde maatregelen met financiële "
+            "indicaties vindt u in het overzicht van aanbevolen maatregelen."
+        )
 
     if actie:
         delen.append(actie)
@@ -307,7 +306,7 @@ def generate_actionable_advice(
             "Bouwfysisch risico bij na-isoleren: als uw woning al (gedeeltelijk) geïsoleerd is, "
             "brengt aanvullende isolatie bouwfysische risico's met zich mee. "
             "Een verstoorde dampdiffusie of onvoldoende ventilatie kan leiden tot vocht, "
-            "condensatie en schimmelvorming in de constructie — schade die niet altijd direct "
+            "condensatie en schimmelvorming in de constructie, schade die niet altijd direct "
             "zichtbaar is maar de constructie ernstig kan aantasten. "
             "Laat een erkend bedrijf of bouwfysisch adviseur daarom altijd eerst een technisch "
             "onderzoek uitvoeren voordat u overgaat tot na-isoleren."
@@ -366,13 +365,13 @@ def generate_vervolgstappen(
 
     # Stap 1: subsidiecheck altijd eerste
     stappen.append(
-        "1. Bereken uw subsidie — Gebruik de PandIQ subsidietool (www.pandiq.nl/subsidie) "
+        "1. Bereken uw subsidie. Gebruik de PandIQ subsidietool (www.pandiq.nl/subsidie) "
         "om binnen 2 minuten te zien welke subsidies voor u gelden en wat uw netto investering is."
     )
 
     # Stap 2: foto-upload voor maatwerk
     stappen.append(
-        "2. Upload foto's — Stuur foto's van dak, gevel, glas, kruipruimte en installaties "
+        "2. Upload foto's. Stuur foto's van dak, gevel, glas, kruipruimte en installaties "
         "zodat wij uw rapport kunnen omzetten naar een concreet maatwerkadvies."
     )
 
@@ -381,17 +380,17 @@ def generate_vervolgstappen(
         namen = {"dak": "dakisolatie", "gevel": "gevelisolatie", "vloer": "vloerisolatie", "glas": "glasvervanging"}
         maatregelen = " en ".join(namen.get(k, k) for k in hoge_prio)
         stappen.append(
-            f"3. Vraag een offerte aan — Op basis van dit rapport is {maatregelen} "
+            f"3. Vraag een offerte aan. Op basis van dit rapport is {maatregelen} "
             "de meest kansrijke maatregel. Vraag een vrijblijvende offerte aan via PandIQ."
         )
     elif focus == "installaties":
         stappen.append(
-            "3. Plan een installatiecheck — Laat uw ventilatiesysteem en verwarmingsinstallatie "
+            "3. Plan een installatiecheck. Laat uw ventilatiesysteem en verwarmingsinstallatie "
             "controleren. Dit is voor uw woning de meest effectieve eerste stap."
         )
     else:
         stappen.append(
-            "3. Plan een adviesgesprek — Onze adviseurs helpen u de juiste volgorde te bepalen "
+            "3. Plan een adviesgesprek. Onze adviseurs helpen u de juiste volgorde te bepalen "
             "en de investering te optimaliseren. Gratis en vrijblijvend via www.pandiq.nl."
         )
 

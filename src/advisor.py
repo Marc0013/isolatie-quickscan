@@ -11,7 +11,7 @@ Gebruik:
     advies = build_advice(facts)
 
 Het facts-dict heeft hetzelfde formaat als dat main.py doorgeeft aan
-narrative_from_facts() — zie main.py voor de exacte sleutels.
+narrative_from_facts(), zie main.py voor de exacte sleutels.
 """
 from __future__ import annotations
 
@@ -62,10 +62,10 @@ _MAATREGEL_NAAM: dict[str, str] = {
 
 @dataclass
 class PrioriteitItem:
-    """Eén geprioriteerde maatregel voor een woning, inclusief financiële indicaties."""
+    """Een geprioriteerde maatregel voor een woning, inclusief financiële indicaties."""
     element:       str            # "dak" | "gevel" | "vloer" | "glas"
     element_naam:  str            # "Dak" | "Gevel" | ...
-    score:         int            # 1–5
+    score:         int            # 1-5
     urgentie:      str            # "hoog" | "middel" | "laag"
     maatregel_naam: str           # leesbare naam
     maatregel_key:  str           # sleutel in ISDE-tabellen (financials/subsidies)
@@ -81,7 +81,7 @@ class PrioriteitItem:
 
 @dataclass
 class SubsidieRegel:
-    """Eén ISDE-subsidieregel met indicatief bedrag voor deze woning."""
+    """Een ISDE-subsidieregel met indicatief bedrag voor deze woning."""
     maatregel:          str    # weergavenaam
     maatregel_key:      str    # sleutel in ISDE-tabellen
     soort:              str    # "isolatie" | "glas" | "warmtepomp"
@@ -97,7 +97,7 @@ class AdviesResult:
     Volledig adviesresultaat voor één woning.
 
     Bevat alle data en teksten die renderers (Markdown, Word, API) nodig hebben.
-    Maak aan via build_advice(facts) — niet direct instantiëren.
+    Maak aan via build_advice(facts), niet direct instantiëren.
 
     Velden gemarkeerd met 'indicatief' zijn schattingen; zie de individuele
     docstrings in financials.py voor de methodiek en nauwkeurigheid.
@@ -105,7 +105,7 @@ class AdviesResult:
     # ── Identificatie ─────────────────────────────────────────────────────────
     adres:       str
     bouwjaar:    int
-    bouwperiode: str            # "voor 1975" | "1975–1991" | "1992–2005" | ...
+    bouwperiode: str            # "voor 1975" | "1975-1991" | "1992-2005" | ...
     opp_m2:      Optional[float]   # BAG gebruiksoppervlakte (m²)
     gebouwtype:  Optional[str]
     data_volledigheid: str      # "volledig" | "geen_label" | "geen_bag" | "minimaal"
@@ -114,7 +114,7 @@ class AdviesResult:
     labelklasse:     Optional[str]
     energiebehoefte: Optional[float]   # kWh/m²/jr (EP-Online)
     warmtebehoefte:  Optional[float]   # kWh/m²/jr (EP-Online)
-    # Totale warmtebehoefte (kWh/jr) — berekend of geschat; zie financials.py
+    # Totale warmtebehoefte (kWh/jr), berekend of geschat; zie financials.py
     warmte_totaal_kwh: float
     # Databron gebruikt voor warmtebehoefte-schatting
     # "ep_online_thermisch" | "ep_online_bag" | "default_bouwperiode_bag" | "default_bouwperiode_fallback"
@@ -143,9 +143,9 @@ class AdviesResult:
     #   risicos, subsidies_blok, subsidies_isolatie, vervolgstappen_blok
     #
     # Nieuwe sleutels (Fase 3 renderers):
-    #   samenvatting           — executive summary, 4-6 zinnen
-    #   prioriteiten_tekst     — geprioriteerde maatregelen met financiële indicaties
-    #   subsidie_indicatie_tekst — persoonlijk berekende subsidie-overzicht
+    #   samenvatting           - executive summary, 4-6 zinnen
+    #   prioriteiten_tekst     - geprioriteerde maatregelen met financiële indicaties
+    #   subsidie_indicatie_tekst - persoonlijk berekende subsidie-overzicht
     teksten: dict[str, str]
 
     # ── Call to actions ───────────────────────────────────────────────────────
@@ -182,7 +182,7 @@ def _element_naar_maatregel(element: str, bouwjaar: int) -> str:
     Geeft de meest relevante ISDE-maatregelsleutel voor een element en bouwperiode.
 
     Gevel-mapping: voor 1975 en na 2005 → gevelisolatie (massieve muur of buitengevel);
-                   1946–2005 → spouwmuurisolatie (standaard spouwmuur).
+                   1946-2005 -> spouwmuurisolatie (standaard spouwmuur).
     Glas-mapping:  nieuwere woningen (2006+) → triple; oudere → HR++.
     """
     _MAPPING: dict[str, dict[str, str]] = {
@@ -386,7 +386,7 @@ def _bouw_samenvatting(
             top = (hoge_prio + middel_prio)[0]
             delen.append(
                 f"De meeste winst zit in {top.element_naam.lower()} ({top.maatregel_naam.lower()}): "
-                f"indicatieve besparing €{top.besparing_min:,.0f}–€{top.besparing_max:,.0f} per jaar."
+                f"indicatieve besparing €{top.besparing_min:,.0f} tot €{top.besparing_max:,.0f} per jaar."
             )
         if subsidie_totaal > 0:
             delen.append(
@@ -495,7 +495,7 @@ def _bouw_fysische_analyse(
 
         if rc_huidig >= rc_doel:
             regels.append(
-                f"Huidige Rc: {rc_huidig} m²K/W — voldoet aan de ISDE-minimumeis "
+                f"Huidige Rc: {rc_huidig} m²K/W. Voldoet aan de ISDE-minimumeis "
                 f"van Rc {rc_doel} m²K/W."
             )
             regels.append("")
@@ -544,7 +544,7 @@ def _bouw_prioriteiten_tekst(
     Vervangt in Fase 3 de hardcoded sectie 3 en 4 in render_markdown().
 
     Per maatregel met score ≥ 3: naam, score, urgentie, besparing, kosten, terugverdientijd.
-    Per maatregel met score 1–2: korte positieve noot.
+    Per maatregel met score 1 of 2: korte positieve noot.
     """
     if not prioriteiten:
         return (
@@ -565,39 +565,49 @@ def _bouw_prioriteiten_tekst(
                 "laag":   "Lage prioriteit",
             }.get(item.urgentie, item.urgentie)
 
+            # Titel
             regels.append(
-                f"**{rang}. {item.element_naam} — score {item.score}/5 "
-                f"({score_label(item.score)}) — {urgentie_label}**"
+                f"**{rang}. {item.element_naam}, score {item.score}/5 "
+                f"({score_label(item.score)}), {urgentie_label}**"
             )
+            regels.append("")
+
+            # Maatregel + oppervlakte
             regels.append(f"Aanbevolen maatregel: {item.maatregel_naam}")
             if item.opp_indicatief > 0:
-                regels.append(f"Geschatte oppervlakte: ~{item.opp_indicatief:.0f} m²")
+                regels.append(f"Geschatte oppervlakte: ca. {item.opp_indicatief:.0f} m²")
+            regels.append("")
 
+            # Besparing, investering, subsidie
             if item.besparing_max > 0:
                 regels.append(
-                    f"Indicatieve besparing: €{item.besparing_min:,.0f}–"
+                    f"Indicatieve besparing: €{item.besparing_min:,.0f} tot "
                     f"€{item.besparing_max:,.0f} per jaar"
                 )
             if item.kosten_max > 0:
                 regels.append(
-                    f"Indicatieve investering: €{item.kosten_min:,.0f}–"
+                    f"Indicatieve investering: €{item.kosten_min:,.0f} tot "
                     f"€{item.kosten_max:,.0f}"
                 )
             if item.subsidie_max > 0:
                 regels.append(
                     f"ISDE-subsidie indicatie: tot €{item.subsidie_max:,.0f}"
                 )
+            regels.append("")
+
+            # Terugverdientijd
             if item.terugverdien_min is not None and item.terugverdien_max is not None:
                 regels.append(
                     f"Terugverdientijd na subsidie: "
-                    f"circa {item.terugverdien_min:.0f}–{item.terugverdien_max:.0f} jaar"
+                    f"circa {item.terugverdien_min:.0f} tot {item.terugverdien_max:.0f} jaar"
                 )
-            regels.append("")  # witregel
+            regels.append("")  # ruimte naar volgende blok
+            regels.append("")
 
         else:
             # Score 1-2: positieve noot, geen uitgebreide financiële info
             regels.append(
-                f"**{item.element_naam} — score {item.score}/5 "
+                f"**{item.element_naam}, score {item.score}/5 "
                 f"({score_label(item.score)})**  "
                 f"Dit onderdeel is op orde. Grote ingrepen zijn hier niet de eerste prioriteit."
             )
@@ -665,7 +675,7 @@ def _bouw_subsidie_indicatie_tekst(
     wp = WARMTEPOMP
     regels.append("")
     regels.append(
-        f"Daarnaast: ISDE warmtepomp — startbedrag €{wp['startbedrag']:,} "
+        f"Daarnaast: ISDE warmtepomp, startbedrag €{wp['startbedrag']:,} "
         f"+ €{wp['per_kw']} per kW + €{wp['aplus_bonus']} bonus bij A+++ label."
     )
     regels.append("")
@@ -692,7 +702,7 @@ def _bepaal_cta(
     if gemiddelde_score >= 4.0:
         # Urgente situatie: direct offerte aanvragen
         return (
-            "Vraag nu een vrijblijvende offerte aan — inclusief subsidiecheck en aanvraagafhandeling",
+            "MAAK VANDAAG NOG UW EIGEN DASHBOARD AAN",
             "Bereken uw subsidie in 2 minuten op www.pandiq.nl/subsidie",
             "https://www.pandiq.nl/offerte",
         )
@@ -844,12 +854,7 @@ def build_advice(facts: dict[str, Any]) -> AdviesResult:
         rc_waarden   = rc_waarden_huidig,
     )
 
-    teksten["fysische_analyse"] = _bouw_fysische_analyse(
-        oppervlaktes = berekende_oppervlaktes,
-        rc_waarden   = rc_waarden_huidig,
-        bouwjaar     = bouwjaar,
-        woningtype   = woningtype_input,
-    )
+    teksten["fysische_analyse"] = ""  # niet meer getoond in rapport
     teksten["waarschuwingen_tekst"] = _bouw_waarschuwingen_tekst(berekende_waarschuwingen)
 
     return AdviesResult(

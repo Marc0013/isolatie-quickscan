@@ -9,11 +9,11 @@ W  = f'{{{NS}}}'
 # ── Subsidietabel configuratie ────────────────────────────────────────────────
 _SUBSIDIE_SENTINEL = "##PANDIQ_SUBSIDIETABEL##"
 _NAVY_HEX   = "5AAA00"   # titelbalk groen (PandIQ huisstijl)
-_YELLOW_HEX = "FFFFFF"   # aanbevolen rij — wit (geen gele achtergrond)
-_GREEN_BG   = "FFFFFF"   # warmtepomp blok — wit
-_GREEN_HEAD = "5AAA00"   # warmtepomp header — PandIQ groen
-_BLUE_BG    = "FFFFFF"   # noten — geen achtergrondkleur
-_WARN_BG    = "FFFFFF"   # waarschuwingsnoot — geen achtergrondkleur
+_YELLOW_HEX = "FFFFFF"   # aanbevolen rij - wit (geen gele achtergrond)
+_GREEN_BG   = "FFFFFF"   # warmtepomp blok - wit
+_GREEN_HEAD = "5AAA00"   # warmtepomp header - PandIQ groen
+_BLUE_BG    = "FFFFFF"   # noten - geen achtergrondkleur
+_WARN_BG    = "FFFFFF"   # waarschuwingsnoot - geen achtergrondkleur
 
 def _set_cel_achtergrond(cel, kleur_hex: str) -> None:
     """Zet een vaste achtergrondkleur op een Word-tabelcel via XML."""
@@ -53,7 +53,7 @@ def _voeg_subsidietabel_bouwperiode_in(docx_pad: str, bouwjaar: int, subsidie_in
         from docx import Document
         from docx.shared import Pt, RGBColor
     except ImportError:
-        print("  Let op: python-docx niet geïnstalleerd — subsidietabel niet ingevoegd.")
+        print("  Let op: python-docx niet geïnstalleerd, subsidietabel niet ingevoegd.")
         return
 
     import sys, os
@@ -165,7 +165,7 @@ def _voeg_subsidietabel_bouwperiode_in(docx_pad: str, bouwjaar: int, subsidie_in
 
     for sleutel in ISO_VOLGORDE:
         m = ISOLATIE_BEDRAGEN[sleutel]
-        bio = f"+ € {m['bio']:.2f}/m²" if m.get("bio") else "—"
+        bio = f"+ € {m['bio']:.2f}/m²" if m.get("bio") else "-"
         _data_rij(tabel_iso, [
             (m["naam"],               True),
             (f"€ {m['bedrag']:.2f}/m²",  True),
@@ -502,7 +502,7 @@ def _voeg_foto_in_docx_toe(tmp_dir: Path, foto_pad: str) -> bool:
                 flags=re.DOTALL
             )
         else:
-            # Geen placeholder — voeg in na "Datum:" alinea op voorblad
+            # Geen placeholder, voeg in na "Datum:" alinea op voorblad
             zoek = '<w:t>Indicatief rapport op basis van openbare registraties (BAG &amp; EP-Online)</w:t>'
             if zoek in doc:
                 invoeg_na = doc.find(zoek)
@@ -515,7 +515,7 @@ def _voeg_foto_in_docx_toe(tmp_dir: Path, foto_pad: str) -> bool:
         return True
 
     except Exception as e:
-        print(f"  [Street View] Foto invoegen mislukt: {e} — rapport gaat door zonder foto.")
+        print(f"  [Street View] Foto invoegen mislukt: {e}, rapport gaat door zonder foto.")
         return False
 
 
@@ -636,7 +636,7 @@ def _stijl_woninggegevens_tabel(docx_pad: str) -> None:
         label_l    = cel_links.text.strip().lower()
 
         if "woninggegevens" in label_l:
-            continue  # kopregel — niet aanraken
+            continue  # kopregel, niet aanraken
 
         # Linkerkolom: wit + semi-bold
         _set_cel_achtergrond(cel_links, WIT)
@@ -679,7 +679,7 @@ def _stijl_woninggegevens_tabel(docx_pad: str) -> None:
 def _voeg_element_teksten_in(docx_pad: str, data: dict, scores: dict | None = None) -> None:
     """
     Zoekt de scores-tabel (Dak/Gevel/Vloer/Glas) en voegt per element
-    een subkop + beschrijvende tekst in direct ná de tabel.
+    een subkop + beschrijvende tekst in direct na de tabel.
     Herkent de teksten via de data-mapping die ook aan fill_docx is meegegeven.
     """
     try:
@@ -768,7 +768,7 @@ def _voeg_element_teksten_in(docx_pad: str, data: dict, scores: dict | None = No
         parent.insert(idx, _maak_alinea(naam, bold=True, pt_val="22", kleur_hex="5AAA00"))
         idx += 1
         if score and label:
-            parent.insert(idx, _maak_alinea(f"Score {score}/5 — {label}", bold=True, pt_val="22"))
+            parent.insert(idx, _maak_alinea(f"Score {score}/5, {label}", bold=True, pt_val="22"))
             idx += 1
 
         # Tekst (splits op dubbele newline voor aparte alinea's)
@@ -946,8 +946,8 @@ def _voeg_eindpagina_in(docx_pad: str, cta_primair: str | None = None, cta_url: 
         p = _p(bg_hex="EEF6E0", space_before=0, space_after=0)
         p.append(_r(
             "PandIQ geeft u overzicht en helpt u met het inschatten van bouwkosten, "
-            "het aanvragen van offertes, subsidieaanvragen en andere besparingen "
-            "— alles in één dashboard.",
+            "het aanvragen van offertes, subsidieaanvragen en andere besparingen, "
+            "alles in een dashboard.",
             pt=11, kleur_hex="1A4A00"
         ))
         tc.append(p)
@@ -999,7 +999,7 @@ def _voeg_eindpagina_in(docx_pad: str, cta_primair: str | None = None, cta_url: 
     ))
     elems.append(p)
 
-    # ── Invoegen vóór w:sectPr ────────────────────────────────────────────────
+    # ── Invoegen voor w:sectPr ────────────────────────────────────────────────
     kinderen_na = list(body)
     insert_at = len(kinderen_na)
     for i, elem in enumerate(kinderen_na):
@@ -1009,6 +1009,110 @@ def _voeg_eindpagina_in(docx_pad: str, cta_primair: str | None = None, cta_url: 
 
     for i, elem in enumerate(elems):
         body.insert(insert_at + i, elem)
+
+    doc.save(docx_pad)
+
+
+def _zet_page_break_voor_headings(docx_pad: str) -> None:
+    """
+    Stelt paginaopmaak in op alle Kop1-paragrafen:
+    - pageBreakBefore  : altijd een nieuwe pagina voor elk hoofdstuk
+    - keepNext         : titel blijft aan de volgende alinea gekoppeld
+    - keepLines wordt  : NIET gezet op normale alinea's (voorkomt lege pagina's)
+
+    Uitzondering: de allereerste Kop1 (voorblad) krijgt geen pageBreakBefore
+    zodat er geen lege openingspagina ontstaat.
+
+    Overige headings (Kop2, Kop3, ...) krijgen alleen keepNext, geen page break.
+    Normale alinea's worden niet aangepast zodat tekst vrij kan doorlopen.
+    """
+    try:
+        from docx import Document
+        from docx.oxml import OxmlElement
+        from docx.oxml.ns import qn
+    except ImportError:
+        return
+
+    doc  = Document(docx_pad)
+    body = doc.element.body
+
+    eerste_kop1_gezien = False
+    paragrafen = list(body)  # directe children van body
+
+    # ── Stap 1: keepNext + pageBreakBefore instellen op headings ──────────────
+    for p in body.iter(f'{W}p'):
+        pPr = p.find(f'{W}pPr')
+        if pPr is None:
+            continue
+        pStyle = pPr.find(f'{W}pStyle')
+        if pStyle is None:
+            continue
+        stijl = pStyle.get(f'{W}val', '')
+        stijl_lower = stijl.lower()
+
+        is_kop1 = stijl_lower in ('kop1', 'heading1', 'heading 1')
+        is_kop  = 'kop' in stijl_lower or 'heading' in stijl_lower
+
+        if not is_kop:
+            continue
+
+        # keepNext op alle headings: titel hangt nooit als wees onderaan pagina
+        if pPr.find(f'{W}keepNext') is None:
+            pPr.append(OxmlElement('w:keepNext'))
+
+        # pageBreakBefore alleen op Kop1, en niet op de allereerste
+        if is_kop1:
+            if not eerste_kop1_gezien:
+                eerste_kop1_gezien = True
+            else:
+                if pPr.find(f'{W}pageBreakBefore') is None:
+                    pPr.append(OxmlElement('w:pageBreakBefore'))
+
+    # ── Stap 2: verwijder handmatige page breaks naast Kop1-met-pageBreakBefore ──
+    # Wanneer een lege paragraaf met <w:br type="page"> direct voor of direct na
+    # een Kop1 staat die al pageBreakBefore heeft, ontstaat een dubbele page break
+    # → lege pagina. We verwijderen die overbodige handmatige paragrafen.
+    def _is_manual_pagebreak(elem) -> bool:
+        """True als dit een lege alinea is met uitsluitend een handmatige page break."""
+        if not elem.tag.endswith('}p'):
+            return False
+        tekst = ''.join(t.text or '' for t in elem.iter(f'{W}t')).strip()
+        if tekst:
+            return False
+        return any(
+            br.get(f'{W}type', '') == 'page'
+            for br in elem.iter(f'{W}br')
+        )
+
+    def _is_kop1_met_pagebreak(elem) -> bool:
+        """True als dit een Kop1-paragraaf is met pageBreakBefore."""
+        if not elem.tag.endswith('}p'):
+            return False
+        pPr = elem.find(f'{W}pPr')
+        if pPr is None:
+            return False
+        pStyle = pPr.find(f'{W}pStyle')
+        if pStyle is None:
+            return False
+        stijl = pStyle.get(f'{W}val', '').lower()
+        if stijl not in ('kop1', 'heading1', 'heading 1'):
+            return False
+        return pPr.find(f'{W}pageBreakBefore') is not None
+
+    te_verwijderen = []
+    kinderen = list(body)
+    for i, elem in enumerate(kinderen):
+        if not _is_manual_pagebreak(elem):
+            continue
+        # Verwijder als de volgende of vorige Kop1 al een pageBreakBefore heeft
+        volgende = kinderen[i + 1] if i + 1 < len(kinderen) else None
+        vorige   = kinderen[i - 1] if i > 0 else None
+        if (volgende is not None and _is_kop1_met_pagebreak(volgende)) or \
+           (vorige   is not None and _is_kop1_met_pagebreak(vorige)):
+            te_verwijderen.append(elem)
+
+    for elem in te_verwijderen:
+        body.remove(elem)
 
     doc.save(docx_pad)
 
@@ -1157,7 +1261,7 @@ def _stijl_voorblad(docx_pad: str, adres: str, datum: str) -> None:
 
     cover.append(_tabel_balk("D4E832", 100, _accent_inhoud))
 
-    # 3. Witruimte vóór titel
+    # 3. Witruimte voor titel
     cover.append(_p_el(space_before=600))
 
     # 4. Rapporttitel
@@ -1209,14 +1313,14 @@ def _stijl_voorblad(docx_pad: str, adres: str, datum: str) -> None:
     ))
     cover.append(p)
 
-    # 12. Pagina-einde vóór hoofdstuk 1
+    # 12. Pagina-einde voor hoofdstuk 1
     p_br = _p_el(space_before=0, space_after=0)
     r_br = OxmlElement('w:r')
     br = OxmlElement('w:br'); br.set(qn('w:type'), 'page')
     r_br.append(br); p_br.append(r_br)
     cover.append(p_br)
 
-    # ── Invoegen vóór de eerste heading ─────────────────────────────────────────
+    # ── Invoegen voor de eerste heading ─────────────────────────────────────────
     for i, elem in enumerate(cover):
         body.insert(i, elem)
 
@@ -1403,33 +1507,37 @@ def _vervang_aanpak_sectie(docx_pad: str, advies) -> None:
     if hoge:
         for rang, item in enumerate(hoge, 1):
             urg = urg_labels.get(item.urgentie, item.urgentie)
+            # Titel
             elems.append(_p(
                 f'{rang}. {item.element_naam}  \u2014  score {item.score}/5  \u2014  {urg}',
-                bold=True, kleur='5AAA00', pt='22', space_after=60
+                bold=True, kleur='5AAA00', pt='22', space_after=80,
             ))
-            elems.append(_p(f'Aanbevolen maatregel: {item.maatregel_naam}', kleur='1D1D1B', space_after=60))
+            # Maatregel + oppervlakte
+            elems.append(_p(f'Aanbevolen maatregel: {item.maatregel_naam}', kleur='1D1D1B', space_after=40))
             if item.opp_indicatief > 0:
-                elems.append(_p(f'Geschatte oppervlakte: ca. {item.opp_indicatief:.0f} m\u00b2', kleur='666666', space_after=60))
+                elems.append(_p(f'Geschatte oppervlakte: ca. {item.opp_indicatief:.0f} m\u00b2', kleur='666666', space_after=120))
+            # Besparing, investering, subsidie
             if item.besparing_max > 0:
                 elems.append(_p(
                     f'Indicatieve besparing: \u20ac{item.besparing_min:,.0f}\u2013\u20ac{item.besparing_max:,.0f} per jaar',
-                    kleur='1D1D1B', space_after=60
+                    kleur='1D1D1B', space_after=40,
                 ))
             if item.kosten_max > 0:
                 elems.append(_p(
                     f'Indicatieve investering: \u20ac{item.kosten_min:,.0f}\u2013\u20ac{item.kosten_max:,.0f}',
-                    kleur='1D1D1B', space_after=60
+                    kleur='1D1D1B', space_after=40,
                 ))
             if item.subsidie_max > 0:
                 elems.append(_p(
                     f'ISDE-subsidie indicatie: tot \u20ac{item.subsidie_max:,.0f}',
-                    kleur='2E7D32', space_after=60
+                    kleur='2E7D32', space_after=120,
                 ))
-            tvt_space = 200 if rang < len(hoge) else 160
+            # Terugverdientijd + ruimte naar volgende blok
+            tvt_space = 240 if rang < len(hoge) else 160
             if item.terugverdien_min is not None and item.terugverdien_max is not None:
                 elems.append(_p(
                     f'Terugverdientijd na subsidie: ca. {item.terugverdien_min:.0f}\u2013{item.terugverdien_max:.0f} jaar',
-                    kleur='1D1D1B', space_after=tvt_space
+                    kleur='1D1D1B', space_after=tvt_space,
                 ))
             else:
                 elems.append(_p('', space_after=tvt_space))
@@ -1441,7 +1549,7 @@ def _vervang_aanpak_sectie(docx_pad: str, advies) -> None:
             kleur='1D1D1B', space_after=160
         ))
 
-    # Score 1–2: korte positieve noot
+    # Score 1 of 2: korte positieve noot
     for item in lage:
         elems.append(_p(
             f'{item.element_naam} (score {item.score}/5) \u2014 dit onderdeel is goed op orde.',
@@ -1469,6 +1577,170 @@ def _vervang_aanpak_sectie(docx_pad: str, advies) -> None:
     # Invoegen op de vrijgekomen positie
     for i, elem in enumerate(elems):
         body.insert(invoeg_positie + i, elem)
+
+    doc.save(docx_pad)
+
+
+def _voeg_totaalplaatje_in(docx_pad: str, advies) -> None:
+    """
+    Voegt een totaalplaatje-tabel in aan het einde van de 'Kansen'-sectie,
+    vlak voor de 'Mogelijke aanpak' heading. Toont gecombineerde investering,
+    subsidie, besparing en terugverdientijd als alle maatregelen samen worden
+    uitgevoerd. Alleen zichtbaar als er ≥ 2 prioriteiten zijn.
+    """
+    if not advies or len(advies.prioriteiten) < 2:
+        return
+
+    try:
+        from docx import Document
+        from docx.oxml.ns import qn
+        from docx.oxml import OxmlElement
+        from docx.shared import Pt, RGBColor
+    except ImportError:
+        return
+
+    prio = advies.prioriteiten
+    tot_kosten_min    = sum(p.kosten_min    for p in prio)
+    tot_kosten_max    = sum(p.kosten_max    for p in prio)
+    tot_besparing_min = sum(p.besparing_min for p in prio)
+    tot_besparing_max = sum(p.besparing_max for p in prio)
+    tot_subsidie      = advies.subsidie_totaal_indicatie
+    netto_min = max(0.0, tot_kosten_min - tot_subsidie)
+    netto_max = max(0.0, tot_kosten_max - tot_subsidie)
+    tvt_min = round(netto_min / tot_besparing_max) if tot_besparing_max > 0 else None
+    tvt_max = round(netto_max / tot_besparing_min) if tot_besparing_min > 0 else None
+
+    doc  = Document(docx_pad)
+    body = doc.element.body
+    kinderen = list(body)
+
+    # Zoek "Mogelijke aanpak" als invoegpunt
+    invoeg_idx = None
+    for i, elem in enumerate(kinderen):
+        if elem.tag.endswith('}p'):
+            tekst = ''.join(t.text or '' for t in elem.iter(f'{W}t')).strip()
+            if tekst == 'Mogelijke aanpak':
+                invoeg_idx = i
+                break
+
+    if invoeg_idx is None:
+        return
+
+    def _p(tekst='', *, bold=False, kleur='1D1D1B', pt='22', space_before=0, space_after=120):
+        p   = OxmlElement('w:p')
+        pPr = OxmlElement('w:pPr')
+        pSt = OxmlElement('w:pStyle'); pSt.set(qn('w:val'), 'Normal'); pPr.append(pSt)
+        sp  = OxmlElement('w:spacing')
+        sp.set(qn('w:before'), str(space_before))
+        sp.set(qn('w:after'),  str(space_after))
+        pPr.append(sp); p.append(pPr)
+        if tekst:
+            r   = OxmlElement('w:r')
+            rPr = OxmlElement('w:rPr')
+            if bold:
+                b = OxmlElement('w:b'); rPr.append(b)
+            f = OxmlElement('w:rFonts')
+            for attr in ('w:ascii', 'w:hAnsi', 'w:cs'): f.set(qn(attr), 'Calibri')
+            rPr.append(f)
+            sz  = OxmlElement('w:sz');   sz.set(qn('w:val'),  pt); rPr.append(sz)
+            sc  = OxmlElement('w:szCs'); sc.set(qn('w:val'),  pt); rPr.append(sc)
+            kl  = OxmlElement('w:color'); kl.set(qn('w:val'), kleur.upper()); rPr.append(kl)
+            r.append(rPr)
+            t = OxmlElement('w:t'); t.text = tekst
+            t.set('{http://www.w3.org/XML/1998/namespace}space', 'preserve')
+            r.append(t); p.append(r)
+        return p
+
+    def _maak_tabel(rijen: list[tuple]) -> OxmlElement:
+        """Bouwt een 3-kolom Word-tabel: (label, min_tekst, max_tekst)."""
+        tbl  = OxmlElement('w:tbl')
+        tblPr = OxmlElement('w:tblPr')
+        tblW  = OxmlElement('w:tblW')
+        tblW.set(qn('w:w'), '9360'); tblW.set(qn('w:type'), 'dxa')
+        tblPr.append(tblW)
+        # Dunne rand rondom
+        tblBorders = OxmlElement('w:tblBorders')
+        for zijde in ('top', 'left', 'bottom', 'right', 'insideH', 'insideV'):
+            b = OxmlElement(f'w:{zijde}')
+            b.set(qn('w:val'), 'single')
+            b.set(qn('w:sz'), '4')
+            b.set(qn('w:space'), '0')
+            b.set(qn('w:color'), 'CCCCCC')
+            tblBorders.append(b)
+        tblPr.append(tblBorders)
+        tbl.append(tblPr)
+        # Kolombreedtes: 5040 | 2160 | 2160 twips
+        tblGrid = OxmlElement('w:tblGrid')
+        for breedte in (5040, 2160, 2160):
+            gc = OxmlElement('w:gridCol'); gc.set(qn('w:w'), str(breedte)); tblGrid.append(gc)
+        tbl.append(tblGrid)
+
+        GROEN = '5AAA00'
+        WIT   = 'FFFFFF'
+
+        for rij_idx, (label, min_val, max_val) in enumerate(rijen):
+            tr = OxmlElement('w:tr')
+            is_header = rij_idx == 0
+            achtergrond = GROEN if is_header else ('F5F5F5' if rij_idx % 2 == 0 else WIT)
+            tekst_kleur = WIT if is_header else '1D1D1B'
+            for cel_tekst, breedte in ((label, 5040), (min_val, 2160), (max_val, 2160)):
+                tc   = OxmlElement('w:tc')
+                tcPr = OxmlElement('w:tcPr')
+                tcW  = OxmlElement('w:tcW')
+                tcW.set(qn('w:w'), str(breedte)); tcW.set(qn('w:type'), 'dxa')
+                tcPr.append(tcW)
+                shd  = OxmlElement('w:shd')
+                shd.set(qn('w:val'), 'clear'); shd.set(qn('w:color'), 'auto')
+                shd.set(qn('w:fill'), achtergrond)
+                tcPr.append(shd)
+                tc.append(tcPr)
+                p   = OxmlElement('w:p')
+                pPr = OxmlElement('w:pPr')
+                sp  = OxmlElement('w:spacing')
+                sp.set(qn('w:before'), '60'); sp.set(qn('w:after'), '60')
+                pPr.append(sp); p.append(pPr)
+                r   = OxmlElement('w:r')
+                rPr = OxmlElement('w:rPr')
+                if is_header:
+                    b = OxmlElement('w:b'); rPr.append(b)
+                f = OxmlElement('w:rFonts')
+                for attr in ('w:ascii', 'w:hAnsi', 'w:cs'): f.set(qn(attr), 'Calibri')
+                rPr.append(f)
+                sz  = OxmlElement('w:sz');   sz.set(qn('w:val'), '20'); rPr.append(sz)
+                sc  = OxmlElement('w:szCs'); sc.set(qn('w:val'), '20'); rPr.append(sc)
+                kl  = OxmlElement('w:color'); kl.set(qn('w:val'), tekst_kleur); rPr.append(kl)
+                r.append(rPr)
+                t = OxmlElement('w:t'); t.text = cel_tekst
+                t.set('{http://www.w3.org/XML/1998/namespace}space', 'preserve')
+                r.append(t); p.append(r); tc.append(p); tr.append(tc)
+            tbl.append(tr)
+        return tbl
+
+    tvt_min_str = f'{tvt_min} jaar' if tvt_min is not None else '-'
+    tvt_max_str = f'{tvt_max} jaar' if tvt_max is not None else '-'
+
+    tabel_rijen = [
+        ('', 'Min', 'Max'),
+        ('Totale investering',            f'\u20ac{tot_kosten_min:,.0f}',  f'\u20ac{tot_kosten_max:,.0f}'),
+        ('ISDE-subsidie (indicatief)',     '\u2014',                        f'\u20ac{tot_subsidie:,.0f}'),
+        ('Netto investering na subsidie', f'\u20ac{netto_min:,.0f}',       f'\u20ac{netto_max:,.0f}'),
+        ('Jaarlijkse besparing',          f'\u20ac{tot_besparing_min:,.0f}', f'\u20ac{tot_besparing_max:,.0f}'),
+        ('Terugverdientijd',              tvt_min_str,                     tvt_max_str),
+    ]
+
+    elems = [
+        _p('Totaalplaatje: alle maatregelen gecombineerd',
+           bold=True, kleur='5AAA00', pt='24', space_before=160, space_after=80),
+        _p('Als u alle aanbevolen maatregelen uitvoert, ontstaat het volgende totaalplaatje:',
+           kleur='1D1D1B', pt='22', space_after=120),
+        _maak_tabel(tabel_rijen),
+        _p('Combineer de ISDE-subsidie door de maatregelen te koppelen aan een warmtepomp of '
+           'zonneboiler \u2014 het subsidiebedrag wordt dan verdubbeld.',
+           kleur='2E7D32', pt='20', space_before=80, space_after=200),
+    ]
+
+    for i, elem in enumerate(elems):
+        body.insert(invoeg_idx + i, elem)
 
     doc.save(docx_pad)
 
@@ -1698,7 +1970,7 @@ def _verwijder_score_tabel(docx_pad: str) -> None:
     kinderen = list(parent)
     idx      = kinderen.index(tbl_elem)
 
-    # Verwijder lege alinea's direct vóór de tabel (max 5)
+    # Verwijder lege alinea's direct voor de tabel (max 5)
     voor = idx - 1
     verwijderd = 0
     while voor >= 0 and verwijderd < 5:
@@ -1716,7 +1988,7 @@ def _verwijder_score_tabel(docx_pad: str) -> None:
     parent.remove(tbl_elem)
     kinderen = list(parent)
 
-    # Verwijder lege alinea's direct ná de (verwijderde) tabelpositie (max 5)
+    # Verwijder lege alinea's direct na de (verwijderde) tabelpositie (max 5)
     na = idx
     verwijderd = 0
     while na < len(kinderen) and verwijderd < 5:
@@ -1772,7 +2044,7 @@ def fill_docx(template_path: str, output_path: str, data: dict, sv_foto_pad: str
         if sv_foto_pad and Path(sv_foto_pad).exists():
             _voeg_foto_in_docx_toe(tmp_dir, sv_foto_pad)
         elif sv_foto_pad is None:
-            # Geen foto beschikbaar — {{streetview}} placeholder stilletjes verwijderen
+            # Geen foto beschikbaar, {{streetview}} placeholder stilletjes verwijderen
             doc_pad = tmp_dir / "word" / "document.xml"
             doc = doc_pad.read_text(encoding="utf-8")
             import re
@@ -1806,10 +2078,11 @@ def fill_docx(template_path: str, output_path: str, data: dict, sv_foto_pad: str
         _stijl_woninggegevens_tabel(output_path)
         _verwijder_score_tabel(output_path)
         if advies:
+            _voeg_totaalplaatje_in(output_path, advies)
             _vervang_aanpak_sectie(output_path, advies)
-            _voeg_fysische_analyse_in(output_path, advies)
         else:
             _voeg_element_teksten_in(output_path, expanded, scores=scores)
+        _zet_page_break_voor_headings(output_path)
         adres_str = expanded.get("{{adres}}", "")
         datum_str = expanded.get("{{datum}}", "")
         _stijl_voorblad(output_path, adres_str, datum_str)

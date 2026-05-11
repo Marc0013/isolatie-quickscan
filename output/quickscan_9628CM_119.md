@@ -10,7 +10,7 @@ Dit rapport geeft u een eerste, onafhankelijk inzicht in de energetische kwalite
 
 **Adres:** Hoofdweg 119, 9628CM Siddeburen  
 **Datum rapport:** 13 maart 2026  
-**Bouwjaar (BAG):** 1934 — bouwperiode: voor 1975  
+**Bouwjaar (BAG):** 1934, bouwperiode: voor 1975  
 **Gebruiksoppervlakte (BAG):** 164 m²  
 **Energielabel:** A+  
 **Registratiedatum:** 22 januari 2025  

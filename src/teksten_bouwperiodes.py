@@ -17,11 +17,11 @@ from __future__ import annotations
 PERIODES: list[dict] = [
 
     # ──────────────────────────────────────────────────────────────────────────
-    # PERIODE 1 — vóór 1945 (Traditionele bouw)
+    # PERIODE 1 - voor 1945 (Traditionele bouw)
     # ──────────────────────────────────────────────────────────────────────────
     {
         "tot_en_met": 1945,
-        "label": "vóór 1945",
+        "label": "voor 1945",
         "naam": "Traditionele bouw",
         "focus": "schil",
         "inleiding_base": (
@@ -29,7 +29,7 @@ PERIODES: list[dict] = [
             "ontwerp. Kenmerkend zijn de houten begane grondvloeren en gevels die tot circa 1930 "
             "massief (steens) werden uitgevoerd of daarna voorzien zijn van een zeer beperkte, "
             "ongeïsoleerde luchtspouw. Isolatie ontbrak oorspronkelijk volledig, waardoor woningen "
-            "uit deze periode tot de meest energie-intensieve van Nederland behoren — maar ook tot "
+            "uit deze periode tot de meest energie-intensieve van Nederland behoren, maar ook tot "
             "de categorie met de grootste besparingspotentie."
         ),
         "maatregelen": [
@@ -46,7 +46,7 @@ PERIODES: list[dict] = [
             "Vocht en houtrot: deze woningen zijn vaak 'dampopen' gebouwd zonder spouw of met een "
             "zeer smalle spouw. Bij binnenisolatie daalt de temperatuur van de oorspronkelijke muur "
             "sterk, met condensatierisico als gevolg. Gebruik vochtregulerende folies (zoals Intello) "
-            "en dampopen materialen zoals houtvezel of vlas — vermijd volledig dampdichte plastics.",
+            "en dampopen materialen zoals houtvezel of vlas. Vermijd volledig dampdichte plastics.",
             "Balkkoppen: houten vloerbalken in de buitenmuur worden door binnenisolatie kouder en "
             "vochtiger. Dit leidt tot houtrot. Laat dit altijd vooraf beoordelen door een specialist.",
             "Dampdichte buitengevel: controleer of de gevel aan de buitenzijde niet dampdicht is "
@@ -69,7 +69,7 @@ PERIODES: list[dict] = [
     },
 
     # ──────────────────────────────────────────────────────────────────────────
-    # PERIODE 2 — 1946–1974 (Wederopbouw en vroege systeembouw)
+    # PERIODE 2 - 1946-1974 (Wederopbouw en vroege systeembouw)
     # ──────────────────────────────────────────────────────────────────────────
     {
         "tot_en_met": 1974,
@@ -95,22 +95,22 @@ PERIODES: list[dict] = [
             "voor een (hybride) warmtepomp.",
         ],
         "risicos": [
-            # 1946–1964: spouwvervuiling
-            "Spouwvervuiling (1946–1964): in de spouw bevindt zich vaak valspecie of puin. "
+            # 1946-1964: spouwvervuiling
+            "Spouwvervuiling (1946-1964): in de spouw bevindt zich vaak valspecie of puin. "
             "Bij na-isolatie fungeren deze resten als vochtbruggen naar de binnenmuur. "
             "Een endoscopisch onderzoek is essentieel: controleer of de spouw schoon is en "
             "minimaal 50 mm breed, en beoordeel de kwaliteit van de spouwankers.",
             "Kitwerk spouw: zorg dat naden tussen kozijnen en metselwerk aan de binnenzijde goed "
             "zijn afgekit met acrylaatkit (geen siliconen of PUR) om te voorkomen dat "
             "isolatiemateriaal de woning binnendringt.",
-            # 1965–1974: koudebruggen
-            "Koudebruggen (1965–1974): doorlopende betonvloeren of balkons fungeren als grote "
+            # 1965-1974: koudebruggen
+            "Koudebruggen (1965-1974): doorlopende betonvloeren of balkons fungeren als grote "
             "koudebruggen. Na spouwisolatie stijgt de muurtemperatuur, maar de koudebrug blijft "
             "koud. Als bewoners minder ventileren, concentreert schimmel zich op deze betonpunten. "
             "Spoor koudebruggen op met een thermische scan in de winter; let op roeststrepen boven "
             "ramen (stalen balken als koudebrug). Isoleer ernstige koudebruggen afzonderlijk "
             "met Aerogel-strips.",
-            "Verouderd dubbelglas: veel originele ramen zijn vervangen door glas uit de jaren 80–90 "
+            "Verouderd dubbelglas: veel originele ramen zijn vervangen door glas uit de jaren 80-90 "
             "dat inmiddels zijn isolatiewaarde heeft verloren en nauwelijks beter presteert "
             "dan enkel glas.",
         ],
@@ -123,13 +123,13 @@ PERIODES: list[dict] = [
             "Extra bonus van € 200 voor toestellen met A+++ energielabel.",
         ],
         "actie": (
-            "Prioriteer spouwisolatie en vloerisolatie — dit levert bij deze bouwperiode "
+            "Prioriteer spouwisolatie en vloerisolatie. Dit levert bij deze bouwperiode "
             "doorgaans de hoogste besparing per geïnvesteerde euro, met een korte terugverdientijd."
         ),
     },
 
     # ──────────────────────────────────────────────────────────────────────────
-    # PERIODE 3 — 1975–1991 (Eerste isolatienormen)
+    # PERIODE 3 - 1975-1991 (Eerste isolatienormen)
     # ──────────────────────────────────────────────────────────────────────────
     {
         "tot_en_met": 1991,
@@ -146,7 +146,7 @@ PERIODES: list[dict] = [
         "maatregelen": [
             "Schil-upgrade: bij-isoleer dak, gevel en vloer om de thermische weerstand te verhogen "
             "naar Rc 3,5 of hoger.",
-            "Beglazing: vervang verouderd dubbel glas (ouder dan 10–15 jaar) door "
+            "Beglazing: vervang verouderd dubbel glas (ouder dan 10 tot 15 jaar) door "
             "hoogrendementsglas om koudeval te elimineren.",
             "Koudebruggen: pak specifieke thermische lekken aan, zoals doorlopende betonvloeren "
             "bij balkons, met materialen zoals Aerogel.",
@@ -157,7 +157,7 @@ PERIODES: list[dict] = [
             "Het risico bij bij-isoleren aan de binnenzijde is dat vocht opgesloten raakt tussen "
             "de twee lagen. Breng dampremmende lagen altijd aan de warme binnenzijde aan.",
             "Verzakte isolatie: minerale wol uit deze periode kan zijn ingezakt of deels zijn "
-            "werking verloren hebben — met name in de spouw en kruipruimte. Controleer op koude "
+            "werking verloren hebben, met name in de spouw en kruipruimte. Controleer op koude "
             "plekken en schimmel op muren.",
             "Verouderd dubbelglas: controleer het jaartal in de strip van het glas. Glas ouder dan "
             "15 jaar fungeert soms nog maar als enkel glas.",
@@ -179,7 +179,7 @@ PERIODES: list[dict] = [
     },
 
     # ──────────────────────────────────────────────────────────────────────────
-    # PERIODE 4 — 1992–2014 (Moderne regelgeving en EPC)
+    # PERIODE 4 - 1992-2014 (Moderne regelgeving en EPC)
     # ──────────────────────────────────────────────────────────────────────────
     {
         "tot_en_met": 2014,
@@ -189,7 +189,7 @@ PERIODES: list[dict] = [
         "inleiding_base": (
             "Uw woning valt onder het Bouwbesluit van 1992, met latere aanscherpingen via de "
             "Energieprestatiecoëfficiënt (EPC). De schil is standaard voorzien van dakisolatie, "
-            "spouwvulling en mechanische ventilatie — een kwalitatief goede basis met Rc 2,5. "
+            "spouwvulling en mechanische ventilatie, een kwalitatief goede basis met Rc 2,5. "
             "De focus verschuift hier van basisisolatie naar het optimaliseren van systemen "
             "en het dichten van de laatste energielekken."
         ),
@@ -213,7 +213,7 @@ PERIODES: list[dict] = [
             "ook 'gratis' zonnewarmte tegen. Overweeg een CO2-indicator om de luchtkwaliteit "
             "na verduurzaming te monitoren.",
             "Sluipverbruik: inefficiënte instellingen van ventilatiesystemen zijn de grootste "
-            "verliesposten — onzichtbaar maar structureel aanwezig op de energierekening.",
+            "verliesposten, onzichtbaar maar structureel aanwezig op de energierekening.",
         ],
         "subsidies_periode": [
             "Woningen uit deze periode zijn al redelijk goed geïsoleerd (Rc ≥ 2,5). "
@@ -224,13 +224,13 @@ PERIODES: list[dict] = [
             "Extra bonus van € 200 voor toestellen met A+++ energielabel.",
         ],
         "actie": (
-            "Laat de ventilatie controleren en overweeg een warmtepomp of hybride systeem — "
-            "de schil is al op orde, de installatie is de volgende logische stap."
+            "Laat de ventilatie controleren en overweeg een warmtepomp of hybride systeem. "
+            "De schil is al op orde, de installatie is de volgende logische stap."
         ),
     },
 
     # ──────────────────────────────────────────────────────────────────────────
-    # PERIODE 5 — vanaf 2015 (Hoogwaardige bouw)
+    # PERIODE 5 - vanaf 2015 (Hoogwaardige bouw)
     # ──────────────────────────────────────────────────────────────────────────
     {
         "tot_en_met": 9999,
@@ -282,8 +282,8 @@ SUBSIDIE_NUANCES = [
     "Verdubbeling: de genoemde m²-bedragen gelden bij twee of meer maatregelen (of één "
     "isolatiemaatregel gecombineerd met een warmtepomp). Bij slechts één maatregel wordt "
     "het bedrag gehalveerd.",
-    "Beperkingen: u ontvangt slechts subsidie voor één type vloerisolatie (bodem óf vloer) "
-    "en één type dakisolatie (dak óf zoldervloer).",
+    "Beperkingen: u ontvangt slechts subsidie voor één type vloerisolatie (bodem of vloer) "
+    "en één type dakisolatie (dak of zoldervloer).",
     "Oppervlaktes: let op de minimale oppervlakte-eisen "
     "(bijv. minimaal 10 m² voor gevel en 20 m² voor dak/vloer).",
 ]
@@ -314,17 +314,17 @@ _LABEL_FOCUS: dict[str, str] = {
     "D":     "Isolatie van de schil (dak, gevel, vloer) levert hier de grootste besparing.",
     "E":     "Een grondige aanpak van de gebouwschil is dringend aan te raden.",
     "F":     "Urgente verbetering van de isolatieschil is noodzakelijk voor comfort en besparing.",
-    "G":     "Volledige schilrenovatie is het vertrekpunt — dit is een prioritaire aanpak.",
+    "G":     "Volledige schilrenovatie is het vertrekpunt. Dit is een prioritaire aanpak.",
 }
 
 _TYPE_CONTEXT: dict[str, str] = {
-    "vrijstaand":         "Als vrijstaande woning heeft u aan alle zijden warmteverlies — dak, gevel en vloer zijn alle vier relevant.",
+    "vrijstaand":         "Als vrijstaande woning heeft u aan alle zijden warmteverlies. Dak, gevel en vloer zijn alle vier relevant.",
     "twee-onder-een-kap": "Bij een twee-onder-een-kapwoning heeft u drie buitengevels; de gedeelde muur isoleert al van nature.",
-    "tussenwoning":       "Als tussenwoning heeft u twee gedeelde muren — warmteverlies gaat hier vooral via dak, vloer en voor/achtergevel.",
-    "rijwoning tussen":   "Als tussenwoning heeft u twee gedeelde muren — warmteverlies gaat hier vooral via dak, vloer en voor/achtergevel.",
+    "tussenwoning":       "Als tussenwoning heeft u twee gedeelde muren. Warmteverlies gaat hier vooral via dak, vloer en voor/achtergevel.",
+    "rijwoning tussen":   "Als tussenwoning heeft u twee gedeelde muren. Warmteverlies gaat hier vooral via dak, vloer en voor/achtergevel.",
     "hoekwoning":         "Als hoekwoning heeft u drie buitengevels en daarmee meer warmteverlies dan een tussenwoning.",
     "rijwoning hoek":     "Als hoekwoning heeft u drie buitengevels en daarmee meer warmteverlies dan een tussenwoning.",
-    "appartement":        "Bij een appartement is uw eigen schil beperkt — vloer, plafond en buitengevel(s) zijn het meest relevant.",
+    "appartement":        "Bij een appartement is uw eigen schil beperkt. Vloer, plafond en buitengevel(s) zijn het meest relevant.",
 }
 
 

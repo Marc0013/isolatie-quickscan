@@ -12,7 +12,7 @@ MAANDEN = [
 def _fmt_datum(s: Any) -> str:
     """Zet ISO-datumstring om naar leesbare Nederlandse notatie."""
     if not s:
-        return "—"
+        return "-"
     try:
         dt = datetime.fromisoformat(str(s).split("T")[0])
         return f"{dt.day} {MAANDEN[dt.month]} {dt.year}"
@@ -25,22 +25,22 @@ def bouwjaar_band(bouwjaar: int) -> str:
     if bouwjaar < 1975:
         return "voor 1975"
     if bouwjaar < 1992:
-        return "1975–1991"
+        return "1975-1991"
     if bouwjaar < 2006:
-        return "1992–2005"
+        return "1992-2005"
     if bouwjaar < 2015:
-        return "2006–2014"
+        return "2006-2014"
     return "2015+"
 
 
 def _dash(v: Any) -> str:
-    return "—" if v is None or v == "" else str(v)
+    return "-" if v is None or v == "" else str(v)
 
 
 def _fmt_num(v: Any, suffix: str = "", decimals: int = 2) -> str:
     if isinstance(v, (int, float)):
         return f"{v:.{decimals}f}{suffix}"
-    return "—"
+    return "-"
 
 
 def _label_strength(labelklasse: Optional[str]) -> Optional[str]:
@@ -65,12 +65,12 @@ def quickscan_scores(bouwjaar: int, label: Optional[dict[str, Any]]) -> dict[str
     base = {"dak": 3, "gevel": 3, "vloer": 3, "glas": 3}
     if band == "2015+":
         base = {"dak": 1, "gevel": 1, "vloer": 1, "glas": 1}
-    elif band == "2006–2014":
+    elif band == "2006-2014":
         base = {"dak": 2, "gevel": 2, "vloer": 2, "glas": 2}
     elif band == "voor 1975":
         base = {"dak": 4, "gevel": 4, "vloer": 4, "glas": 4}
 
-    # Correctie op label — harde bovengrens zodat label en score niet tegenspreken
+    # Correctie op label, harde bovengrens zodat label en score niet tegenspreken
     if label and label.get("labelklasse"):
         lk = str(label["labelklasse"]).upper().strip()
         if lk in ["A++++", "A+++", "A++"]:
@@ -136,14 +136,14 @@ def render_markdown(
     lines.append("")
 
     # ─────────────────────────────────────────────
-    # Samenvatting  (persoonlijk, max 4–5 zinnen)
+    # Samenvatting  (persoonlijk, max 4 tot 5 zinnen)
     # ─────────────────────────────────────────────
     if advies and advies.teksten.get("samenvatting"):
         lines.append(advies.teksten["samenvatting"])
         lines.append("")
 
     # ─────────────────────────────────────────────
-    # Interpretatie & context  (hoofdstuk 1 — inleiding op de data)
+    # Interpretatie & context  (hoofdstuk 1 - inleiding op de data)
     # ─────────────────────────────────────────────
     lines.append("## 1. Interpretatie en context")
     lines.append("")
@@ -156,10 +156,10 @@ def render_markdown(
     else:
         band = scan["band"]
         _band_tekst = {
-            "voor 1975": "gebouwd vóór 1975 met beperkte isolatie-eisen; dak, gevel, vloer en glas bieden doorgaans de grootste verbeterkansen.",
-            "1975–1991": "gebouwd in een periode met geleidelijk oplopende isolatie-eisen; er is vaak nog substantiële winst te behalen.",
-            "1992–2005": "gebouwd in een periode met oplopende energieprestatie-eisen; er is vaak nog winst via schil- en detailverbetering.",
-            "2006–2014": "gebouwd in een periode met duidelijke energieprestatie-eisen; de basis is vaak redelijk, gerichte optimalisaties leveren het meest op.",
+            "voor 1975": "gebouwd voor 1975 met beperkte isolatie-eisen; dak, gevel, vloer en glas bieden doorgaans de grootste verbeterkansen.",
+            "1975-1991": "gebouwd in een periode met geleidelijk oplopende isolatie-eisen; er is vaak nog substantiële winst te behalen.",
+            "1992-2005": "gebouwd in een periode met oplopende energieprestatie-eisen; er is vaak nog winst via schil- en detailverbetering.",
+            "2006-2014": "gebouwd in een periode met duidelijke energieprestatie-eisen; de basis is vaak redelijk, gerichte optimalisaties leveren het meest op.",
             "2015+": "relatief recent gebouwd met goede isolatie als basis; grootschalige maatregelen leveren beperkt extra rendement, maar detailverbetering kan comfort verhogen.",
         }
         lines.append(f"De woning is {_band_tekst.get(band, 'gebouwd in een periode met variabele isolatienormen.')}")
@@ -176,7 +176,7 @@ def render_markdown(
             )
 
     # ─────────────────────────────────────────────
-    # Woninggegevens  (hoofdstuk 2 — feiten uit registraties)
+    # Woninggegevens  (hoofdstuk 2 - feiten uit registraties)
     # ─────────────────────────────────────────────
     lines.append("")
     lines.append("## 2. Woninggegevens")
@@ -185,13 +185,13 @@ def render_markdown(
     lines.append(f"**Datum rapport:** {today_nl}  ")
     if woningtype:
         lines.append(f"**Woningtype:** {woningtype}  ")
-    lines.append(f"**Bouwjaar (BAG):** {bouwjaar} — bouwperiode: {scan['band']}  ")
+    lines.append(f"**Bouwjaar (BAG):** {bouwjaar}, bouwperiode: {scan['band']}  ")
 
     if opp_m2 is not None:
         lines.append(f"**Gebruiksoppervlakte (BAG):** {opp_m2} m²  ")
 
     if label:
-        lk = label.get("labelklasse") or "—"
+        lk = label.get("labelklasse") or "-"
         reg_datum = _fmt_datum(label.get("registratiedatum"))
         geldig_tot = _fmt_datum(label.get("geldig_tot"))
         eb = label.get("energiebehoefte")
@@ -203,15 +203,15 @@ def render_markdown(
         lines.append(f"**Geldig tot:** {geldig_tot}  ")
         lines.append(
             f"**Energiebehoefte:** "
-            f"{f'{eb:.1f} kWh/m².jr' if isinstance(eb, (int, float)) else '—'}  "
+            f"{f'{eb:.1f} kWh/m².jr' if isinstance(eb, (int, float)) else '-'}  "
         )
         lines.append(
             f"**Warmtebehoefte:** "
-            f"{f'{wb:.1f} kWh/m².jr' if isinstance(wb, (int, float)) else '—'}  "
+            f"{f'{wb:.1f} kWh/m².jr' if isinstance(wb, (int, float)) else '-'}  "
         )
         lines.append(
             f"**Gebruiksoppervlakte thermische zone:** "
-            f"{f'{tz:.0f} m²' if isinstance(tz, (int, float)) else '—'}"
+            f"{f'{tz:.0f} m²' if isinstance(tz, (int, float)) else '-'}"
         )
     else:
         lines.append("**Energielabel:** niet gevonden of niet gekoppeld")
@@ -246,7 +246,7 @@ def render_markdown(
         if narrative:
             tekst = narrative.get(f"element_tekst_{k}", "")
             if tekst:
-                lines.append(f"**Score {v}/5 — {score_label}**  ")
+                lines.append(f"**Score {v}/5, {score_label}**  ")
                 lines.append(tekst)
                 lines.append("")
 
@@ -257,6 +257,8 @@ def render_markdown(
     # ─────────────────────────────────────────────
     # Aanbevolen maatregelen (op situatie gebaseerd)
     # ─────────────────────────────────────────────
+    lines.append("")
+    lines.append("## 4. Aanbevolen maatregelen")
     lines.append("")
     lines.append(
         "Op basis van bouwjaar, woningtype en geregistreerde prestaties zijn de volgende "
@@ -289,17 +291,41 @@ def render_markdown(
         )
 
     # ─────────────────────────────────────────────
-    # Bouwfysische analyse (oppervlaktes, besparing, TVT per element)
+    # Totaalplaatje: alle maatregelen gecombineerd
     # ─────────────────────────────────────────────
-    if advies and advies.teksten.get("fysische_analyse"):
+    if advies and len(advies.prioriteiten) >= 2:
+        prio = advies.prioriteiten
+        tot_kosten_min  = sum(p.kosten_min  for p in prio)
+        tot_kosten_max  = sum(p.kosten_max  for p in prio)
+        tot_besparing_min = sum(p.besparing_min for p in prio)
+        tot_besparing_max = sum(p.besparing_max for p in prio)
+        tot_subsidie    = advies.subsidie_totaal_indicatie
+        netto_min = max(0.0, tot_kosten_min - tot_subsidie)
+        netto_max = max(0.0, tot_kosten_max - tot_subsidie)
+        tvt_min = round(netto_min / tot_besparing_max) if tot_besparing_max > 0 else None
+        tvt_max = round(netto_max / tot_besparing_min) if tot_besparing_min > 0 else None
+
+        lines.append("")
+        lines.append("### Totaalplaatje: alle maatregelen gecombineerd")
         lines.append("")
         lines.append(
-            "Onderstaande technische situatie is gebaseerd op de geschatte oppervlaktes "
-            "van uw woning en de indicatieve isolatiewaarden voor uw bouwperiode "
-            "(bron: ISSO 82.1, NEN 1068)."
+            "Als u alle aanbevolen maatregelen uitvoert, ontstaat het volgende totaalplaatje:"
         )
         lines.append("")
-        lines.append(advies.teksten["fysische_analyse"])
+        lines.append("| | Min | Max |")
+        lines.append("|---|---|---|")
+        lines.append(f"| **Totale investering** | €{tot_kosten_min:,.0f} | €{tot_kosten_max:,.0f} |")
+        lines.append(f"| **ISDE-subsidie (indicatief)** | - | €{tot_subsidie:,.0f} |")
+        lines.append(f"| **Netto investering na subsidie** | €{netto_min:,.0f} | €{netto_max:,.0f} |")
+        lines.append(f"| **Jaarlijkse besparing** | €{tot_besparing_min:,.0f} | €{tot_besparing_max:,.0f} |")
+        if tvt_min is not None and tvt_max is not None:
+            lines.append(f"| **Terugverdientijd** | {tvt_min} jaar | {tvt_max} jaar |")
+        lines.append("")
+        lines.append(
+            "_Combineer de ISDE-subsidie door de maatregelen te koppelen aan de installatie "
+            "van een warmtepomp of zonneboiler. Het subsidiebedrag wordt dan verdubbeld._"
+        )
+        lines.append("")
 
     # ─────────────────────────────────────────────
     # Subsidies (persoonlijk berekend als advies beschikbaar)
@@ -311,8 +337,8 @@ def render_markdown(
     if advies and advies.teksten.get("subsidie_indicatie_tekst"):
         lines.append(advies.teksten["subsidie_indicatie_tekst"])
         lines.append("")
-        lines.append("- **Nationaal Warmtefonds** — lening tegen lage rente voor woningeigenaren die de investering willen spreiden")
-        lines.append("- **Gemeentelijke subsidie** — verschilt per gemeente; raadpleeg uw gemeente of www.pandiq.nl/subsidie")
+        lines.append("- **Nationaal Warmtefonds**: lening tegen lage rente voor woningeigenaren die de investering willen spreiden")
+        lines.append("- **Gemeentelijke subsidie**: verschilt per gemeente; raadpleeg uw gemeente of www.pandiq.nl/subsidie")
     else:
         # Fallback: generieke tabel
         lines.append("| Subsidie | Bedrag | Voor wie |")
@@ -347,23 +373,25 @@ def render_markdown(
     lines.append("")
     lines.append("## 6. Vervolgstappen")
     lines.append("")
+    lines.append("**Laat geen besparing liggen.**")
+    lines.append("")
     lines.append(
-        "Dit rapport is bedoeld als startpunt. Door aanvullende informatie of foto’s toe te voegen "
-        "kan de analyse worden aangescherpt en kan worden bepaald welke maatregelen "
-        "daadwerkelijk technisch en financieel passend zijn voor uw woning."
+        "Controleer dit rapport en ontdek welke stappen u nu kunt zetten om uw woonlasten "
+        "te verlagen en uw comfort te verbeteren."
+    )
+    lines.append("")
+    lines.append("Via het PandIQ-dashboard krijgt u vrijblijvend:")
+    lines.append("")
+    lines.append(
+        "- offertes op maat\n"
+        "- subsidie-inzicht en aanvraag\n"
+        "- mogelijkheden voor financiering\n"
+        "- inzicht in lagere energiekosten"
     )
     lines.append("")
     lines.append(
-        "- Upload foto’s van dak, gevel, glas, installaties en kruipruimte\n"
-        "- Bevestig woningtype en eventuele renovatiejaren\n"
-        "- Gebruik dit rapport als basis voor offerte- of adviesgesprekken"
+        "Start vandaag en haal meer uit uw woning, zonder verplichtingen."
     )
-
-    if advies:
-        lines.append("")
-        lines.append(f"**{advies.cta_primair}**")
-        lines.append("")
-        lines.append(f"_{advies.cta_secondair}_")
 
     # ─────────────────────────────────────────────
     # Disclaimer
