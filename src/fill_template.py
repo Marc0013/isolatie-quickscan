@@ -348,15 +348,39 @@ def _maak_seed_rij_gevuld(seed_rij_xml, cel_teksten: list):
         # Verwijder alle bestaande runs
         for r in para.findall(f'{W}r'):
             para.remove(r)
-        # Voeg één nieuwe run toe
-        r = etree.SubElement(para, f'{W}r')
+        # Maak een tijdelijke bronrun om _maak_runs_markdown te voeden
+        bron = etree.Element(f'{W}r')
         if rPr is not None:
-            r.insert(0, rPr)
-        t = etree.SubElement(r, f'{W}t')
-        t.text = str(tekst)
-        if str(tekst).startswith(' ') or str(tekst).endswith(' '):
-            t.set('{http://www.w3.org/XML/1998/namespace}space', 'preserve')
+            bron.insert(0, deepcopy(rPr))
+        for r in _maak_runs_markdown(str(tekst), bron):
+            para.append(r)
     return nieuwe_rij
+
+
+def _voeg_seed_list_in(docx_pad: str, seed_items: dict) -> None:
+    """
+    Vult seed-rij tabellen met lijstitems.
+    seed_items: {marker: [[kolom1, kolom2, ...], ...]}
+    Elke rij is een lijst van celinhouden (strings, mag **bold** bevatten).
+    Doet niets voor markers die niet in het document voorkomen.
+    """
+    try:
+        from docx import Document
+    except ImportError:
+        return
+    if not seed_items:
+        return
+    doc = Document(docx_pad)
+    gewijzigd = False
+    for marker, rijen in seed_items.items():
+        if not rijen:
+            continue
+        # Zorg dat elke rij een lijst is (niet gewoon een string)
+        data_rijen = [[r] if isinstance(r, str) else list(r) for r in rijen]
+        if _vul_seed_tabel(doc, marker, data_rijen):
+            gewijzigd = True
+    if gewijzigd:
+        doc.save(docx_pad)
 
 
 def _vul_seed_tabel(doc, marker: str, data_rijen: list) -> bool:
@@ -2155,7 +2179,7 @@ def _voeg_totaalplaatje_via_seed(docx_pad: str, advies) -> None:
         doc.save(docx_pad)
 
 
-def fill_docx(template_path: str, output_path: str, data: dict, sv_foto_pad: str | None = None, bouwjaar: int | None = None, scores: dict | None = None, advies=None):
+def fill_docx(template_path: str, output_path: str, data: dict, sv_foto_pad: str | None = None, bouwjaar: int | None = None, scores: dict | None = None, advies=None, seed_items: dict | None = None):
     """
     Vult alle {{plaatshouders}} in en voegt optioneel een Street View foto in.
     Als sv_foto_pad None is of het invoegen mislukt, gaat het rapport gewoon door zonder foto.
@@ -2230,6 +2254,9 @@ def fill_docx(template_path: str, output_path: str, data: dict, sv_foto_pad: str
         # Totaalplaatje via seed-rij (vereist ##TOTAALPLAATJE_SEED## marker in template)
         if advies:
             _voeg_totaalplaatje_via_seed(output_path, advies)
+        # Lijstdata via seed-rijen (risico's, vervolgstappen, etc.)
+        if seed_items:
+            _voeg_seed_list_in(output_path, seed_items)
         print(f"OK: Opgeslagen: {output_path}")
 
     finally:

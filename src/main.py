@@ -72,6 +72,143 @@ def _strip_md(text: str) -> str:
     text = re.sub(r'`(.+?)`', r'\1', text)           # `code` → tekst
     return text
 
+def _eur(v) -> str:
+    """Formatteert een getal als euro-bedrag (€ 1.234)."""
+    return f"\u20ac\u202f{round(v):,}".replace(",", ".")
+
+def _tvt(netto, besparing) -> str:
+    """Berekent terugverdientijd in jaren, of '-' als niet berekend."""
+    if besparing and besparing > 0:
+        return f"{round(netto / besparing)} jaar"
+    return "-"
+
+def _totaalplaatje_placeholders(advies) -> dict:
+    """
+    Berekent totaalplaatje-waarden (totaal én per element) als {{placeholders}}.
+    Elementen: dak, gevel, vloer, glas.
+    Alle waarden zijn '-' als er geen adviesdata beschikbaar is.
+
+    Totaal:
+      {{tp_invest_min}}  {{tp_invest_max}}
+      {{tp_subsidie}}
+      {{tp_netto_min}}   {{tp_netto_max}}
+      {{tp_besparing_min}} {{tp_besparing_max}}
+      {{tp_tvt_min}}     {{tp_tvt_max}}
+
+    Per element (vervang [el] door dak / gevel / vloer / glas):
+      {{tp_[el]_maatregel}}    naam van de maatregel
+      {{tp_[el]_opp}}          geschatte oppervlakte in m²
+      {{tp_[el]_subsidie}}     ISDE subsidie indicatie
+      {{tp_[el]_invest_min}}   {{tp_[el]_invest_max}}
+      {{tp_[el]_besparing_min}} {{tp_[el]_besparing_max}}
+      {{tp_[el]_tvt_min}}      {{tp_[el]_tvt_max}}
+    """
+    ELEMENTEN = ["dak", "gevel", "vloer", "glas"]
+
+    # Lege defaults voor alle placeholders (totaal + per element)
+    leeg: dict = {
+        "{{tp_invest_min}}":    "-", "{{tp_invest_max}}":    "-",
+        "{{tp_subsidie}}":      "-",
+        "{{tp_netto_min}}":     "-", "{{tp_netto_max}}":     "-",
+        "{{tp_besparing_min}}": "-", "{{tp_besparing_max}}": "-",
+        "{{tp_tvt_min}}":       "-", "{{tp_tvt_max}}":       "-",
+    }
+    for el in ELEMENTEN:
+        leeg.update({
+            f"{{{{tp_{el}_maatregel}}}}":     "-",
+            f"{{{{tp_{el}_opp}}}}":           "-",
+            f"{{{{tp_{el}_subsidie}}}}":      "-",
+            f"{{{{tp_{el}_invest_min}}}}":    "-",
+            f"{{{{tp_{el}_invest_max}}}}":    "-",
+            f"{{{{tp_{el}_besparing_min}}}}": "-",
+            f"{{{{tp_{el}_besparing_max}}}}": "-",
+            f"{{{{tp_{el}_tvt_min}}}}":       "-",
+            f"{{{{tp_{el}_tvt_max}}}}":       "-",
+        })
+
+    if not advies or not advies.prioriteiten:
+        return leeg
+
+    prio     = advies.prioriteiten
+    inv_min  = sum(p.kosten_min    for p in prio)
+    inv_max  = sum(p.kosten_max    for p in prio)
+    bes_min  = sum(p.besparing_min for p in prio)
+    bes_max  = sum(p.besparing_max for p in prio)
+    subsidie = advies.subsidie_totaal_indicatie
+    netto_min = max(0.0, inv_min - subsidie)
+    netto_max = max(0.0, inv_max - subsidie)
+
+    result = {
+        "{{tp_invest_min}}":    _eur(inv_min),
+        "{{tp_invest_max}}":    _eur(inv_max),
+        "{{tp_subsidie}}":      _eur(subsidie),
+        "{{tp_netto_min}}":     _eur(netto_min),
+        "{{tp_netto_max}}":     _eur(netto_max),
+        "{{tp_besparing_min}}": _eur(bes_min),
+        "{{tp_besparing_max}}": _eur(bes_max),
+        "{{tp_tvt_min}}":       _tvt(netto_min, bes_max),
+        "{{tp_tvt_max}}":       _tvt(netto_max, bes_min),
+    }
+
+    # Per element — lege defaults alvast in result, dan overschrijven indien data aanwezig
+    prio_per_el = {p.element: p for p in prio}
+    for el in ELEMENTEN:
+        el_leeg = {
+            f"{{{{tp_{el}_maatregel}}}}":     "-",
+            f"{{{{tp_{el}_opp}}}}":           "-",
+            f"{{{{tp_{el}_subsidie}}}}":      "-",
+            f"{{{{tp_{el}_invest_min}}}}":    "-",
+            f"{{{{tp_{el}_invest_max}}}}":    "-",
+            f"{{{{tp_{el}_besparing_min}}}}": "-",
+            f"{{{{tp_{el}_besparing_max}}}}": "-",
+            f"{{{{tp_{el}_tvt_min}}}}":       "-",
+            f"{{{{tp_{el}_tvt_max}}}}":       "-",
+        }
+        p = prio_per_el.get(el)
+        if p is None:
+            result.update(el_leeg)
+            continue
+        netto_el_min = max(0.0, p.kosten_min - p.subsidie_max)
+        netto_el_max = max(0.0, p.kosten_max - p.subsidie_max)
+        result.update({
+            f"{{{{tp_{el}_maatregel}}}}":     p.maatregel_naam,
+            f"{{{{tp_{el}_opp}}}}":           f"ca. {p.opp_indicatief:.0f} m²" if p.opp_indicatief > 0 else "-",
+            f"{{{{tp_{el}_subsidie}}}}":      _eur(p.subsidie_max),
+            f"{{{{tp_{el}_invest_min}}}}":    _eur(p.kosten_min),
+            f"{{{{tp_{el}_invest_max}}}}":    _eur(p.kosten_max),
+            f"{{{{tp_{el}_besparing_min}}}}": _eur(p.besparing_min),
+            f"{{{{tp_{el}_besparing_max}}}}": _eur(p.besparing_max),
+            f"{{{{tp_{el}_tvt_min}}}}":       _tvt(netto_el_min, p.besparing_max),
+            f"{{{{tp_{el}_tvt_max}}}}":       _tvt(netto_el_max, p.besparing_min),
+        })
+
+    return result
+
+
+def _parse_bullets(tekst: str) -> list:
+    """
+    Splits een markdown bullet-list (- item) in losse items.
+    Strips het leading '- ' teken en plattet sub-regels.
+    Behoudt **bold** markers zodat fill_xml ze als bold kan renderen.
+    """
+    import re
+    if not tekst:
+        return []
+    # Splits op '- ' aan het begin van een regel
+    delen = re.split(r'(?:^|\n)\s*-\s+', tekst)
+    items = []
+    for deel in delen:
+        schoon = deel.strip()
+        if not schoon:
+            continue
+        # Plattet inspring-regels (sub-tekst begint met spaties of _)
+        schoon = re.sub(r'\n\s+', ' ', schoon)
+        # Verwijder _italic_ markers maar bewaar de tekst
+        schoon = re.sub(r'_(.+?)_', r'\1', schoon)
+        items.append(schoon)
+    return items
+
+
 def _find_ghostscript() -> str | None:
     """Zoekt Ghostscript op Windows en Unix. Geeft pad terug of None."""
     import glob as _glob, subprocess as _sp
@@ -243,14 +380,14 @@ def main(postcode: str, huisnummer: str, toevoeging: Optional[str] = None, huisl
             ),
             "{{narrative_energie}}":     _strip_md(narrative.get("energie", "") if narrative else ""),
             "{{ narrative_energie }}":   _strip_md(narrative.get("energie", "") if narrative else ""),
-            # Persoonlijke maatregelen met kosten/besparing/TVT; fallback naar generieke aanpak
-            "{{narrative_aanpak}}":      _strip_md(
+            # Persoonlijke maatregelen — geen _strip_md zodat **bold** bewaard blijft
+            "{{narrative_aanpak}}":      (
                 advies.teksten.get("prioriteiten_tekst", "") if advies
-                else (narrative.get("aanpak", "") if narrative else "")
+                else _strip_md(narrative.get("aanpak", "") if narrative else "")
             ),
-            "{{ narrative_aanpak }}":    _strip_md(
+            "{{ narrative_aanpak }}":    (
                 advies.teksten.get("prioriteiten_tekst", "") if advies
-                else (narrative.get("aanpak", "") if narrative else "")
+                else _strip_md(narrative.get("aanpak", "") if narrative else "")
             ),
             "{{narrative_bouwperiode}}": _strip_md(narrative.get("bouwperiode_inleiding", "") if narrative else ""),
             # Scores
@@ -281,6 +418,8 @@ def main(postcode: str, huisnummer: str, toevoeging: Optional[str] = None, huisl
             "{{vervolgstappen}}":        _strip_md(narrative.get("vervolgstappen_blok", "") if narrative else ""),
             # Streetview: altijd leeg als er geen foto is
             "{{streetview}}":            "",
+            # Totaalplaatje: losse placeholders per tabelcel
+            **_totaalplaatje_placeholders(advies),
         }
         docx_out = outdir / f"quickscan_{postcode}_{hnr_suffix}.docx"
         # Sla Street View foto tijdelijk op als het beschikbaar is
@@ -289,7 +428,12 @@ def main(postcode: str, huisnummer: str, toevoeging: Optional[str] = None, huisl
             sv_pad = outdir / f"streetview_{postcode}_{hnr_suffix}.jpg"
             sv_pad.write_bytes(sv_foto)
 
-        fill_docx(str(template_path), str(docx_out), docx_data, sv_foto_pad=str(sv_pad) if sv_pad else None, bouwjaar=bouwjaar, scores=scan.get("scores"), advies=advies)
+        seed_items = {
+            "##RISICOS_SEED##": _parse_bullets(
+                narrative.get("risicos", "") if narrative else ""
+            ),
+        }
+        fill_docx(str(template_path), str(docx_out), docx_data, sv_foto_pad=str(sv_pad) if sv_pad else None, bouwjaar=bouwjaar, scores=scan.get("scores"), advies=advies, seed_items=seed_items)
 
         # Tijdelijk Street View bestand opruimen
         if sv_pad and sv_pad.exists():
