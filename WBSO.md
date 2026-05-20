@@ -99,6 +99,40 @@ Het technisch knelpunt zit in het combineren van meerdere heterogene databronnen
 
 ---
 
+### FASE 7 - Rapportage template herontwerp (scheiding opmaak en data)
+**Bestanden:** `templates/Template_rapportage_quickscan.docx`, `src/fill_template.py`, `src/main.py`
+
+| Activiteit | Technische uitdaging |
+|---|---|
+| Template als enige bron van opmaak | Redesign van `Template_rapportage_quickscan.docx` zodat alle huisstijl (kop/voettekst, sectieopmaak, kleurgebruik, voorblad) volledig in het Word-template zit; code levert uitsluitend data |
+| Placeholder-architectuur `{{dubbele accolades}}` | `fill_template.py` vervangt alle `{{placeholder}}`-varianten (met en zonder spaties) in de XML van het docx-bestand via directe string-substitutie; geen externe template-engine nodig |
+| Totaalplaatje verplaatst naar na de losse bouwdelen | `report.py`: blok met min/max investeringstabel verplaatst van vóór naar ná sectie 4 (prioriteiten per bouwdeel), zodat samenvatting na details staat |
+| Verificatie volledige placeholder-dekking | Controle dat alle `{{placeholders}}` uit het nieuw ontworpen template gedekt worden door `docx_data` in `main.py`; geen onvervulde placeholders in output |
+
+---
+
+### FASE 8 - Aanpak gevelisolatie: altijd voorzetwanden
+**Bestanden:** `advisor.py`, `fill_template.py`, `teksten_bouwperiodes.py`
+
+| Activiteit | Technische uitdaging |
+|---|---|
+| Maatregel-label gevel gewijzigd | "Gevelisolatie (buiten/binnen)" vervangen door "Voorzetwanden (binnenisolatie)" in adviseur en template-invulling; keuze-presentatie aan eindgebruiker vereenvoudigd |
+| Maatregel-tekst periode 1 (voor 1946) | Verwijzing naar buitenzijde-isolatie verwijderd; aanpak beschrijft nu uitsluitend voorzetwand als standaard aanpak bij massieve muren |
+
+---
+
+### FASE 9 - Totaalplaatje + per-element placeholders: min / gemiddeld / max
+**Bestanden:** `src/fill_template.py`
+
+| Activiteit | Technische uitdaging |
+|---|---|
+| Driekoloms scenario-tabel totaalplaatje | Uitbreiding van de min/max-tabel in het totaalplaatje naar drie scenario's (worst case, gemiddeld, best case); logica voor 'gemiddeld' als rekenkundig gemiddelde van de bandbreedtes |
+| Automatische tabeluitbreiding van 3→4 kolommen | `_expand_seed_tabel_naar_4_kolommen()`: zoekt de seed-tabel in het Word-document via de marker, breidt de XML uit (tblGrid + elke rij) zonder templatewijziging; seed-rij kloont kolomopmaak automatisch |
+| Kolomkop-update via XML | `_update_kolomkoppen_totaalplaatje()`: overschrijft de tekst in de koptekstrij boven de seed-rij programmatisch ("Worst case", "Gemiddeld", "Best case"); behoudt bestaande Word-opmaak van de koprij |
+| Gemiddeld-placeholders per element | Uitbreiding van `_totaalplaatje_placeholders()` in `main.py` met `_gem` varianten voor investering, besparing en terugverdientijd — zowel totaal als per element (dak/gevel/vloer/glas); gemiddelde berekend als rekenkundig gemiddelde van min en max |
+
+---
+
 ## Nog te ontwikkelen (geplande S&O)
 
 - Rc-waarden en U-waarden gebruiken in de scoringslogica (nu nog op bouwjaar-band)

@@ -1740,8 +1740,12 @@ def _voeg_totaalplaatje_in(docx_pad: str, advies) -> None:
     tot_subsidie      = advies.subsidie_totaal_indicatie
     netto_min = max(0.0, tot_kosten_min - tot_subsidie)
     netto_max = max(0.0, tot_kosten_max - tot_subsidie)
-    tvt_min = round(netto_min / tot_besparing_max) if tot_besparing_max > 0 else None
-    tvt_max = round(netto_max / tot_besparing_min) if tot_besparing_min > 0 else None
+    tot_kosten_avg    = round((tot_kosten_min + tot_kosten_max) / 2)
+    tot_besparing_avg = round((tot_besparing_min + tot_besparing_max) / 2)
+    netto_avg         = max(0.0, tot_kosten_avg - tot_subsidie)
+    tvt_worst = round(netto_max / tot_besparing_min) if tot_besparing_min > 0 else None
+    tvt_avg   = round(netto_avg / tot_besparing_avg) if tot_besparing_avg > 0 else None
+    tvt_best  = round(netto_min / tot_besparing_max) if tot_besparing_max > 0 else None
 
     doc  = Document(docx_pad)
     body = doc.element.body
@@ -1785,7 +1789,7 @@ def _voeg_totaalplaatje_in(docx_pad: str, advies) -> None:
         return p
 
     def _maak_tabel(rijen: list[tuple]) -> OxmlElement:
-        """Bouwt een 3-kolom Word-tabel: (label, min_tekst, max_tekst)."""
+        """Bouwt een 4-kolom Word-tabel: (label, worst_case, gemiddeld, best_case)."""
         tbl  = OxmlElement('w:tbl')
         tblPr = OxmlElement('w:tblPr')
         tblW  = OxmlElement('w:tblW')
@@ -1802,21 +1806,21 @@ def _voeg_totaalplaatje_in(docx_pad: str, advies) -> None:
             tblBorders.append(b)
         tblPr.append(tblBorders)
         tbl.append(tblPr)
-        # Kolombreedtes: 5040 | 2160 | 2160 twips
+        # Kolombreedtes: 4320 | 1680 | 1680 | 1680 twips (= 9360 totaal)
         tblGrid = OxmlElement('w:tblGrid')
-        for breedte in (5040, 2160, 2160):
+        for breedte in (4320, 1680, 1680, 1680):
             gc = OxmlElement('w:gridCol'); gc.set(qn('w:w'), str(breedte)); tblGrid.append(gc)
         tbl.append(tblGrid)
 
         GROEN = '5AAA00'
         WIT   = 'FFFFFF'
 
-        for rij_idx, (label, min_val, max_val) in enumerate(rijen):
+        for rij_idx, (label, worst_val, avg_val, best_val) in enumerate(rijen):
             tr = OxmlElement('w:tr')
             is_header = rij_idx == 0
             achtergrond = GROEN if is_header else ('F5F5F5' if rij_idx % 2 == 0 else WIT)
             tekst_kleur = WIT if is_header else '1D1D1B'
-            for cel_tekst, breedte in ((label, 5040), (min_val, 2160), (max_val, 2160)):
+            for cel_tekst, breedte in ((label, 4320), (worst_val, 1680), (avg_val, 1680), (best_val, 1680)):
                 tc   = OxmlElement('w:tc')
                 tcPr = OxmlElement('w:tcPr')
                 tcW  = OxmlElement('w:tcW')
@@ -1849,16 +1853,18 @@ def _voeg_totaalplaatje_in(docx_pad: str, advies) -> None:
             tbl.append(tr)
         return tbl
 
-    tvt_min_str = f'{tvt_min} jaar' if tvt_min is not None else '-'
-    tvt_max_str = f'{tvt_max} jaar' if tvt_max is not None else '-'
+    tvt_worst_str = f'{tvt_worst} jaar' if tvt_worst is not None else '-'
+    tvt_avg_str   = f'{tvt_avg} jaar'   if tvt_avg   is not None else '-'
+    tvt_best_str  = f'{tvt_best} jaar'  if tvt_best  is not None else '-'
 
+    # worst case = hoge kosten + lage besparing; best case = omgekeerd
     tabel_rijen = [
-        ('', 'Min', 'Max'),
-        ('Totale investering',            f'\u20ac{tot_kosten_min:,.0f}',  f'\u20ac{tot_kosten_max:,.0f}'),
-        ('ISDE-subsidie (indicatief)',     '\u2014',                        f'\u20ac{tot_subsidie:,.0f}'),
-        ('Netto investering na subsidie', f'\u20ac{netto_min:,.0f}',       f'\u20ac{netto_max:,.0f}'),
-        ('Jaarlijkse besparing',          f'\u20ac{tot_besparing_min:,.0f}', f'\u20ac{tot_besparing_max:,.0f}'),
-        ('Terugverdientijd',              tvt_min_str,                     tvt_max_str),
+        ('',                              'Worst case',                       'Gemiddeld',                        'Best case'),
+        ('Totale investering',            f'\u20ac{tot_kosten_max:,.0f}',     f'\u20ac{tot_kosten_avg:,.0f}',     f'\u20ac{tot_kosten_min:,.0f}'),
+        ('ISDE-subsidie (indicatief)',    f'\u20ac{tot_subsidie:,.0f}',       f'\u20ac{tot_subsidie:,.0f}',       f'\u20ac{tot_subsidie:,.0f}'),
+        ('Netto investering na subsidie', f'\u20ac{netto_max:,.0f}',          f'\u20ac{netto_avg:,.0f}',          f'\u20ac{netto_min:,.0f}'),
+        ('Jaarlijkse besparing',          f'\u20ac{tot_besparing_min:,.0f}',  f'\u20ac{tot_besparing_avg:,.0f}',  f'\u20ac{tot_besparing_max:,.0f}'),
+        ('Terugverdientijd',              tvt_worst_str,                      tvt_avg_str,                        tvt_best_str),
     ]
 
     elems = [
@@ -1983,7 +1989,7 @@ def _voeg_fysische_analyse_in(docx_pad: str, advies) -> None:
     ELEMENT_NAAM = {
         "dak":   "Dak",
         "vloer": "Vloer",
-        "gevel": "Gevelisolatie (buiten/binnen)",
+        "gevel": "Voorzetwanden (binnenisolatie)",
         "spouw": "Spouwmuurisolatie",
     }
 
@@ -2136,11 +2142,78 @@ def _verwijder_score_tabel(docx_pad: str) -> None:
     doc.save(docx_pad)
 
 
+def _expand_seed_tabel_naar_4_kolommen(doc, marker: str) -> None:
+    """
+    Zoekt de tabel met 'marker' en breidt hem uit van 3 naar 4 kolommen
+    (kolomkop + data). Doet niets als de tabel al ≥4 kolommen heeft.
+    De extra cel wordt gekopieerd van de laatste cel in elke rij.
+    """
+    from copy import deepcopy
+    W_TAG = f'{{{NS}}}'
+    for tabel in doc.tables:
+        for rij in tabel.rows:
+            for cel in rij.cells:
+                if marker in cel.text:
+                    tbl_el = tabel._tbl
+                    alle_rijen = tbl_el.findall(f'{W_TAG}tr')
+                    if not alle_rijen:
+                        return
+                    eerste_cellen = alle_rijen[0].findall(f'{W_TAG}tc')
+                    if len(eerste_cellen) >= 4:
+                        return  # al 4 kolommen
+                    # Voeg extra cel toe aan elke rij
+                    for tr in alle_rijen:
+                        tcs = tr.findall(f'{W_TAG}tc')
+                        if tcs:
+                            nieuwe_tc = deepcopy(tcs[-1])
+                            for t in nieuwe_tc.findall(f'.//{W_TAG}t'):
+                                t.text = ''
+                            tr.append(nieuwe_tc)
+                    # Breidt tblGrid uit
+                    tbl_grid = tbl_el.find(f'{W_TAG}tblGrid')
+                    if tbl_grid is not None:
+                        cols = tbl_grid.findall(f'{W_TAG}gridCol')
+                        if cols:
+                            tbl_grid.append(deepcopy(cols[-1]))
+                    return
+
+
+def _update_kolomkoppen_totaalplaatje(doc, marker: str) -> None:
+    """
+    Vervangt de tekst in de koptekstrij van de totaalplaatje-tabel.
+    Zoekt de rij bóven de seed-rij en overschrijft cellen 1, 2, 3
+    met 'Worst case', 'Gemiddeld', 'Best case'.
+    """
+    W_TAG = f'{{{NS}}}'
+    for tabel in doc.tables:
+        alle_rijen = tabel.rows
+        for rij_idx, rij in enumerate(alle_rijen):
+            for cel in rij.cells:
+                if marker in cel.text:
+                    if rij_idx == 0:
+                        return  # geen rij erboven
+                    kop_rij = alle_rijen[rij_idx - 1]
+                    labels = ['', 'Worst case', 'Gemiddeld', 'Best case']
+                    for cel_idx, cel_kop in enumerate(kop_rij.cells):
+                        if cel_idx >= len(labels):
+                            break
+                        # Bewaar opmaak; vervang alleen tekst
+                        for para in cel_kop.paragraphs:
+                            for run in para.runs:
+                                run.text = ''
+                            if para.runs:
+                                para.runs[0].text = labels[cel_idx]
+                            else:
+                                para.text = labels[cel_idx]
+                    return
+
+
 def _voeg_totaalplaatje_via_seed(docx_pad: str, advies) -> None:
     """
     Vult een tabel met ##TOTAALPLAATJE_SEED## in de template met gecombineerde
-    investering/subsidie/besparing/TVT data. Doet niets als marker niet gevonden.
-    De tabel en stijl worden volledig bepaald door de template.
+    investering/subsidie/besparing/TVT data als worst case / gemiddeld / best case.
+    Breidt de tabel automatisch uit van 3 naar 4 kolommen als nodig.
+    Doet niets als marker niet gevonden.
     """
     if not advies or len(advies.prioriteiten) < 2:
         return
@@ -2158,6 +2231,10 @@ def _voeg_totaalplaatje_via_seed(docx_pad: str, advies) -> None:
     netto_min = max(0.0, tot_min - subsidie)
     netto_max = max(0.0, tot_max - subsidie)
 
+    tot_avg   = round((tot_min + tot_max) / 2)
+    bes_avg   = round((bes_min + bes_max) / 2)
+    netto_avg = max(0.0, tot_avg - subsidie)
+
     def _eur(v):
         return f"\u20ac\u202f{round(v):,}".replace(",", ".")
 
@@ -2166,15 +2243,18 @@ def _voeg_totaalplaatje_via_seed(docx_pad: str, advies) -> None:
             return f"{round(netto / besparing)} jaar"
         return "-"
 
+    # worst case = hoge kosten + lage besparing; best case = omgekeerd
     data_rijen = [
-        ["Totale investering",   _eur(tot_min),    _eur(tot_max)],
-        ["ISDE-subsidie",        f"tot {_eur(subsidie)}", ""],
-        ["Netto investering",    _eur(netto_min),  _eur(netto_max)],
-        ["Jaarlijkse besparing", _eur(bes_min),    _eur(bes_max)],
-        ["Terugverdientijd",     _tvt(netto_min, bes_max), _tvt(netto_max, bes_min)],
+        ["Totale investering",   _eur(tot_max),             _eur(tot_avg),             _eur(tot_min)],
+        ["ISDE-subsidie",        _eur(subsidie),            _eur(subsidie),            _eur(subsidie)],
+        ["Netto investering",    _eur(netto_max),           _eur(netto_avg),           _eur(netto_min)],
+        ["Jaarlijkse besparing", _eur(bes_min),             _eur(bes_avg),             _eur(bes_max)],
+        ["Terugverdientijd",     _tvt(netto_max, bes_min),  _tvt(netto_avg, bes_avg),  _tvt(netto_min, bes_max)],
     ]
 
     doc = Document(docx_pad)
+    _expand_seed_tabel_naar_4_kolommen(doc, "##TOTAALPLAATJE_SEED##")
+    _update_kolomkoppen_totaalplaatje(doc, "##TOTAALPLAATJE_SEED##")
     if _vul_seed_tabel(doc, "##TOTAALPLAATJE_SEED##", data_rijen):
         doc.save(docx_pad)
 

@@ -89,29 +89,29 @@ def _totaalplaatje_placeholders(advies) -> dict:
     Alle waarden zijn '-' als er geen adviesdata beschikbaar is.
 
     Totaal:
-      {{tp_invest_min}}  {{tp_invest_max}}
+      {{tp_invest_min}}    {{tp_invest_gem}}    {{tp_invest_max}}
       {{tp_subsidie}}
-      {{tp_netto_min}}   {{tp_netto_max}}
-      {{tp_besparing_min}} {{tp_besparing_max}}
-      {{tp_tvt_min}}     {{tp_tvt_max}}
+      {{tp_netto_min}}     {{tp_netto_gem}}     {{tp_netto_max}}
+      {{tp_besparing_min}} {{tp_besparing_gem}} {{tp_besparing_max}}
+      {{tp_tvt_min}}       {{tp_tvt_gem}}       {{tp_tvt_max}}
 
     Per element (vervang [el] door dak / gevel / vloer / glas):
-      {{tp_[el]_maatregel}}    naam van de maatregel
-      {{tp_[el]_opp}}          geschatte oppervlakte in m²
-      {{tp_[el]_subsidie}}     ISDE subsidie indicatie
-      {{tp_[el]_invest_min}}   {{tp_[el]_invest_max}}
-      {{tp_[el]_besparing_min}} {{tp_[el]_besparing_max}}
-      {{tp_[el]_tvt_min}}      {{tp_[el]_tvt_max}}
+      {{tp_[el]_maatregel}}     naam van de maatregel
+      {{tp_[el]_opp}}           geschatte oppervlakte in m²
+      {{tp_[el]_subsidie}}      ISDE subsidie indicatie (enkelvoudig tarief)
+      {{tp_[el]_invest_min}}    {{tp_[el]_invest_gem}}    {{tp_[el]_invest_max}}
+      {{tp_[el]_besparing_min}} {{tp_[el]_besparing_gem}} {{tp_[el]_besparing_max}}
+      {{tp_[el]_tvt_min}}       {{tp_[el]_tvt_gem}}       {{tp_[el]_tvt_max}}
     """
     ELEMENTEN = ["dak", "gevel", "vloer", "glas"]
 
     # Lege defaults voor alle placeholders (totaal + per element)
     leeg: dict = {
-        "{{tp_invest_min}}":    "-", "{{tp_invest_max}}":    "-",
+        "{{tp_invest_min}}":    "-", "{{tp_invest_gem}}":    "-", "{{tp_invest_max}}":    "-",
         "{{tp_subsidie}}":      "-",
-        "{{tp_netto_min}}":     "-", "{{tp_netto_max}}":     "-",
-        "{{tp_besparing_min}}": "-", "{{tp_besparing_max}}": "-",
-        "{{tp_tvt_min}}":       "-", "{{tp_tvt_max}}":       "-",
+        "{{tp_netto_min}}":     "-", "{{tp_netto_gem}}":     "-", "{{tp_netto_max}}":     "-",
+        "{{tp_besparing_min}}": "-", "{{tp_besparing_gem}}": "-", "{{tp_besparing_max}}": "-",
+        "{{tp_tvt_min}}":       "-", "{{tp_tvt_gem}}":       "-", "{{tp_tvt_max}}":       "-",
     }
     for el in ELEMENTEN:
         leeg.update({
@@ -119,34 +119,44 @@ def _totaalplaatje_placeholders(advies) -> dict:
             f"{{{{tp_{el}_opp}}}}":           "-",
             f"{{{{tp_{el}_subsidie}}}}":      "-",
             f"{{{{tp_{el}_invest_min}}}}":    "-",
+            f"{{{{tp_{el}_invest_gem}}}}":    "-",
             f"{{{{tp_{el}_invest_max}}}}":    "-",
             f"{{{{tp_{el}_besparing_min}}}}": "-",
+            f"{{{{tp_{el}_besparing_gem}}}}": "-",
             f"{{{{tp_{el}_besparing_max}}}}": "-",
             f"{{{{tp_{el}_tvt_min}}}}":       "-",
+            f"{{{{tp_{el}_tvt_gem}}}}":       "-",
             f"{{{{tp_{el}_tvt_max}}}}":       "-",
         })
 
     if not advies or not advies.prioriteiten:
         return leeg
 
-    prio     = advies.prioriteiten
-    inv_min  = sum(p.kosten_min    for p in prio)
-    inv_max  = sum(p.kosten_max    for p in prio)
-    bes_min  = sum(p.besparing_min for p in prio)
-    bes_max  = sum(p.besparing_max for p in prio)
-    subsidie = advies.subsidie_totaal_indicatie
+    prio      = advies.prioriteiten
+    inv_min   = sum(p.kosten_min    for p in prio)
+    inv_max   = sum(p.kosten_max    for p in prio)
+    bes_min   = sum(p.besparing_min for p in prio)
+    bes_max   = sum(p.besparing_max for p in prio)
+    subsidie  = advies.subsidie_totaal_indicatie
     netto_min = max(0.0, inv_min - subsidie)
     netto_max = max(0.0, inv_max - subsidie)
+    inv_gem   = round((inv_min + inv_max) / 2)
+    bes_gem   = round((bes_min + bes_max) / 2)
+    netto_gem = max(0.0, inv_gem - subsidie)
 
     result = {
         "{{tp_invest_min}}":    _eur(inv_min),
+        "{{tp_invest_gem}}":    _eur(inv_gem),
         "{{tp_invest_max}}":    _eur(inv_max),
         "{{tp_subsidie}}":      _eur(subsidie),
         "{{tp_netto_min}}":     _eur(netto_min),
+        "{{tp_netto_gem}}":     _eur(netto_gem),
         "{{tp_netto_max}}":     _eur(netto_max),
         "{{tp_besparing_min}}": _eur(bes_min),
+        "{{tp_besparing_gem}}": _eur(bes_gem),
         "{{tp_besparing_max}}": _eur(bes_max),
         "{{tp_tvt_min}}":       _tvt(netto_min, bes_max),
+        "{{tp_tvt_gem}}":       _tvt(netto_gem, bes_gem),
         "{{tp_tvt_max}}":       _tvt(netto_max, bes_min),
     }
 
@@ -158,10 +168,13 @@ def _totaalplaatje_placeholders(advies) -> dict:
             f"{{{{tp_{el}_opp}}}}":           "-",
             f"{{{{tp_{el}_subsidie}}}}":      "-",
             f"{{{{tp_{el}_invest_min}}}}":    "-",
+            f"{{{{tp_{el}_invest_gem}}}}":    "-",
             f"{{{{tp_{el}_invest_max}}}}":    "-",
             f"{{{{tp_{el}_besparing_min}}}}": "-",
+            f"{{{{tp_{el}_besparing_gem}}}}": "-",
             f"{{{{tp_{el}_besparing_max}}}}": "-",
             f"{{{{tp_{el}_tvt_min}}}}":       "-",
+            f"{{{{tp_{el}_tvt_gem}}}}":       "-",
             f"{{{{tp_{el}_tvt_max}}}}":       "-",
         }
         p = prio_per_el.get(el)
@@ -170,15 +183,21 @@ def _totaalplaatje_placeholders(advies) -> dict:
             continue
         netto_el_min = max(0.0, p.kosten_min - p.subsidie_max)
         netto_el_max = max(0.0, p.kosten_max - p.subsidie_max)
+        invest_gem   = round((p.kosten_min + p.kosten_max) / 2)
+        besparing_gem = round((p.besparing_min + p.besparing_max) / 2)
+        netto_el_gem = max(0.0, invest_gem - p.subsidie_max)
         result.update({
             f"{{{{tp_{el}_maatregel}}}}":     p.maatregel_naam,
             f"{{{{tp_{el}_opp}}}}":           f"ca. {p.opp_indicatief:.0f} m²" if p.opp_indicatief > 0 else "-",
             f"{{{{tp_{el}_subsidie}}}}":      _eur(p.subsidie_max),
             f"{{{{tp_{el}_invest_min}}}}":    _eur(p.kosten_min),
+            f"{{{{tp_{el}_invest_gem}}}}":    _eur(invest_gem),
             f"{{{{tp_{el}_invest_max}}}}":    _eur(p.kosten_max),
             f"{{{{tp_{el}_besparing_min}}}}": _eur(p.besparing_min),
+            f"{{{{tp_{el}_besparing_gem}}}}": _eur(besparing_gem),
             f"{{{{tp_{el}_besparing_max}}}}": _eur(p.besparing_max),
             f"{{{{tp_{el}_tvt_min}}}}":       _tvt(netto_el_min, p.besparing_max),
+            f"{{{{tp_{el}_tvt_gem}}}}":       _tvt(netto_el_gem, besparing_gem),
             f"{{{{tp_{el}_tvt_max}}}}":       _tvt(netto_el_max, p.besparing_min),
         })
 
