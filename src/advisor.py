@@ -450,7 +450,7 @@ def _bouw_fysische_analyse(
     ELEMENT_NAAM: dict[str, str] = {
         "dak":   "Dak",
         "vloer": "Vloer",
-        "gevel": "Gevelisolatie (buiten/binnen)",
+        "gevel": "Voorzetwanden (binnenisolatie)",
         "spouw": "Spouwmuurisolatie",
     }
 

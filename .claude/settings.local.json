@@ -13,7 +13,21 @@
       "Bash(python main.py 9746CR 107 --woningtype tussenwoning)",
       "Bash(python src/main.py 9746CR 107 --woningtype tussenwoning)",
       "Bash(python main.py 8501BR 25 --woningtype tussenwoning)",
-      "Bash(python src/main.py 8501BR 25 --woningtype tussenwoning)"
+      "Bash(python src/main.py 8501BR 25 --woningtype tussenwoning)",
+      "Read(//c/Users/info/OneDrive/Documents/Ontwikkeling website/Tools en templates/isolatie-quickscan/$USERPROFILE/Downloads/**)",
+      "Read(//c/Users/info/OneDrive/Documents/Ontwikkeling website/Tools en templates/isolatie-quickscan/$USERPROFILE/**)",
+      "Bash(mkdir -p \"$USERPROFILE/.claude/skills/zuinig-bouwen\")",
+      "Bash(cp \"$USERPROFILE/Downloads/zuinig-bouwen/zuinig-bouwen/SKILL.md\" \"$USERPROFILE/.claude/skills/zuinig-bouwen/SKILL.md\")",
+      "Bash(npm --version)",
+      "Bash(mkdir -p \"C:/Users/info/OneDrive/Documents/Ontwikkeling website/Tools en templates/isolatie-quickscan/scripts\")",
+      "Bash(npm init:*)",
+      "Bash(npm install:*)",
+      "Bash(node generate_quickscan.js)",
+      "Bash(node --check generate_quickscan.js)",
+      "Bash(node -e \"const d=require\\(''docx''\\); console.log\\(Object.keys\\(d\\).filter\\(k=>k.toLowerCase\\(\\).includes\\(''height''\\)||k.toLowerCase\\(\\).includes\\(''rule''\\)\\)\\)\")",
+      "Bash(\"C:/Users/info/OneDrive/Documents/Ontwikkeling website/Tools:*)",
+      "Bash(python:*)",
+      "Bash(node create_cover_template.js)"
     ]
   }
 }

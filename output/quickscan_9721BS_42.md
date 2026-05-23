@@ -1,6 +1,6 @@
 ---
 pagetitle: "Helper Weststraat 42, 9721BS Groningen"
-date: "4 mei 2026"
+date: "20 mei 2026"
 lang: nl
 ---
 
@@ -23,8 +23,7 @@ De bovenstaande aanbevelingen zijn indicatief op basis van registratiedata. Maat
 ## 2. Woninggegevens
 
 **Adres:** Helper Weststraat 42, 9721BS Groningen  
-**Datum rapport:** 4 mei 2026  
-**Woningtype:** appartement  
+**Datum rapport:** 20 mei 2026  
 **Bouwjaar (BAG):** 1933, bouwperiode: voor 1975  
 **Gebruiksoppervlakte (BAG):** 66 m²  
 **Energielabel:** D  
@@ -42,28 +41,28 @@ De onderstaande scores geven een indicatie van het verwachte verbeterpotentieel 
 
 ### Dak
 
-**Score 4/5. Slecht**  
+**Score 4/5, Slecht**  
 Dakisolatie houdt opstijgende warme lucht binnen de woning vast en is daarmee een van de meest effectieve energiemaatregelen. Een slecht geïsoleerd dak is verantwoordelijk voor een groot deel van het totale warmteverlies.
 
 Uw dak is niet of gering geïsoleerd, maar onvoldoende dik voor de huidige normen. Er is nog aanzienlijk warmteverlies via de kap. Opschalen naar een hogere Rc-waarde verbetert het binnenklimaat op de bovenverdieping en verlaagt de stookkosten.
 
 ### Gevel
 
-**Score 4/5. Slecht**  
+**Score 4/5, Slecht**  
 Gevelisolatie brengt een thermische laag aan in de spouw of tegen de muren om warmteverlies te beperken. Zonder isolatie ontsnapt warmte via het metselwerk en koelen binnenmuren af.
 
 De huidige gevelisolatie is er niet of onvoldoende waardoor de verwarmingsinstallatie harder werkt dan nodig is. Bijzetten naar een hogere Rc-waarde zorgt voor minder energieverlies, een lagere warmtevraag en verbetert het binnenklimaat.
 
 ### Vloer
 
-**Score 4/5. Slecht**  
+**Score 4/5, Slecht**  
 Vloerisolatie vormt een barrière tussen de warme leefruimte en de koude grond of kruipruimte. Het stopt warmteverlies via de onderzijde en gaat optrekkend vocht uit de kruipruimte tegen.
 
 De huidige vloerisolatie is onvoldoende, waardoor er nog warmteverlies via de onderkant optreedt en de kruipruimte invloed heeft op het binnenklimaat. Vervangen van de isolatie naar een hogere Rc verlaagt het verlies en verhoogt het wooncomfort.
 
 ### Glas
 
-**Score 4/5. Slecht**  
+**Score 4/5, Slecht**  
 Isolerend glas vervangt enkel of verouderd dubbel glas door ruiten met een warmtereflecterende coating die warmte binnenhoudt en koudeval bij de ramen voorkomt. Ramen zijn de zwakste plekken in de isolatieschil van een woning.
 
 Het aanwezige enkel of oud dubbel glas is verouderd of lek en presteert niet meer als bij aanleg. Vervangen door nieuwe HR++ ruiten verbetert het binnenklimaat direct en elimineert koude luchtstromen langs de ramen.
@@ -73,6 +72,48 @@ Heeft u al verbeteringen uitgevoerd of wilt u dit aanpakken en nog een stap verd
 Denk aan het toepassen van zonnepanelen, het overstappen naar een (hybride) warmtepomp en het verbeteren van uw verwarmingssysteem. In combinatie met goede ventilatie zorgt dit voor een comfortabel en gezond binnenklimaat. Ook batterijopslag kan interessant zijn om energie tijdelijk op te slaan.
 
 Door isolatie en installaties slim te combineren, werkt u stap voor stap toe naar een woning die klaar is voor een toekomst met minder of geen aardgas.
+
+
+## 4. Aanbevolen maatregelen
+
+Op basis van bouwjaar, woningtype en geregistreerde prestaties zijn de volgende maatregelen het meest logisch om nader te onderzoeken:
+
+**1. Gevel, score 4/5 (Slecht), Hoge urgentie**
+
+Aanbevolen maatregel: Gevelisolatie
+Geschatte oppervlakte: ca. 18 m²
+
+Indicatieve besparing: €284 tot €384 per jaar
+Indicatieve investering: €3,238 tot €4,255
+ISDE-subsidie indicatie: tot €375
+
+Terugverdientijd na subsidie: circa 8 tot 14 jaar
+
+
+**2. Glas, score 4/5 (Slecht), Hoge urgentie**
+
+Aanbevolen maatregel: HR++ dubbelglas
+Geschatte oppervlakte: ca. 4 m²
+
+Indicatieve besparing: €162 tot €219 per jaar
+Indicatieve investering: €320 tot €600
+ISDE-subsidie indicatie: tot €50
+
+Terugverdientijd na subsidie: circa 1 tot 3 jaar
+
+
+**3. Vloer, score 4/5 (Slecht), Hoge urgentie**
+
+Aanbevolen maatregel: Vloerisolatie
+Geschatte oppervlakte: ca. 28 m²
+
+Indicatieve besparing: €122 tot €165 per jaar
+Indicatieve investering: €609 tot €831
+ISDE-subsidie indicatie: tot €152
+
+Terugverdientijd na subsidie: circa 3 tot 6 jaar
+
+
 
 ### Totaalplaatje: alle maatregelen gecombineerd
 
@@ -86,48 +127,7 @@ Als u alle aanbevolen maatregelen uitvoert, ontstaat het volgende totaalplaatje:
 | **Jaarlijkse besparing** | €568 | €768 |
 | **Terugverdientijd** | 5 jaar | 9 jaar |
 
-_Combineer de ISDE-subsidie door de maatregelen te koppelen aan de installatie van een warmtepomp of zonneboiler, het subsidiebedrag wordt dan verdubbeld._
-
-
-## 4. Aanbevolen maatregelen
-
-Op basis van bouwjaar, woningtype en geregistreerde prestaties zijn de volgende maatregelen het meest logisch om nader te onderzoeken:
-
-**1. Gevel, score 4/5 (Slecht). Hoge urgentie**
-
-Aanbevolen maatregel: Gevelisolatie
-Geschatte oppervlakte: ca. 18 m²
-
-Indicatieve besparing: €284-€384 per jaar
-Indicatieve investering: €3,238-€4,255
-ISDE-subsidie indicatie: tot €375
-
-Terugverdientijd na subsidie: circa 8-14 jaar
-
-
-**2. Glas, score 4/5 (Slecht). Hoge urgentie**
-
-Aanbevolen maatregel: HR++ dubbelglas
-Geschatte oppervlakte: ca. 4 m²
-
-Indicatieve besparing: €162-€219 per jaar
-Indicatieve investering: €320-€600
-ISDE-subsidie indicatie: tot €50
-
-Terugverdientijd na subsidie: circa 1-3 jaar
-
-
-**3. Vloer, score 4/5 (Slecht). Hoge urgentie**
-
-Aanbevolen maatregel: Vloerisolatie
-Geschatte oppervlakte: ca. 28 m²
-
-Indicatieve besparing: €122-€165 per jaar
-Indicatieve investering: €609-€831
-ISDE-subsidie indicatie: tot €152
-
-Terugverdientijd na subsidie: circa 3-6 jaar
-
+_Combineer de ISDE-subsidie door de maatregelen te koppelen aan de installatie van een warmtepomp of zonneboiler. Het subsidiebedrag wordt dan verdubbeld._
 
 
 ## 5. Mogelijk relevante subsidies
@@ -148,19 +148,17 @@ Daarnaast: ISDE warmtepomp, startbedrag €1,025 + €225 per kW + €200 bonus 
 
 _Subsidie-indicaties zijn berekend op basis van geschatte oppervlaktes. Definitieve bedragen worden vastgesteld na technische inspectie. Bereken uw exacte bedrag op www.pandiq.nl/subsidie._
 
-- **Nationaal Warmtefonds**, lening tegen lage rente voor woningeigenaren die de investering willen spreiden
-- **Gemeentelijke subsidie**, verschilt per gemeente; raadpleeg uw gemeente of www.pandiq.nl/subsidie
+- **Nationaal Warmtefonds**: lening tegen lage rente voor woningeigenaren die de investering willen spreiden
+- **Gemeentelijke subsidie**: verschilt per gemeente; raadpleeg uw gemeente of www.pandiq.nl/subsidie
 
 Exacte bedragen en voorwaarden wijzigen regelmatig. Controleer de actuele regelingen via www.pandiq.nl/subsidie.
 
-- **Let op** (installatie): Appartement: voor plaatsing van een warmtepomp of buitenunit is doorgaans toestemming van de VvE (Vereniging van Eigenaren) vereist.  
-  _Controleer de VvE-statuten en vraag schriftelijke toestemming aan voor het indienen van de subsidieaanvraag._
 - **Aandachtspunt** (gevel): Bouwjaar 1933 < 1975: bij binnenisolatie van gevels bestaat risico op condensatie en schimmelvorming ter plaatse van balkkoppen.  
   _Laat een bouwfysisch advies uitvoeren voor toepassing van binnenisolatie. Let op dampopen uitvoering en detaillering van balkkoppen en aansluitingen._
 - **Let op** (dak, vloer, gevel): Energielabel is recent (geregistreerd 2035) maar de indicatieve Rc-waarde voor dak, vloer, gevel is laag op basis van het bouwjaar.  
   _Controleer of er al isolatie is aangebracht die niet in het bouwjaar is verwerkt. Vraag de EPA-maatwerkrapportage op via RVO._
 
-- Vocht en houtrot: deze woningen zijn vaak 'dampopen' gebouwd zonder spouw of met een zeer smalle spouw. Bij binnenisolatie daalt de temperatuur van de oorspronkelijke muur sterk, met condensatierisico als gevolg. Gebruik vochtregulerende folies (zoals Intello) en dampopen materialen zoals houtvezel of vlas, vermijd volledig dampdichte plastics.
+- Vocht en houtrot: deze woningen zijn vaak 'dampopen' gebouwd zonder spouw of met een zeer smalle spouw. Bij binnenisolatie daalt de temperatuur van de oorspronkelijke muur sterk, met condensatierisico als gevolg. Gebruik vochtregulerende folies (zoals Intello) en dampopen materialen zoals houtvezel of vlas. Vermijd volledig dampdichte plastics.
 - Balkkoppen: houten vloerbalken in de buitenmuur worden door binnenisolatie kouder en vochtiger. Dit leidt tot houtrot. Laat dit altijd vooraf beoordelen door een specialist.
 - Dampdichte buitengevel: controleer of de gevel aan de buitenzijde niet dampdicht is (geglazuurde steen of latexverf), want dan kan vocht niet naar buiten uitdampen.
 - Binnenklimaat: kieren dichten zonder nieuw ventilatiesysteem maakt de lucht snel vochtig en ongezond. Luchtdichting en gecontroleerde ventilatie moeten samen worden aangepakt.
@@ -182,6 +180,6 @@ Via het PandIQ-dashboard krijgt u vrijblijvend:
 - mogelijkheden voor financiering
 - inzicht in lagere energiekosten
 
-👉 Start vandaag en haal meer uit uw woning, zonder verplichtingen.
+Start vandaag en haal meer uit uw woning, zonder verplichtingen.
 
 > Disclaimer: dit rapport is indicatief en gebaseerd op registraties en aannames. Aan dit document kunnen geen rechten worden ontleend. Uitvoering vereist altijd verificatie op locatie en controle van actuele regelgeving.

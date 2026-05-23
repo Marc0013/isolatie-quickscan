@@ -33,7 +33,7 @@ PERIODES: list[dict] = [
             "de categorie met de grootste besparingspotentie."
         ),
         "maatregelen": [
-            "Gevel: isoleer de binnenzijde of buitenzijde bij massieve muren, "
+            "Gevel: breng een voorzetwand (binnenisolatie) aan bij massieve muren, "
             "of na-isoleer de spouw indien deze aanwezig en schoon is.",
             "Dak: breng volledige isolatie aan, aangezien de oorspronkelijke waarde nagenoeg nul is.",
             "Vloer: isoleer de houten vloer of de bodem van de kruipruimte "

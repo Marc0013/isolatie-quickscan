@@ -1,0 +1,73 @@
+<svg width="680" height="960" viewBox="0 0 680 960" xmlns="http://www.w3.org/2000/svg">
+
+  <rect width="680" height="960" fill="#FAFAF5"/>
+  <rect width="680" height="560" fill="#F2F5E8"/>
+  <rect x="40" y="40" width="600" height="3" fill="#D4E84A"/>
+
+  <text x="52" y="96" font-family="Arial" font-weight="700" font-size="38" fill="#1A1A1A">PandIQ</text>
+  <text x="226" y="96" font-family="Arial" font-weight="300" font-size="24" fill="#888888">WONEN</text>
+  <text x="628" y="72" font-family="Arial" font-size="11" fill="#AAAAAA" text-anchor="end">Isolatie Quickscan</text>
+  <text x="628" y="90" font-family="Arial" font-size="11" fill="#AAAAAA" text-anchor="end">Energierapport verduurzaming</text>
+
+  <!-- Street View placeholder -->
+  <rect x="40" y="120" width="600" height="418" rx="4" fill="#E8EDD5"/>
+  <rect x="40" y="120" width="600" height="418" rx="4" fill="none" stroke="#D4E84A" stroke-width="2" stroke-dasharray="8,5"/>
+
+  <!-- Camera icon (hand-drawn, simple) -->
+  <rect x="296" y="264" width="88" height="66" rx="6" fill="none" stroke="#9EBF6A" stroke-width="2.5"/>
+  <circle cx="340" cy="297" r="18" fill="none" stroke="#9EBF6A" stroke-width="2.5"/>
+  <circle cx="340" cy="297" r="10" fill="#9EBF6A" opacity="0.25"/>
+  <rect x="312" y="256" width="26" height="12" rx="4" fill="none" stroke="#9EBF6A" stroke-width="2"/>
+  <circle cx="370" cy="270" r="4" fill="#9EBF6A" opacity="0.5"/>
+
+  <text x="340" y="366" font-family="Arial" font-weight="700" font-size="15" fill="#7A9A50" text-anchor="middle">Foto pand</text>
+  <text x="340" y="388" font-family="Arial" font-size="13" fill="#AAAAAA" text-anchor="middle">Google Street View</text>
+  <text x="340" y="408" font-family="Arial" font-size="12" fill="#BBBBBB" text-anchor="middle">Helper Weststraat 42, Groningen</text>
+
+  <!-- Adres tag linksonder in de foto -->
+  <rect x="52" y="494" width="260" height="32" rx="4" fill="#1A1A1A" opacity="0.65"/>
+  <text x="64" y="515" font-family="Arial" font-size="12" fill="#FFFFFF">Helper Weststraat 42  ·  9721BS Groningen</text>
+
+  <!-- Google Maps pin -->
+  <circle cx="284" cy="148" r="12" fill="#D4E84A"/>
+  <path d="M284 142 C280 142 276 145.5 276 150 C276 156 284 162 284 162 C284 162 292 156 292 150 C292 145.5 288 142 284 142 Z" fill="#5A8A30"/>
+  <circle cx="284" cy="150" r="3.5" fill="#FAFAF5"/>
+
+  <rect width="680" height="4" y="556" fill="#D4E84A"/>
+  <rect width="680" height="400" y="560" fill="#FFFFFF"/>
+
+  <rect x="52" y="600" width="576" height="1" fill="#EEEEEE"/>
+
+  <text x="52" y="650" font-family="Arial" font-weight="700" font-size="24" fill="#1A1A1A">Helper Weststraat 42</text>
+  <text x="52" y="676" font-family="Arial" font-size="15" fill="#888888">9721BS Groningen  ·  4 mei 2026</text>
+
+  <rect x="52" y="700" width="576" height="1" fill="#EEEEEE"/>
+
+  <!-- Data cards -->
+  <rect x="52"  y="720" width="130" height="70" rx="6" fill="#F7FAF0"/>
+  <text x="117" y="744" font-family="Arial" font-size="11" fill="#888888" text-anchor="middle">Energielabel</text>
+  <rect x="92"  y="752" width="50"  height="26" rx="4" fill="#FFC107"/>
+  <text x="117" y="771" font-family="Arial" font-weight="700" font-size="18" fill="#FFFFFF" text-anchor="middle">D</text>
+
+  <rect x="194" y="720" width="130" height="70" rx="6" fill="#F7FAF0"/>
+  <text x="259" y="744" font-family="Arial" font-size="11" fill="#888888" text-anchor="middle">Bouwjaar</text>
+  <text x="259" y="772" font-family="Arial" font-weight="700" font-size="22" fill="#1A1A1A" text-anchor="middle">1933</text>
+
+  <rect x="336" y="720" width="130" height="70" rx="6" fill="#F7FAF0"/>
+  <text x="401" y="744" font-family="Arial" font-size="11" fill="#888888" text-anchor="middle">Warmtebehoefte</text>
+  <text x="401" y="762" font-family="Arial" font-weight="700" font-size="17" fill="#1A1A1A" text-anchor="middle">177 kWh</text>
+  <text x="401" y="779" font-family="Arial" font-size="11" fill="#888888" text-anchor="middle">per m²/jaar</text>
+
+  <rect x="478" y="720" width="150" height="70" rx="6" fill="#D4E84A"/>
+  <text x="553" y="744" font-family="Arial" font-size="11" fill="#3A3A3A" text-anchor="middle">ISDE-subsidie</text>
+  <text x="553" y="766" font-family="Arial" font-weight="700" font-size="22" fill="#1A1A1A" text-anchor="middle">tot €577</text>
+  <text x="553" y="782" font-family="Arial" font-size="10" fill="#555555" text-anchor="middle">indicatief</text>
+
+  <rect x="52" y="810" width="576" height="1" fill="#EEEEEE"/>
+
+  <text x="52" y="846" font-family="Arial" font-size="13" fill="#AAAAAA">Appartement  ·  66 m²  ·  Voor 1975</text>
+  <text x="52" y="866" font-family="Arial" font-size="12" fill="#CCCCCC">Indicatief rapport op basis van openbare registraties (BAG &amp; EP-Online)</text>
+  <text x="52" y="886" font-family="Arial" font-size="12" fill="#CCCCCC">Aan dit rapport kunnen geen rechten worden ontleend</text>
+
+  <text x="628" y="940" font-family="Arial" font-weight="700" font-size="14" fill="#D4E84A" text-anchor="end">pandiq.nl</text>
+</svg>
